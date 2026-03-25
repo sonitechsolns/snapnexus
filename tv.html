@@ -1,44 +1,46 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>SnapNexus | Live TV</title>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <style>
-        body { background: #000; margin: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; }
-        #display { width: 100%; height: 100%; background: center / contain no-repeat; transition: 1s ease-in-out; }
-        .info { position: absolute; bottom: 30px; left: 30px; font-family: sans-serif; color: white; background: rgba(0,0,0,0.5); padding: 20px; border-radius: 10px; }
-    </style>
-</head>
-<body>
-    <div id="display"></div>
-    <div class="info">
-        <h1 style="color:#38bdf8; margin:0;">SnapNexus Live</h1>
-        <p>Send your photos now!</p>
-    </div>
+<script>
+    const S_URL = 'https://yaxajpojbssrrdycuzeo.supabase.co';
+    const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnRjYXl1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U'; 
+    const client = supabase.createClient(S_URL, S_KEY);
 
-    <script>
-        const S_URL = 'https://yaxajpojbssrrdycuzeo.supabase.co';
-        const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnRjYXl1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
-        const client = supabase.createClient(S_URL, S_KEY);
+    let photos = [];
+    let idx = 0;
 
-        let photos = [];
-        let idx = 0;
+    async function sync() {
+        console.log("Checking for new photos...");
+        // This looks inside the 'live' folder in your 'events' bucket
+        const { data, error } = await client.storage
+            .from('events')
+            .list('live', { sortBy: { column: 'created_at', order: 'desc' } });
 
-        async function sync() {
-            const { data } = await client.storage.from('events').list('live', { sortBy: {column:'created_at', order:'desc'} });
-            if (data) photos = data.filter(f => f.name !== '.emptyFolderPlaceholder');
+        if (error) {
+            console.error("TV Error:", error);
+            return;
         }
 
-        function rotate() {
-            if (photos.length === 0) return;
-            const { data } = client.storage.from('events').getPublicUrl(`live/${photos[idx].name}`);
-            document.getElementById('display').style.backgroundImage = `url('${data.publicUrl}')`;
-            idx = (idx + 1) % photos.length;
+        if (data && data.length > 0) {
+            // Filter out any weird system files
+            photos = data.filter(f => f.name !== '.emptyFolderPlaceholder');
+            console.log("Found photos:", photos.length);
+        } else {
+            console.log("Bucket is empty or folder 'live' not found.");
         }
+    }
 
-        setInterval(sync, 10000); // Check for new photos every 10s
-        setInterval(rotate, 5000); // Change photo every 5s
-        sync();
-    </script>
-</body>
-</html>
+    function rotate() {
+        if (photos.length === 0) return;
+        
+        const fileName = photos[idx].name;
+        const { data } = client.storage.from('events').getPublicUrl(`live/${fileName}`);
+        
+        console.log("Showing:", data.publicUrl);
+        document.getElementById('display').style.backgroundImage = `url('${data.publicUrl}')`;
+        
+        idx = (idx + 1) % photos.length;
+    }
+
+    // Sync every 5 seconds, Rotate every 3 seconds
+    setInterval(sync, 5000); 
+    setInterval(rotate, 3000);
+    sync();
+</script>
