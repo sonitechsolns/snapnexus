@@ -8,52 +8,107 @@
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
         
-        /* The main image display */
         #display { 
             width: 100vw; height: 100vh; 
             background-size: contain; 
             background-position: center; 
             background-repeat: no-repeat; 
-            transition: background-image 1s ease-in-out;
+            transition: background-image 1.2s ease-in-out;
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* The Overlay Branding */
         .branding {
             position: absolute; bottom: 40px; left: 40px;
-            background: rgba(15, 23, 42, 0.8);
+            background: rgba(15, 23, 42, 0.85);
             padding: 20px 30px; border-radius: 20px;
-            border: 1px solid #38bdf8; backdrop-filter: blur(10px);
-            color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 2px solid #38bdf8; backdrop-filter: blur(15px);
+            color: white; box-shadow: 0 15px 40px rgba(0,0,0,0.6);
         }
-        .branding h1 { margin: 0; font-size: 2rem; color: #38bdf8; letter-spacing: 2px; }
-        .branding p { margin: 5px 0 0; opacity: 0.8; font-weight: 300; }
+        .branding h1 { margin: 0; font-size: 2.2rem; color: #38bdf8; text-transform: uppercase; letter-spacing: 3px; }
+        .branding p { margin: 5px 0 0; opacity: 0.9; font-weight: 400; color: #94a3b8; }
 
-        /* Debug Status (Delete this after testing) */
         #debug-status {
-            position: absolute; top: 20px; right: 20px;
-            font-size: 12px; color: #4ade80; background: rgba(0,0,0,0.5);
-            padding: 5px 10px; border-radius: 5px; font-family: monospace;
+            position: absolute; top: 25px; right: 25px;
+            font-size: 13px; color: #4ade80; background: rgba(0,0,0,0.7);
+            padding: 8px 15px; border-radius: 8px; font-family: 'Courier New', monospace;
+            border: 1px solid #1e293b;
         }
+
+        #placeholder { color: #1e293b; font-size: 1.5rem; text-align: center; }
     </style>
 </head>
 <body>
 
     <div id="display">
-        <h2 id="placeholder" style="color: #334155;">Waiting for the first Nexus upload...</h2>
+        <h2 id="placeholder">INITIATING NEXUS...<br><span style="font-size: 0.9rem; opacity: 0.5;">Awaiting Soni Tech Uplink</span></h2>
     </div>
 
     <div class="branding">
         <h1>SnapNexus</h1>
-        <p>Soni Tech Solutions | LIVE FEED</p>
+        <p>Unified Event Stream | Soni Tech Solutions</p>
     </div>
 
-    <div id="debug-status">Initializing...</div>
+    <div id="debug-status">System Booting...</div>
 
     <script>
-        // --- CONFIGURATION (Ensure these match index.html exactly!) ---
+        // --- 🚩 CONFIGURATION 🚩 ---
         const S_URL = 'https://yaxajpojbssrrdycuzeo.supabase.co';
-        const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnRjYXl1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U'; 
+        const S_KEY = '<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnapNexus | Live TV Feed</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
+        
+        #display { 
+            width: 100vw; height: 100vh; 
+            background-size: contain; 
+            background-position: center; 
+            background-repeat: no-repeat; 
+            transition: background-image 1.2s ease-in-out;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .branding {
+            position: absolute; bottom: 40px; left: 40px;
+            background: rgba(15, 23, 42, 0.85);
+            padding: 20px 30px; border-radius: 20px;
+            border: 2px solid #38bdf8; backdrop-filter: blur(15px);
+            color: white; box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+        }
+        .branding h1 { margin: 0; font-size: 2.2rem; color: #38bdf8; text-transform: uppercase; letter-spacing: 3px; }
+        .branding p { margin: 5px 0 0; opacity: 0.9; font-weight: 400; color: #94a3b8; }
+
+        #debug-status {
+            position: absolute; top: 25px; right: 25px;
+            font-size: 13px; color: #4ade80; background: rgba(0,0,0,0.7);
+            padding: 8px 15px; border-radius: 8px; font-family: 'Courier New', monospace;
+            border: 1px solid #1e293b;
+        }
+
+        #placeholder { color: #1e293b; font-size: 1.5rem; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div id="display">
+        <h2 id="placeholder">INITIATING NEXUS...<br><span style="font-size: 0.9rem; opacity: 0.5;">Awaiting Soni Tech Uplink</span></h2>
+    </div>
+
+    <div class="branding">
+        <h1>SnapNexus</h1>
+        <p>Unified Event Stream | Soni Tech Solutions</p>
+    </div>
+
+    <div id="debug-status">System Booting...</div>
+
+    <script>
+        // --- 🚩 CONFIGURATION 🚩 ---
+        const S_URL = 'https://yaxajpojbssrrdycuzeo.supabase.co';
+        const S_KEY = 'PASTE_YOUR_LONG_ANON_KEY_HERE'; 
         
         const sb = supabase.createClient(S_URL, S_KEY);
         const display = document.getElementById('display');
@@ -63,40 +118,42 @@
         let photos = [];
         let currentIndex = 0;
 
-        // 1. Function to Sync with the Cloud
+        // 1. SYNC: Grabs all photos from the 'events' bucket
         async function syncPhotos() {
-            debug.innerText = "Syncing with Nexus...";
-            
-            // Note: We are looking in the 'live/' folder of the 'events' bucket
+            // We search the root of the bucket ('') to ensure we find everything
             const { data, error } = await sb.storage
                 .from('events')
-                .list('live', { sortBy: { column: 'created_at', order: 'desc' } });
+                .list('', { sortBy: { column: 'created_at', order: 'desc' } });
 
             if (error) {
                 console.error("Sync Error:", error);
-                debug.innerText = "Error: " + error.message;
+                debug.innerText = "🚨 Error: " + error.message;
                 return;
             }
 
             if (data && data.length > 0) {
-                // Remove the system placeholder file if it exists
-                photos = data.filter(f => f.name !== '.emptyFolderPlaceholder');
-                debug.innerText = `Connected: ${photos.length} Photos Unified`;
-                if (photos.length > 0) placeholder.style.display = 'none';
+                // Filter out folders/placeholders, keep only images (files with dots in name)
+                const newPhotos = data.filter(f => f.name.includes('.') && f.name !== '.emptyFolderPlaceholder');
+                
+                if (newPhotos.length > 0) {
+                    photos = newPhotos;
+                    debug.innerText = `NEXUS ONLINE: ${photos.length} SHARED`;
+                    placeholder.style.display = 'none';
+                }
             } else {
-                debug.innerText = "Bucket empty. Waiting for uploads...";
+                debug.innerText = "Waiting for Guests...";
             }
         }
 
-        // 2. Function to Rotate the Images
+        // 2. ROTATE: Cycles through the unified photos
         function rotateDisplay() {
             if (photos.length === 0) return;
 
             const fileName = photos[currentIndex].name;
-            const { data } = sb.storage.from('events').getPublicUrl(`live/${fileName}`);
+            const { data } = sb.storage.from('events').getPublicUrl(fileName);
 
             if (data.publicUrl) {
-                // Pre-load the image to prevent flickering
+                // Pre-load to avoid white flashes
                 const img = new Image();
                 img.src = data.publicUrl;
                 img.onload = () => {
@@ -104,17 +161,82 @@
                 };
             }
 
-            // Move to next photo (loop back to 0 at the end)
             currentIndex = (currentIndex + 1) % photos.length;
         }
 
-        // 3. The Engine: Sync every 10s, Rotate every 5s
-        setInterval(syncPhotos, 10000); 
-        setInterval(rotateDisplay, 5000);
+        // 3. RUNTIME: Sync every 8s, Rotate every 4s
+        setInterval(syncPhotos, 8000); 
+        setInterval(rotateDisplay, 4000);
 
-        // Initial Start
+        // Immediate Start
         syncPhotos().then(() => {
-            setTimeout(rotateDisplay, 1000); 
+            setTimeout(rotateDisplay, 1500); 
+        });
+    </script>
+</body>
+</html>'; 
+        
+        const sb = supabase.createClient(S_URL, S_KEY);
+        const display = document.getElementById('display');
+        const debug = document.getElementById('debug-status');
+        const placeholder = document.getElementById('placeholder');
+
+        let photos = [];
+        let currentIndex = 0;
+
+        // 1. SYNC: Grabs all photos from the 'events' bucket
+        async function syncPhotos() {
+            // We search the root of the bucket ('') to ensure we find everything
+            const { data, error } = await sb.storage
+                .from('events')
+                .list('', { sortBy: { column: 'created_at', order: 'desc' } });
+
+            if (error) {
+                console.error("Sync Error:", error);
+                debug.innerText = "🚨 Error: " + error.message;
+                return;
+            }
+
+            if (data && data.length > 0) {
+                // Filter out folders/placeholders, keep only images (files with dots in name)
+                const newPhotos = data.filter(f => f.name.includes('.') && f.name !== '.emptyFolderPlaceholder');
+                
+                if (newPhotos.length > 0) {
+                    photos = newPhotos;
+                    debug.innerText = `NEXUS ONLINE: ${photos.length} SHARED`;
+                    placeholder.style.display = 'none';
+                }
+            } else {
+                debug.innerText = "Waiting for Guests...";
+            }
+        }
+
+        // 2. ROTATE: Cycles through the unified photos
+        function rotateDisplay() {
+            if (photos.length === 0) return;
+
+            const fileName = photos[currentIndex].name;
+            const { data } = sb.storage.from('events').getPublicUrl(fileName);
+
+            if (data.publicUrl) {
+                // Pre-load to avoid white flashes
+                const img = new Image();
+                img.src = data.publicUrl;
+                img.onload = () => {
+                    display.style.backgroundImage = `url('${data.publicUrl}')`;
+                };
+            }
+
+            currentIndex = (currentIndex + 1) % photos.length;
+        }
+
+        // 3. RUNTIME: Sync every 8s, Rotate every 4s
+        setInterval(syncPhotos, 8000); 
+        setInterval(rotateDisplay, 4000);
+
+        // Immediate Start
+        syncPhotos().then(() => {
+            setTimeout(rotateDisplay, 1500); 
         });
     </script>
 </body>
