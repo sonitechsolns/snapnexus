@@ -1,128 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SnapNexus | Live Event Display</title>
+    <title>SnapNexus | Live TV</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            background-color: #000; 
-            color: white; 
-            overflow: hidden; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-        #slideshow {
-            width: 100%;
-            height: 100%;
-            background-size: contain;
-            background-position: center;
-            background-repeat: no-repeat;
-            transition: background-image 1s ease-in-out;
-        }
-        .overlay {
-            position: absolute;
-            bottom: 40px;
-            left: 40px;
-            background: rgba(0,0,0,0.6);
-            padding: 15px 30px;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .logo { 
-            font-size: 2rem; 
-            font-weight: 800; 
-            background: linear-gradient(135deg, #38bdf8, #818cf8); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
-        }
-        .scan-text {
-            color: #cbd5e1;
-            font-size: 1rem;
-            margin-top: 5px;
-        }
-        #empty-state {
-            position: absolute;
-            text-align: center;
-            color: #475569;
-            font-size: 2rem;
-            font-weight: bold;
-        }
-    </script>
+        body { background: #000; margin: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        #display { width: 100%; height: 100%; background: center / contain no-repeat; transition: 1s ease-in-out; }
+        .info { position: absolute; bottom: 30px; left: 30px; font-family: sans-serif; color: white; background: rgba(0,0,0,0.5); padding: 20px; border-radius: 10px; }
+    </style>
 </head>
 <body>
-
-    <div id="empty-state">Waiting for first photo...</div>
-    <div id="slideshow"></div>
-    
-    <div class="overlay">
-        <div class="logo">SnapNexus</div>
-        <div class="scan-text">Upload photos now to feature on screen</div>
+    <div id="display"></div>
+    <div class="info">
+        <h1 style="color:#38bdf8; margin:0;">SnapNexus Live</h1>
+        <p>Send your photos now!</p>
     </div>
 
     <script>
-        const URL = 'https://yaxajpojbssrrdycuzeo.supabase.co'; 
-        const KEY = 'PASTE_YOUR_LONG_ANON_KEY_HERE'; // <-- Replace this string
+        const S_URL = 'https://yaxajpojbssrrdycuzeo.supabase.co';
+        const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnRjYXl1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
+        const client = supabase.createClient(S_URL, S_KEY);
 
-        const supabase = window.supabase.createClient(URL, KEY);
-        const slideshow = document.getElementById('slideshow');
-        const emptyState = document.getElementById('empty-state');
-        
         let photos = [];
-        let currentIndex = 0;
+        let idx = 0;
 
-        // 1. Fetch all photos from the 'live' folder
-        async function fetchPhotos() {
-            const { data, error } = await supabase.storage.from('events').list('live', {
-                sortBy: { column: 'created_at', order: 'desc' }
-            });
-
-            if (data && data.length > 0) {
-                // Filter out the empty placeholder folder object if it exists
-                const validFiles = data.filter(file => file.name !== '.emptyFolderPlaceholder');
-                
-                if (validFiles.length > 0) {
-                    photos = validFiles;
-                    emptyState.style.display = 'none';
-                }
-            }
+        async function sync() {
+            const { data } = await client.storage.from('events').list('live', { sortBy: {column:'created_at', order:'desc'} });
+            if (data) photos = data.filter(f => f.name !== '.emptyFolderPlaceholder');
         }
 
-        // 2. Cycle through the fetched photos
-        function showNextPhoto() {
+        function rotate() {
             if (photos.length === 0) return;
-
-            // Get the public URL for the current photo
-            const { data: publicUrlData } = supabase.storage
-                .from('events')
-                .getPublicUrl(`live/${photos[currentIndex].name}`);
-
-            // Update the background image smoothly
-            slideshow.style.backgroundImage = `url('${publicUrlData.publicUrl}')`;
-
-            // Move to next index, loop back to 0 if at the end
-            currentIndex = (currentIndex + 1) % photos.length;
+            const { data } = client.storage.from('events').getPublicUrl(`live/${photos[idx].name}`);
+            document.getElementById('display').style.backgroundImage = `url('${data.publicUrl}')`;
+            idx = (idx + 1) % photos.length;
         }
 
-        // 3. Start the engine
-        async function startEngine() {
-            await fetchPhotos(); // Initial fetch
-            showNextPhoto();     // Show first photo
-
-            // Change picture every 5 seconds
-            setInterval(showNextPhoto, 5000); 
-
-            // Check cloud for NEW photos every 15 seconds
-            setInterval(fetchPhotos, 15000); 
-        }
-
-        startEngine();
+        setInterval(sync, 10000); // Check for new photos every 10s
+        setInterval(rotate, 5000); // Change photo every 5s
+        sync();
     </script>
 </body>
 </html>
