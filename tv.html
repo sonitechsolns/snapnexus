@@ -1,46 +1,121 @@
-<script>
-    const S_URL = 'https://yaxajpojbssrrdycuzeo.supabase.co';
-    const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnRjYXl1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U'; 
-    const client = supabase.createClient(S_URL, S_KEY);
-
-    let photos = [];
-    let idx = 0;
-
-    async function sync() {
-        console.log("Checking for new photos...");
-        // This looks inside the 'live' folder in your 'events' bucket
-        const { data, error } = await client.storage
-            .from('events')
-            .list('live', { sortBy: { column: 'created_at', order: 'desc' } });
-
-        if (error) {
-            console.error("TV Error:", error);
-            return;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnapNexus | Live TV Feed</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
+        
+        /* The main image display */
+        #display { 
+            width: 100vw; height: 100vh; 
+            background-size: contain; 
+            background-position: center; 
+            background-repeat: no-repeat; 
+            transition: background-image 1s ease-in-out;
+            display: flex; align-items: center; justify-content: center;
         }
 
-        if (data && data.length > 0) {
-            // Filter out any weird system files
-            photos = data.filter(f => f.name !== '.emptyFolderPlaceholder');
-            console.log("Found photos:", photos.length);
-        } else {
-            console.log("Bucket is empty or folder 'live' not found.");
+        /* The Overlay Branding */
+        .branding {
+            position: absolute; bottom: 40px; left: 40px;
+            background: rgba(15, 23, 42, 0.8);
+            padding: 20px 30px; border-radius: 20px;
+            border: 1px solid #38bdf8; backdrop-filter: blur(10px);
+            color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-    }
+        .branding h1 { margin: 0; font-size: 2rem; color: #38bdf8; letter-spacing: 2px; }
+        .branding p { margin: 5px 0 0; opacity: 0.8; font-weight: 300; }
 
-    function rotate() {
-        if (photos.length === 0) return;
-        
-        const fileName = photos[idx].name;
-        const { data } = client.storage.from('events').getPublicUrl(`live/${fileName}`);
-        
-        console.log("Showing:", data.publicUrl);
-        document.getElementById('display').style.backgroundImage = `url('${data.publicUrl}')`;
-        
-        idx = (idx + 1) % photos.length;
-    }
+        /* Debug Status (Delete this after testing) */
+        #debug-status {
+            position: absolute; top: 20px; right: 20px;
+            font-size: 12px; color: #4ade80; background: rgba(0,0,0,0.5);
+            padding: 5px 10px; border-radius: 5px; font-family: monospace;
+        }
+    </style>
+</head>
+<body>
 
-    // Sync every 5 seconds, Rotate every 3 seconds
-    setInterval(sync, 5000); 
-    setInterval(rotate, 3000);
-    sync();
-</script>
+    <div id="display">
+        <h2 id="placeholder" style="color: #334155;">Waiting for the first Nexus upload...</h2>
+    </div>
+
+    <div class="branding">
+        <h1>SnapNexus</h1>
+        <p>Soni Tech Solutions | LIVE FEED</p>
+    </div>
+
+    <div id="debug-status">Initializing...</div>
+
+    <script>
+        // --- CONFIGURATION (Ensure these match index.html exactly!) ---
+        const S_URL = 'https://yaxajpojbssrrdycuzeo.supabase.co';
+        const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnRjYXl1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U'; 
+        
+        const sb = supabase.createClient(S_URL, S_KEY);
+        const display = document.getElementById('display');
+        const debug = document.getElementById('debug-status');
+        const placeholder = document.getElementById('placeholder');
+
+        let photos = [];
+        let currentIndex = 0;
+
+        // 1. Function to Sync with the Cloud
+        async function syncPhotos() {
+            debug.innerText = "Syncing with Nexus...";
+            
+            // Note: We are looking in the 'live/' folder of the 'events' bucket
+            const { data, error } = await sb.storage
+                .from('events')
+                .list('live', { sortBy: { column: 'created_at', order: 'desc' } });
+
+            if (error) {
+                console.error("Sync Error:", error);
+                debug.innerText = "Error: " + error.message;
+                return;
+            }
+
+            if (data && data.length > 0) {
+                // Remove the system placeholder file if it exists
+                photos = data.filter(f => f.name !== '.emptyFolderPlaceholder');
+                debug.innerText = `Connected: ${photos.length} Photos Unified`;
+                if (photos.length > 0) placeholder.style.display = 'none';
+            } else {
+                debug.innerText = "Bucket empty. Waiting for uploads...";
+            }
+        }
+
+        // 2. Function to Rotate the Images
+        function rotateDisplay() {
+            if (photos.length === 0) return;
+
+            const fileName = photos[currentIndex].name;
+            const { data } = sb.storage.from('events').getPublicUrl(`live/${fileName}`);
+
+            if (data.publicUrl) {
+                // Pre-load the image to prevent flickering
+                const img = new Image();
+                img.src = data.publicUrl;
+                img.onload = () => {
+                    display.style.backgroundImage = `url('${data.publicUrl}')`;
+                };
+            }
+
+            // Move to next photo (loop back to 0 at the end)
+            currentIndex = (currentIndex + 1) % photos.length;
+        }
+
+        // 3. The Engine: Sync every 10s, Rotate every 5s
+        setInterval(syncPhotos, 10000); 
+        setInterval(rotateDisplay, 5000);
+
+        // Initial Start
+        syncPhotos().then(() => {
+            setTimeout(rotateDisplay, 1000); 
+        });
+    </script>
+</body>
+</html>
