@@ -5,64 +5,384 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SnapNexus | Guest Portal</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { 
-            background: #0f172a; color: #f8fafc; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            min-height: 100vh; padding: 20px;
+        :root {
+            --bubble-size: 48px;
         }
-        .card { 
-            background: rgba(30, 41, 59, 0.8); padding: 40px; border-radius: 24px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5); text-align: center; width: 100%; max-width: 400px;
-            border: 1px solid #334155; backdrop-filter: blur(12px);
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
-        .logo { font-size: 2.5rem; font-weight: 800; color: #38bdf8; margin-bottom: 10px; }
-        .btn { 
-            background: #2563eb; color: white; padding: 18px; border-radius: 50px; 
-            border: none; width: 100%; font-size: 1.1rem; font-weight: 600; cursor: pointer;
-            margin-top: 20px; transition: 0.3s;
+        html, body {
+            height: 100%;
+            width: 100%;
         }
-        .btn:hover { background: #1d4ed8; transform: scale(1.02); }
-        #status { margin-top: 20px; color: #94a3b8; font-weight: 500; }
+        body {
+            font-family: 'Segoe UI', 'Urbanist', sans-serif;
+            background: linear-gradient(120deg,#111827 0%, #1e293b 50%, #0ea5e9 100%);
+            color: #f8fafc; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            justify-content: space-between;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Bubbles background */
+        .bubbles {
+            pointer-events: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 100vw;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.15;
+            background: radial-gradient(circle, #38bdf8 60%, #0ea5e9 100%);
+            animation: floatBubble 14s linear infinite;
+            will-change: transform, opacity;
+            filter: blur(2px);
+        }
+        @keyframes floatBubble {
+            0% {
+                transform: translateY(90vh) scale(1) rotate(0deg);
+                opacity: 0.10;
+            }
+            80% {
+                opacity: 0.20;
+            }
+            100% {
+                transform: translateY(-20vh) scale(1.15) rotate(360deg);
+                opacity: 0.04;
+            }
+        }
+
+        main {
+            z-index: 2;
+            width: 100%;
+        }
+        /* Logo Area */
+        .main-logo-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 32px;
+            margin-bottom: 16px;
+        }
+        .main-logo-img {
+            width: 92px;
+            height: 92px;
+            object-fit: contain;
+            border-radius: 24px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+            margin-bottom: 16px;
+            background: #222;
+            border: 2px solid #38bdf8;
+            animation: glowLogo 3.2s ease-in-out infinite alternate;
+        }
+        @keyframes glowLogo {
+            0% { box-shadow: 0 8px 24px 0 #0ea5e9aa, 0 1px 13px 0 #289aed88;}
+            100% { box-shadow: 0 8px 48px 0 #38bdf899, 0 1px 16px 0 #36c6f6aa;}
+        }
+        .main-logo-title {
+            font-family: 'Urbanist', 'Segoe UI', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: 1.2px;
+            color: #38bdf8;
+            text-shadow: 0 2px 18px #0ea5e922;
+        }
+
+        /* Card */
+        .card {
+            background: rgba(30, 41, 59, 0.88); 
+            padding: 44px 32px 36px 32px; 
+            border-radius: 30px; 
+            box-shadow: 0 20px 48px 0 rgba(14,165,233,0.095), 0 1.5px 16px #0ea5e932;
+            border: 1.3px solid #334155cc; 
+            backdrop-filter: blur(18px);
+            text-align: center; 
+            width: 100%; 
+            min-width: 290px;
+            max-width: 418px;
+            margin: auto;
+            z-index: 3;
+        }
+
+        .card-description {
+            margin-bottom: 18px;
+            font-size: 1.12rem;
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        .bubble-btn {
+            display: inline-block;
+            background: linear-gradient(90deg,#38bdf8 10%, #3b82f6 70%, #0ea5e9 100%);
+            color: #fff;
+            border: none;
+            padding: 20px 0;
+            width: 220px;
+            border-radius: 99px;
+            font-size: 1.18rem;
+            font-family: 'Urbanist', 'Segoe UI', sans-serif;
+            font-weight: 700;
+            margin-top: 28px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: box-shadow 0.28s, transform 0.20s;
+            box-shadow: 0 4px 26px #38bdf84c, 0 1px 6px #2563eb18;
+        }
+        .bubble-btn:before, .bubble-btn:after {
+            position: absolute;
+            content: '';
+            border-radius: 50%;
+            opacity: 0.32;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .bubble-btn:before {
+            top: -36px; left: 17%;
+            width: 72px; height: 72px;
+            background: radial-gradient(circle, #aef9ff 40%, #38bdf8 80%);
+            filter: blur(4px);
+        }
+        .bubble-btn:after {
+            bottom: -30px; right: 20%;
+            width: 48px; height: 48px;
+            background: radial-gradient(circle, #3b82f6 10%, #6179fc 100%);
+            filter: blur(6px);
+        }
+        .bubble-btn:hover, .bubble-btn:focus {
+            box-shadow: 0 8px 42px #38bdf888, 0 2px 12px #2563eb44;
+            transform: scale(1.04) translateY(-2px) rotate(-1deg);
+        }
+        .bubble-btn:active {
+            box-shadow: 0 1px 9px #02132d77;
+            transform: scale(0.98);
+        }
+        /* Selected file chip */
+        .file-chip {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 8px 18px;
+            color: #38bdf8;
+            background: rgba(56,189,248,0.08);
+            border-radius: 22px;
+            font-size: 0.98rem;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            border: 1px solid #38bdf841;
+            box-shadow: 0 2px 12px 0 #0ea5e922;
+            animation: appearChip 0.43s ease;
+        }
+        @keyframes appearChip {
+            0% { opacity: 0; transform: translateY(9px);}
+            100% { opacity: 1; transform: none;}
+        }
+        #status { 
+            margin-top: 32px; 
+            color: #94a3b8; 
+            font-weight: 600;
+            font-size: 1.09rem;
+            letter-spacing: 0.16px;
+            min-height: 26px;
+            transition: color 0.2s;
+        }
+        #status[success] {
+            color: #22fbac;
+            text-shadow: 0 1.5px 14px #6ee7b7a8;
+        }
+        #status[fail] {
+            color: #f43f5e;
+            text-shadow: 0 1px 8px #f43f5e54;
+        }
+        /* Footer styles */
+        .footer {
+            width: 100vw;
+            padding: 18px 0 10px 0;
+            background: rgba(15,23,42,0);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+            margin-top: 36px;
+            position: relative;
+        }
+        .footer-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 7px;
+        }
+        .footer-logo-img {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: #111827ee;
+            box-shadow: 0 1px 8px #38bdf822;
+            object-fit: contain;
+            border: 1.1px solid #334155;
+        }
+        .footer-rights {
+            color: #64748b;
+            font-size: 0.97rem;
+            font-weight: 600;
+            margin-left: 12px;
+        }
+        .footer .footer-company {
+            font-family: 'Urbanist', 'Segoe UI', sans-serif;
+            font-weight: 900;
+            letter-spacing: 0.7px;
+            font-size: 1.11rem;
+            color: #38bdf8;
+        } 
+
+        /* Responsive tweaks */
+        @media (max-width: 520px) {
+            .main-logo-area { margin-top: 16px;}
+            .card { padding: 24px 7vw; }
+            .main-logo-title { font-size: 1.6rem;}
+            .main-logo-img { width: 65px; height: 65px;}
+        }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1 class="logo">SnapNexus</h1>
-        <p style="color:#64748b">Soni Tech Solutions</p>
-        <button class="btn" onclick="document.getElementById('p').click()">SELECT PHOTO</button>
-        <input type="file" id="p" hidden accept="image/*">
-        <div id="status">System Online</div>
-    </div>
+    <!-- Bubble background effects -->
+    <div class="bubbles" aria-hidden="true"></div>
+
+    <main>
+        <!-- Main Logo at the top (replace src with your image's path) -->
+        <div class="main-logo-area">
+            <img src="PATH_TO_YOUR_LOGO_IMAGE.png" alt="SnapNexus Logo" class="main-logo-img" id="mainLogo">
+            <div class="main-logo-title">SnapNexus</div>
+        </div>
+
+        <div class="card" id="mainCard">
+            <div class="card-description">Soni Tech Solutions</div>
+
+            <button class="bubble-btn" id="bubbleBtn" onclick="document.getElementById('p').click()"
+                onmousemove="bubbleCursor(event)">
+                <span style="letter-spacing: 0.5px;">SELECT PHOTO</span>
+            </button>
+            <input type="file" id="p" hidden accept="image/*">
+
+            <div id="selectedFile"></div>
+            <div id="status">System Online</div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-wrap">
+            <img src="PATH_TO_PARENT_LOGO_IMAGE.png" alt="STS Parent Logo" class="footer-logo-img" id="footerLogo">
+            <span class="footer-company">Soni Tech Solutions</span>
+        </div>
+        <div class="footer-rights">
+            © STS All rights reserved.
+        </div>
+    </footer>
 
     <script>
-        // 🚩 I CHECKED THE URL - IT IS CORRECT
+        // Bubble floating background
+        function spawnBubbles() {
+            const container = document.querySelector('.bubbles');
+            const colors = [
+                'rgba(56,189,248,0.17)', 'rgba(59,130,246,0.10)', 'rgba(14,165,233,0.14)',
+                'rgba(34,197,94,0.10)', 'rgba(236,72,153,0.08)'
+            ];
+            for(let i = 0; i < 13; i++) {
+                let bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                // Random size, left, delay, duration, color
+                let size = Math.floor(Math.random() * 44) + 26;
+                let left = Math.random() * 95;
+                let animDuration = 10 + Math.random() * 6;
+                let delay = Math.random() * 16 - 3;
+                bubble.style.width = size + "px";
+                bubble.style.height = size + "px";
+                bubble.style.left = left + "%";
+                bubble.style.background = colors[Math.floor(Math.random()*colors.length)];
+                bubble.style.animationDuration = animDuration+"s";
+                bubble.style.animationDelay = delay + "s";
+                container.appendChild(bubble);
+            }
+        }
+        spawnBubbles();
+
+        // Bubble movement effect on the main bubble-btn
+        function bubbleCursor(event) {
+            // Optionally: you could add microbubble/particle animation here
+            // (for now, adds a simple effect on hover location)
+            const btn = event.currentTarget;
+            let rect = btn.getBoundingClientRect();
+            let x = event.clientX - rect.left;
+            let y = event.clientY - rect.top;
+            btn.style.background = `radial-gradient(circle at ${x}px ${y}px, #7dd3fc 0%, #38bdf8 52%, #3b82f6 90%, #0ea5e9 100%)`;
+        }
+
+        document.getElementById('bubbleBtn').addEventListener('mouseleave', function(e) {
+            // restore gradient on mouse leave
+            e.currentTarget.style.background = 'linear-gradient(90deg,#38bdf8 10%, #3b82f6 70%, #0ea5e9 100%)';
+        });
+
+        // SnapNexus photo upload logic (keep credentials & logic intact)
         const S_URL = 'https://yaxajpojbssrrdcyuzeo.supabase.co'; 
-        
-        // 🚩 PASTE THE FRESH KEY HERE (Ensure no extra 'tcay' letters!)
         const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U'; 
-    
         const nexusClient = supabase.createClient(S_URL, S_KEY);
         const st = document.getElementById('status');
-    
-        document.getElementById('p').onchange = async (e) => {
+        const fileInput = document.getElementById('p');
+        const selectedFileDiv = document.getElementById('selectedFile');
+        
+        fileInput.onchange = async (e) => {
             const file = e.target.files[0];
-            if (!file) return;
-    
+            selectedFileDiv.innerHTML = '';
+            if (!file) {
+                st.innerText = "System Online";
+                st.removeAttribute('success');
+                st.removeAttribute('fail');
+                return;
+            }
+
+            // Show selected file name visually
+            let chip = document.createElement("div");
+            chip.className = "file-chip";
+            chip.textContent = file.name.length > 26 ? file.name.slice(0, 22) + '...' : file.name;
+            selectedFileDiv.appendChild(chip);
+
             st.innerText = "⚡ UNIFYING...";
+            st.removeAttribute('fail'); st.removeAttribute('success');
+
             const path = `live/${Date.now()}_${file.name.replace(/\s/g, '_')}`;
-    
+
             const { data, error } = await nexusClient.storage
-                .from('events') // 🚩 MAKE SURE YOUR BUCKET IS STILL NAMED 'events'
+                .from('events')
                 .upload(path, file);
-    
+
             if (error) {
                 alert("STOPPED: " + error.message);
                 st.innerText = "❌ FAILED";
+                st.setAttribute('fail', '');
+                st.removeAttribute('success');
             } else {
                 alert("✅ SUCCESS! PHOTO UNIFIED.");
                 st.innerText = "✅ UNIFIED!";
+                st.setAttribute('success', '');
+                st.removeAttribute('fail');
             }
         };
     </script>
