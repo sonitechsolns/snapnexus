@@ -290,16 +290,17 @@
                 <button class="simple-btn" id="simpleBtn" onclick="document.getElementById('p').click()">
                     Select Photo
                 </button>
-                <button class="contact-btn" id="contactBtn" onclick="window.location.href='mailto:info@sonitechsolutions.com';">
-                    Contact Us
-                </button>
-                <button class="business-btn" id="businessBtn" onclick="window.open('https://sonitechsolutions.com/business','_blank');">
-                    For Business
-                </button>
-            </div>
+                </div>
             <input type="file" id="p" hidden accept="image/*">
             <div id="selectedFile"></div>
             <div id="status">System Online</div>
+
+            <hr style="width: 100%; border: 0.5px solid #ff980022; margin: 20px 0;">
+            <div id="gallery-container" style="width: 100%;">
+                <h3 style="color: var(--fusion-c); font-size: 1rem; margin-bottom: 12px;">Recent Uplinks</h3>
+                <div id="gallery-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    </div>
+            </div>
         </div>
     </main>
     <footer class="footer">
@@ -320,7 +321,48 @@
         const fileInput = document.getElementById('p');
         const selectedFileDiv = document.getElementById('selectedFile');
 
+        // NEW ADDITION: Monetization & Gallery Logic
+        let startTime = localStorage.getItem('nexus_start') || Date.now();
+        if(!localStorage.getItem('nexus_start')) localStorage.setItem('nexus_start', startTime);
+
+        async function checkMonetization() {
+            const elapsedMinutes = (Date.now() - startTime) / 60000;
+            const { data } = await nexusClient.storage.from('events').list('live');
+            
+            if (elapsedMinutes > 15 || (data && data.length >= 20)) {
+                document.getElementById('simpleBtn').disabled = true;
+                document.getElementById('simpleBtn').style.background = "#94a3b8";
+                document.getElementById('simpleBtn').innerText = "Test Drive Ended";
+                st.innerHTML = "Unlock Unlimited for ₹499 <br> <a href='#' style='color:#ff7200'>Upgrade Now</a>";
+                return true;
+            }
+            return false;
+        }
+
+        async function loadGallery() {
+            const grid = document.getElementById('gallery-grid');
+            const { data } = await nexusClient.storage.from('events').list('live', {
+                limit: 4,
+                sortBy: { column: 'created_at', order: 'desc' }
+            });
+
+            if (data) {
+                grid.innerHTML = '';
+                data.filter(f => f.name.includes('.')).forEach(file => {
+                    const { data: url } = nexusClient.storage.from('events').getPublicUrl(`live/${file.name}`);
+                    grid.innerHTML += `
+                        <div style="position:relative">
+                            <img src="${url.publicUrl}" style="width:100%; height:80px; object-fit:cover; border-radius:10px;">
+                            <a href="${url.publicUrl}" download style="position:absolute; bottom:5px; right:5px; background:rgba(255,152,0,0.8); color:white; padding:2px 5px; border-radius:5px; font-size:10px; text-decoration:none;">📥</a>
+                        </div>`;
+                });
+            }
+        }
+
         fileInput.onchange = async (e) => {
+            // Check limits before allowing upload
+            if (await checkMonetization()) return;
+
             const file = e.target.files[0];
             selectedFileDiv.innerHTML = '';
             if (!file) {
@@ -354,8 +396,14 @@
                 st.innerText = "✅ Uploaded!";
                 st.setAttribute('success', '');
                 st.removeAttribute('fail');
+                // Refresh the gallery instantly after successful upload
+                setTimeout(loadGallery, 2000); 
             }
         };
+
+        // Initialize limits and gallery on page load
+        checkMonetization();
+        loadGallery();
     </script>
 </body>
 </html>
