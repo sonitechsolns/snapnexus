@@ -2,64 +2,260 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SnapNexus | Live Feed</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnapNexus | Live Event Wall</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
-        #display { width: 100vw; height: 100vh; background-size: contain; background-position: center; background-repeat: no-repeat; transition: background-image 1.5s ease-in-out; display: flex; align-items: center; justify-content: center; }
-        .branding { position: absolute; bottom: 30px; left: 30px; background: rgba(0,0,0,0.7); padding: 15px 25px; border-radius: 15px; border: 1px solid #38bdf8; color: white; }
-        #debug { position: absolute; top: 20px; right: 20px; font-size: 12px; color: #4ade80; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Urbanist', sans-serif;
+            background-color: #0f172a; /* Deep cinematic dark blue/black */
+            color: #f8fafc;
+            overflow-x: hidden;
+            /* Hide scrollbar for clean TV look */
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+        }
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Top Header Area */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px 40px;
+            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0) 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .brand-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .brand-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            border: 2px solid #ff9800;
+            box-shadow: 0 0 15px rgba(255, 152, 0, 0.3);
+            object-fit: contain;
+            background: #fff;
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-title {
+            font-family: 'Urbanist', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: #ff9800;
+            letter-spacing: 1.5px;
+            line-height: 1;
+        }
+
+        .brand-subtitle {
+            font-size: 1rem;
+            color: #94a3b8;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        .event-badge {
+            background: rgba(255, 152, 0, 0.15);
+            border: 1px solid rgba(255, 152, 0, 0.4);
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #ffb74d;
+            box-shadow: 0 0 20px rgba(255, 152, 0, 0.1);
+        }
+
+        /* Photo Grid Area */
+        .photo-wall {
+            padding: 100px 20px 40px 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-auto-rows: 300px;
+            gap: 20px;
+            min-height: 100vh;
+        }
+
+        /* Image Styling with Animation */
+        .photo-card {
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            background: #1e293b;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+            animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 3s ease;
+        }
+
+        /* Subtle Ken Burns zoom effect for the TV */
+        .photo-card:hover img {
+            transform: scale(1.05);
+        }
+
+        @keyframes popIn {
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #64748b;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: none;
+        }
+
     </style>
 </head>
 <body>
-    <div id="display">
-        <h2 id="msg" style="color: #1e293b;">Awaiting First Upload...</h2>
+
+    <div class="header">
+        <div class="brand-area">
+            <img src="SNAPN.png" alt="Logo" class="brand-logo" onerror="this.src='https://via.placeholder.com/50?text=SN'">
+            <div class="brand-text">
+                <div class="brand-title">SnapNexus</div>
+                <div class="brand-subtitle">Live Interactive Display</div>
+            </div>
+        </div>
+        <div class="event-badge" id="eventBadge">Event: Public</div>
     </div>
-    <div class="branding"><h1>SnapNexus</h1><p>Soni Tech Solutions</p></div>
-    <div id="debug">System Booting...</div>
+
+    <div class="photo-wall" id="photoWall">
+        </div>
+
+    <div class="empty-state" id="emptyState">
+        Waiting for the first upload...<br>
+        <span style="font-size: 1rem; color: #475569; font-weight: 500;">Scan the QR code to join the feed.</span>
+    </div>
 
     <script>
-       // Make sure there are NO spaces and NO trailing slashes /
-// --- 🚩 THE SONI TECH FIX 🚩 ---
-const S_URL = 'https://yaxajpojbssrrdcyuzeo.supabase.co'; 
-const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U'; 
+        // Supabase Configuration
+        const S_URL = 'https://yaxajpojbssrrdcyuzeo.supabase.co';
+        const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
+        const nexusClient = supabase.createClient(S_URL, S_KEY);
 
-// Initialize
-const sb = supabase.createClient(S_URL, S_KEY);
+        const photoWall = document.getElementById('photoWall');
+        const emptyState = document.getElementById('emptyState');
+        const eventBadge = document.getElementById('eventBadge');
+        
+        // Track displayed photos so we don't re-render everything
+        let displayedPhotos = new Set();
 
-        let photos = [];
-        let idx = 0;
+        // 1. DYNAMIC ROUTING LOGIC
+        function sanitizeEventId(raw) {
+            if (!raw || typeof raw !== 'string') return 'public';
+            const s = raw.trim().replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64);
+            return s || 'public';
+        }
 
-        async function sync() {
-            // Looking specifically in the 'live' folder
-            const { data, error } = await sb.storage.from('events').list('live');
+        function getEventIdFromUrl() {
+            const q = new URLSearchParams(window.location.search).get('event');
+            return sanitizeEventId(q);
+        }
+
+        const eventId = getEventIdFromUrl();
+        eventBadge.innerText = `Event: ${eventId}`;
+        const folderPath = `live/${eventId}`;
+
+        // 2. FETCH & RENDER LOGIC
+        async function fetchLivePhotos() {
+            const { data, error } = await nexusClient.storage
+                .from('events')
+                .list(folderPath, {
+                    limit: 50, // Keep the wall fast, only load last 50
+                    sortBy: { column: 'created_at', order: 'desc' }
+                });
+
             if (error) {
-                document.getElementById('debug').innerText = "ERROR: " + error.message;
+                console.error("Supabase Error:", error);
                 return;
             }
-            if (data) {
-                photos = data.filter(f => f.name.includes('.') && f.name !== '.emptyFolderPlaceholder');
-                document.getElementById('debug').innerText = `Nexus Online: ${photos.length} Photos`;
-                if(photos.length > 0) document.getElementById('msg').style.display = 'none';
+
+            // Filter out system files or empty folders
+            const validFiles = (data || []).filter(f => f.name && f.name.includes('.'));
+
+            if (validFiles.length === 0 && displayedPhotos.size === 0) {
+                emptyState.style.display = 'block';
+                return;
+            } else {
+                emptyState.style.display = 'none';
             }
+
+            // Reverse to prepend in correct visual order
+            validFiles.reverse().forEach(file => {
+                if (!displayedPhotos.has(file.name)) {
+                    // Mark as displayed
+                    displayedPhotos.add(file.name);
+
+                    // Get Public URL
+                    const { data: urlData } = nexusClient.storage
+                        .from('events')
+                        .getPublicUrl(`${folderPath}/${file.name}`);
+
+                    // Create Photo Card
+                    const card = document.createElement('div');
+                    card.className = 'photo-card';
+                    
+                    const img = document.createElement('img');
+                    img.src = urlData.publicUrl;
+                    img.loading = 'lazy';
+
+                    card.appendChild(img);
+                    
+                    // Insert at the top of the grid
+                    photoWall.insertBefore(card, photoWall.firstChild);
+                }
+            });
         }
 
-        function rotate() {
-            if (photos.length === 0) return;
-            const fileName = photos[idx].name;
-            const { data } = sb.storage.from('events').getPublicUrl(`live/${fileName}`);
-            
-            const img = new Image();
-            img.src = data.publicUrl;
-            img.onload = () => {
-                document.getElementById('display').style.backgroundImage = `url('${data.publicUrl}')`;
-            };
-            idx = (idx + 1) % photos.length;
-        }
-
-        setInterval(sync, 5000); 
-        setInterval(rotate, 4000);
-        sync();
+        // 3. INITIALIZATION & POLLING
+        fetchLivePhotos(); // Fetch immediately on load
+        
+        // Check for new photos every 4 seconds
+        setInterval(fetchLivePhotos, 4000); 
     </script>
 </body>
 </html>
