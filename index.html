@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,400;0,600;0,700;0,800;0,900;1,600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg: #0f172a;
@@ -253,6 +254,7 @@
             color: transparent;
             margin-bottom: 6px;
             letter-spacing: -0.02em;
+            font-variant-numeric: tabular-nums;
         }
         .stat-label {
             font-size: 0.88rem;
@@ -324,9 +326,9 @@
         }
         .pricing-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 24px;
-            max-width: 880px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px;
+            max-width: 1120px;
             margin: 0 auto;
             align-items: stretch;
         }
@@ -440,6 +442,27 @@
             transform: translateY(-2px);
             box-shadow: 0 12px 36px rgba(255, 152, 0, 0.45);
         }
+        .price-card.venue .price-tag {
+            color: var(--muted);
+            font-size: clamp(1.45rem, 3vw, 1.85rem);
+            line-height: 1.25;
+        }
+        .price-card.venue .cta a {
+            display: block;
+            text-align: center;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 800;
+            text-decoration: none;
+            color: var(--text);
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.05);
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .price-card.venue .cta a:hover {
+            border-color: rgba(255, 152, 0, 0.4);
+            background: rgba(255, 255, 255, 0.08);
+        }
         .badge-row {
             display: flex;
             flex-wrap: wrap;
@@ -530,7 +553,7 @@
         <nav class="nav">
             <a href="#" class="logo" style="text-decoration: none;">SnapNexus</a>
             <div class="nav-actions">
-                <a href="mailto:info@sonitechsolutions.com?subject=SnapNexus%20Host%20Login" class="link-host">Host Login</a>
+                <a href="mailto:sooperfast.net@yahoo.com?subject=SnapNexus%20Host%20Login" class="link-host">Host Login</a>
                 <a href="/app.html?event=demo" class="btn-demo-nav">Try Demo</a>
             </div>
         </nav>
@@ -551,7 +574,7 @@
         <section class="stats wrap reveal d3">
             <div class="glass stats-inner">
                 <div class="stat-item">
-                    <div class="stat-value">10,000+</div>
+                    <div class="stat-value" id="statMemories">0</div>
                     <div class="stat-label">Memories Captured</div>
                 </div>
                 <div class="stat-item">
@@ -559,7 +582,7 @@
                     <div class="stat-label">App Downloads Required</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value">99.9%</div>
+                    <div class="stat-value" id="statUptime">0%</div>
                     <div class="stat-label">Server Uptime</div>
                 </div>
             </div>
@@ -622,17 +645,43 @@
                         <a href="/app.html?event=demo">Go Pro</a>
                     </div>
                 </article>
+                <article class="glass price-card venue reveal d5">
+                    <div class="badge-row">
+                        <span class="mini-badge">For Cafes &amp; Halls</span>
+                    </div>
+                    <h3>Venue Pass</h3>
+                    <div class="price-tag">₹2,999 / month</div>
+                    <ul>
+                        <li>Unlimited monthly events</li>
+                        <li>Custom TV branding (Your Logo)</li>
+                        <li>Priority tech support</li>
+                        <li>ZIP file exports</li>
+                    </ul>
+                    <div class="cta">
+                        <a href="mailto:sooperfast.net@yahoo.com?subject=SnapNexus%20Venue%20Pass">Contact Sales</a>
+                    </div>
+                </article>
             </div>
         </section>
     </main>
 
     <footer class="reveal d5">
         <p class="footer-brand">SnapNexus by Soni Tech Solutions</p>
-        <p>© 2026 Soni Tech Solutions · <a href="mailto:info@sonitechsolutions.com">info@sonitechsolutions.com</a></p>
+        <p>© 2026 Soni Tech Solutions · <a href="mailto:sooperfast.net@yahoo.com">sooperfast.net@yahoo.com</a></p>
     </footer>
 
     <script>
         (function () {
+            var S_URL = 'https://yaxajpojbssrrdcyuzeo.supabase.co';
+            var S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
+            var BUCKET = 'events';
+            var LIVE_PREFIX = 'live';
+            var IMG_RE = /\.(jpe?g|png|gif|webp|heic|bmp|svg)$/i;
+
+            function isImageName(name) {
+                return name && IMG_RE.test(name);
+            }
+
             function ready() {
                 document.body.classList.add('is-ready');
             }
@@ -640,6 +689,124 @@
                 document.addEventListener('DOMContentLoaded', ready);
             } else {
                 ready();
+            }
+
+            function countImagesInPath(client, path) {
+                var limit = 1000;
+                var offset = 0;
+                var total = 0;
+                function next() {
+                    return client.storage.from(BUCKET).list(path, {
+                        limit: limit,
+                        offset: offset,
+                        sortBy: { column: 'name', order: 'asc' }
+                    }).then(function (res) {
+                        if (res.error || !res.data) return total;
+                        var batch = res.data;
+                        for (var i = 0; i < batch.length; i++) {
+                            if (isImageName(batch[i].name)) total++;
+                        }
+                        if (batch.length < limit) return total;
+                        offset += limit;
+                        return next();
+                    });
+                }
+                return next();
+            }
+
+            function listAllUnderLiveRoot(client) {
+                var limit = 1000;
+                var offset = 0;
+                var acc = [];
+                function page() {
+                    return client.storage.from(BUCKET).list(LIVE_PREFIX, {
+                        limit: limit,
+                        offset: offset,
+                        sortBy: { column: 'name', order: 'asc' }
+                    }).then(function (res) {
+                        if (res.error || !res.data) return acc;
+                        acc = acc.concat(res.data);
+                        if (res.data.length < limit) return acc;
+                        offset += limit;
+                        return page();
+                    });
+                }
+                return page();
+            }
+
+            function countAllLiveImages(client) {
+                return listAllUnderLiveRoot(client).then(function (top) {
+                    var rootFiles = 0;
+                    var folderPromises = [];
+                    for (var i = 0; i < top.length; i++) {
+                        var name = top[i].name;
+                        if (!name || name.charAt(0) === '.') continue;
+                        if (isImageName(name)) {
+                            rootFiles++;
+                        } else {
+                            folderPromises.push(countImagesInPath(client, LIVE_PREFIX + '/' + name));
+                        }
+                    }
+                    if (!folderPromises.length) return rootFiles;
+                    return Promise.all(folderPromises).then(function (counts) {
+                        var sub = counts.reduce(function (a, b) { return a + b; }, 0);
+                        return rootFiles + sub;
+                    });
+                });
+            }
+
+            function easeOutQuad(t) {
+                return 1 - (1 - t) * (1 - t);
+            }
+
+            function countUpNumber(el, targetInt, durationMs) {
+                var start = performance.now();
+                function frame(now) {
+                    var t = Math.min(1, (now - start) / durationMs);
+                    var eased = easeOutQuad(t);
+                    var cur = Math.round(targetInt * eased);
+                    el.textContent = cur.toLocaleString('en-IN');
+                    if (t < 1) requestAnimationFrame(frame);
+                    else el.textContent = targetInt.toLocaleString('en-IN');
+                }
+                requestAnimationFrame(frame);
+            }
+
+            function countUpPercent(el, target, durationMs) {
+                var start = performance.now();
+                function frame(now) {
+                    var t = Math.min(1, (now - start) / durationMs);
+                    var eased = easeOutQuad(t);
+                    var cur = target * eased;
+                    el.textContent = cur.toFixed(1) + '%';
+                    if (t < 1) requestAnimationFrame(frame);
+                    else el.textContent = target.toFixed(1) + '%';
+                }
+                requestAnimationFrame(frame);
+            }
+
+            function runStats() {
+                var memEl = document.getElementById('statMemories');
+                var upEl = document.getElementById('statUptime');
+                if (!memEl || !upEl) return;
+                if (typeof supabase === 'undefined') {
+                    countUpNumber(memEl, 0, 900);
+                    countUpPercent(upEl, 99.9, 1200);
+                    return;
+                }
+                var client = supabase.createClient(S_URL, S_KEY);
+                countAllLiveImages(client).then(function (n) {
+                    countUpNumber(memEl, typeof n === 'number' && !isNaN(n) ? n : 0, Math.min(2200, 600 + n * 4));
+                }).catch(function () {
+                    countUpNumber(memEl, 0, 900);
+                });
+                countUpPercent(upEl, 99.9, 1200);
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', runStats);
+            } else {
+                runStats();
             }
         })();
     </script>
