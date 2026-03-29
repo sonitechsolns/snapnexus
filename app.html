@@ -271,6 +271,62 @@
             opacity: 0;
             pointer-events: none;
         }
+
+        /* Event end bouncer */
+        #mainCard {
+            transition: opacity 0.28s ease, transform 0.28s ease, filter 0.28s ease;
+        }
+
+        #eventEndedScreen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 22px;
+            background: rgba(2, 6, 23, 0.72);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        #eventEndedScreen.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #eventEndedCard {
+            width: 100%;
+            max-width: 520px;
+            background: rgba(30, 41, 59, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            padding: 34px 26px;
+            text-align: center;
+        }
+        #eventEndedTitle {
+            font-family: 'Urbanist', 'Segoe UI', sans-serif;
+            font-weight: 900;
+            font-size: 1.55rem;
+            margin-bottom: 10px;
+            letter-spacing: 0.2px;
+            color: #f87171;
+        }
+        #eventEndedSub {
+            color: #cbd5e1;
+            font-weight: 700;
+            line-height: 1.5;
+            font-size: 1.02rem;
+        }
+        #eventEndedSub b {
+            color: var(--fusion-c);
+        }
+
         @media (max-width: 900px) {
             :root {
                 --card-max-width: 430px;
@@ -352,6 +408,14 @@
             ©2026 STS All rights reserved.
         </div>
     </footer>
+
+    <div id="eventEndedScreen" aria-hidden="true">
+        <div id="eventEndedCard">
+            <div id="eventEndedTitle">Event Ended 🏁</div>
+            <div id="eventEndedSub">This photo wall is now closed.</div>
+        </div>
+    </div>
+
     <script>
         // SnapNexus photo upload logic
         const S_URL = 'https://yaxajpojbssrrdcyuzeo.supabase.co';
@@ -367,6 +431,8 @@
         const upgradeBtn = document.getElementById('upgradeBtn');
         const eventLabel = document.getElementById('eventLabel');
         const watermarkCanvas = document.getElementById('watermarkCanvas');
+        const mainCard = document.getElementById('mainCard');
+        const eventEndedScreen = document.getElementById('eventEndedScreen');
 
         const STORAGE_BUCKET = 'events';
         const LIVE_PREFIX = 'live';
@@ -406,6 +472,48 @@
         }
 
         let sessionStartTime = ensureSessionStart();
+
+        let eventEnded = false;
+
+        function showUploadUI() {
+            if (!mainCard) return;
+            mainCard.style.opacity = '1';
+            mainCard.style.transform = '';
+            mainCard.style.filter = '';
+            mainCard.style.pointerEvents = 'auto';
+        }
+
+        function setEventEndedUI(ended) {
+            if (!ended) return;
+            if (eventEnded) return;
+            eventEnded = true;
+
+            // Smoothly hide upload UI.
+            if (mainCard) {
+                mainCard.style.opacity = '0';
+                mainCard.style.transform = 'scale(0.99)';
+                mainCard.style.filter = 'blur(4px)';
+                mainCard.style.pointerEvents = 'none';
+            }
+
+            if (eventEndedScreen) {
+                eventEndedScreen.classList.add('open');
+                eventEndedScreen.setAttribute('aria-hidden', 'false');
+            }
+
+            // Hard lock controls as well.
+            simpleBtn.disabled = true;
+            upgradeBtn.disabled = true;
+            fileInput.disabled = true;
+        }
+
+        // Prevent flash: hide upload UI until we confirm event is active.
+        if (mainCard) {
+            mainCard.style.opacity = '0';
+            mainCard.style.transform = 'scale(0.99)';
+            mainCard.style.filter = 'blur(4px)';
+            mainCard.style.pointerEvents = 'none';
+        }
 
         function countGalleryFiles(listData) {
             if (!listData || !listData.length) return 0;
@@ -509,6 +617,45 @@
             });
         }
 
+        async function checkEventActiveOnce() {
+            try {
+                const res = await nexusClient
+                    .from('events')
+                    .select('is_active')
+                    .eq('event_code', eventId)
+                    .maybeSingle();
+
+                if (res && !res.error && res.data && res.data.is_active === false) {
+                    setEventEndedUI(true);
+                    return false;
+                }
+            } catch (e) {
+                // Fail open if the lookup fails.
+            }
+            return true;
+        }
+
+        function subscribeToEventBouncer() {
+            nexusClient
+                .channel('event-bouncer-' + eventId)
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'UPDATE',
+                        schema: 'public',
+                        table: 'events',
+                        filter: 'event_code=eq.' + eventId
+                    },
+                    function (payload) {
+                        if (!payload || !payload.new) return;
+                        if (payload.new.is_active === false) {
+                            setEventEndedUI(true);
+                        }
+                    }
+                )
+                .subscribe();
+        }
+
         async function loadGallery() {
             const grid = document.getElementById('gallery-grid');
             const prefix = eventFolderPrefix();
@@ -566,6 +713,10 @@
         });
 
         fileInput.onchange = async function (e) {
+            if (eventEnded) {
+                e.target.value = '';
+                return;
+            }
             if (await checkMonetization()) {
                 e.target.value = '';
                 return;
@@ -624,11 +775,20 @@
             e.target.value = '';
         };
 
-        checkMonetization();
-        loadGallery();
-        setInterval(function () {
-            if (!isPremium()) checkMonetization();
-        }, 30000);
+        (async function boot() {
+            var active = await checkEventActiveOnce();
+            if (!active) return;
+
+            showUploadUI();
+            subscribeToEventBouncer();
+
+            checkMonetization();
+            loadGallery();
+            setInterval(function () {
+                if (eventEnded) return;
+                if (!isPremium()) checkMonetization();
+            }, 30000);
+        })();
     </script>
 </body>
 </html>

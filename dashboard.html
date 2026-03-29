@@ -296,6 +296,12 @@
             color: var(--muted);
         }
 
+        .premium-badge.is-ended {
+            border-color: rgba(248, 113, 113, 0.45);
+            color: #f87171;
+            background: rgba(248, 113, 113, 0.1);
+        }
+
         .btn-upgrade {
             width: 100%;
             margin-top: 12px;
@@ -316,6 +322,32 @@
             box-shadow: 0 0 40px rgba(255, 152, 0, 0.45), 0 10px 32px rgba(255, 114, 0, 0.25);
         }
         .btn-upgrade:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-end {
+            width: 100%;
+            margin-top: 12px;
+            padding: 14px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-weight: 900;
+            font-size: 0.95rem;
+            cursor: pointer;
+            color: #f87171;
+            background: rgba(248, 113, 113, 0.05);
+            border: 1px solid rgba(248, 113, 113, 0.6);
+            box-shadow: 0 8px 28px rgba(248, 113, 113, 0.12);
+            transition: background 0.2s, border-color 0.2s, transform 0.15s, opacity 0.2s;
+        }
+        .btn-end:hover:not(:disabled) {
+            background: rgba(248, 113, 113, 0.12);
+            border-color: rgba(248, 113, 113, 0.85);
+            transform: translateY(-2px);
+        }
+        .btn-end:disabled {
             opacity: 0.45;
             cursor: not-allowed;
             transform: none;
@@ -411,6 +443,7 @@
                     <div class="premium-badge is-free" id="premiumBadge">Free</div>
                     <p style="color:var(--muted);font-weight:600;font-size:0.95rem;">Unlock unlimited uploads, no watermarks, and more.</p>
                     <button type="button" class="btn-upgrade" id="btnUpgrade">Upgrade for ₹499</button>
+                    <button type="button" class="btn-end" id="btnEndEvent">End Event</button>
                 </section>
                 <section class="dash-card">
                     <h2>Live stats</h2>
@@ -427,6 +460,7 @@
         host_email text not null,
         event_code text not null unique,
         is_premium boolean default false,
+        is_active boolean default true,
         created_at timestamptz default now()
       );
       Add RLS policies so hosts can insert/select rows where host_email = auth.jwt() ->> 'email'.
@@ -458,6 +492,7 @@
         var linkTv = document.getElementById('linkTv');
         var premiumBadge = document.getElementById('premiumBadge');
         var btnUpgrade = document.getElementById('btnUpgrade');
+        var btnEndEvent = document.getElementById('btnEndEvent');
         var statPhotos = document.getElementById('statPhotos');
 
         var currentEvent = null;
@@ -511,6 +546,48 @@
             }
         }
 
+        function applyEventActiveUi(isActive) {
+            var active = isActive !== false;
+
+            // Default: let QR + links work only when event is active.
+            if (active) {
+                btnEndEvent.disabled = false;
+                btnEndEvent.textContent = 'End Event';
+
+                qrImage.style.opacity = '1';
+                qrImage.style.filter = 'none';
+
+                linkGuest.style.pointerEvents = 'auto';
+                linkGuest.style.opacity = '1';
+                linkTv.style.pointerEvents = 'auto';
+                linkTv.style.opacity = '1';
+
+                premiumBadge.classList.remove('is-ended');
+                return;
+            }
+
+            btnEndEvent.disabled = true;
+            btnEndEvent.textContent = 'Event Ended';
+
+            // Visually lock down the QR.
+            qrImage.style.opacity = '0.55';
+            qrImage.style.filter = 'grayscale(1)';
+
+            linkGuest.style.pointerEvents = 'none';
+            linkGuest.style.opacity = '0.45';
+            linkTv.style.pointerEvents = 'none';
+            linkTv.style.opacity = '0.45';
+
+            // Clearly communicate ended state.
+            premiumBadge.textContent = 'Ended';
+            premiumBadge.classList.remove('is-free', 'is-premium');
+            premiumBadge.classList.add('is-ended');
+
+            // No upgrades for an ended event.
+            btnUpgrade.disabled = true;
+            btnUpgrade.textContent = 'Event Closed';
+        }
+
         function openRazorpay() {
             alert('Razorpay checkout will open here. Wire your key and options when ready.');
         }
@@ -522,7 +599,7 @@
             if (!email) return null;
             var res = await sb
                 .from('events')
-                .select('event_code, is_premium')
+                .select('event_code, is_premium, is_active')
                 .eq('host_email', email)
                 .limit(1);
             if (res.error) {
@@ -547,6 +624,7 @@
             currentEvent = ev;
             updateQrAndLinks(ev.event_code);
             applyPremiumUi(!!ev.is_premium);
+            applyEventActiveUi(ev.is_active);
             statPhotos.textContent = '0';
             showState('dashboard');
         }
@@ -614,7 +692,8 @@
             var ins = await sb.from('events').insert({
                 host_email: session.user.email,
                 event_code: code,
-                is_premium: false
+                is_premium: false,
+                is_active: true
             });
             btnInitEvent.disabled = false;
             if (ins.error) {
@@ -625,11 +704,39 @@
                 }
                 return;
             }
-            currentEvent = { event_code: code, is_premium: false };
+            currentEvent = { event_code: code, is_premium: false, is_active: true };
             updateQrAndLinks(code);
             applyPremiumUi(false);
+            applyEventActiveUi(true);
             statPhotos.textContent = '0';
             showState('dashboard');
+        });
+
+        btnEndEvent.addEventListener('click', async function () {
+            if (!currentEvent || !currentEvent.event_code) return;
+
+            var ok = window.confirm('Are you sure? Guests will no longer be able to upload photos.');
+            if (!ok) return;
+
+            btnEndEvent.disabled = true;
+            btnEndEvent.textContent = 'Ending...';
+
+            var upd = await sb
+                .from('events')
+                .update({ is_active: false })
+                .eq('event_code', currentEvent.event_code);
+
+            btnEndEvent.disabled = false;
+
+            if (upd.error) {
+                alert(upd.error.message || 'Failed to end the event.');
+                btnEndEvent.textContent = 'End Event';
+                applyEventActiveUi(true);
+                return;
+            }
+
+            currentEvent.is_active = false;
+            applyEventActiveUi(false);
         });
 
         btnLogout.addEventListener('click', async function () {
