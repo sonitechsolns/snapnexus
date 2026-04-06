@@ -375,7 +375,6 @@
             <div class="card-description">Soni Tech Solutions</div>
             <div class="event-pill" id="eventPill">Event: <span id="eventLabel">public</span></div>
 
-            <!-- Limit-reached banner (shown when free tier hits 20 photos) -->
             <div id="limitBanner">
                 🚫 Limit reached! Ask the host to upgrade to Premium for unlimited uploads.
             </div>
@@ -489,7 +488,6 @@
 
         /* ─── Gatekeeper: checks is_premium from events table + photo count ─── */
         async function checkUploadAllowed() {
-            /* Premium hosts: always allowed */
             if (eventIsPremium) {
                 limitBanner.classList.remove('show');
                 simpleBtn.disabled  = false;
@@ -497,19 +495,17 @@
                 simpleBtn.innerText = 'Select Photo';
                 return true;
             }
-            /* Free tier: count photos in this event's folder */
             var count = await getEventPhotoCount();
             if (count >= 20) {
                 limitBanner.classList.add('show');
                 simpleBtn.disabled = true;
                 simpleBtn.style.background = '#94a3b8';
-                simpleBtn.innerText = 'Limit Reached';
+                simpleBtn.innerText = 'Limit Reached (20/20)';
                 st.innerText = '';
                 st.removeAttribute('success');
                 st.removeAttribute('fail');
                 return false;
             }
-            /* Under limit — ensure UI is unlocked */
             limitBanner.classList.remove('show');
             simpleBtn.disabled  = false;
             simpleBtn.style.background = '';

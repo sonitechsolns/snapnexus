@@ -556,7 +556,7 @@
                 <a href="#" class="logo" style="text-decoration: none;">SnapNexus</a>
             </div>
             <div class="nav-actions">
-                <a href="dashboard.html">Host Login</a>
+                <a href="dashboard.html" class="link-host">Host Login</a>
                 <a href="/app.html?event=demo" class="btn-demo-nav">Try Demo</a>
             </div>
         </nav>
@@ -624,12 +624,12 @@
                     <h3>Test Drive</h3>
                     <div class="price-tag">Free</div>
                     <ul>
-                        <li>15 minutes of live uploads</li>
+                        <li>Live Photo Wall Display</li>
                         <li>Up to 20 photos per event</li>
-                        <li>STS watermark on guest photos</li>
+                        <li>SnapNexus watermark on TV</li>
                     </ul>
                     <div class="cta">
-                        <a href="/app.html?event=demo">Start free</a>
+                        <a href="dashboard.html">Start free</a>
                     </div>
                 </article>
                 <article class="glass price-card pro reveal d4">
@@ -637,15 +637,14 @@
                         <span class="mini-badge">Best value</span>
                     </div>
                     <h3>Pro Event</h3>
-                    <div class="price-tag">₹499</div>
+                    <div class="price-tag">₹999</div>
                     <ul>
-                        <li>Unlimited time</li>
-                        <li>Unlimited photos</li>
-                        <li>No watermarks</li>
-                        <li>High-res download</li>
+                        <li>Unlimited photos & time</li>
+                        <li>No watermarks or Ads</li>
+                        <li>Full-resolution downloads</li>
                     </ul>
                     <div class="cta">
-                        <a href="/app.html?event=demo">Go Pro</a>
+                        <a href="dashboard.html">Go Pro</a>
                     </div>
                 </article>
                 <article class="glass price-card venue reveal d5">
@@ -653,7 +652,7 @@
                         <span class="mini-badge">For Cafes &amp; Halls</span>
                     </div>
                     <h3>Venue Pass</h3>
-                    <div class="price-tag">₹2,999 / month</div>
+                    <div class="price-tag">₹2,999<span>/mo</span></div>
                     <ul>
                         <li>Unlimited monthly events</li>
                         <li>Custom TV branding (Your Logo)</li>
@@ -678,7 +677,7 @@
             var S_URL = 'https://yaxajpojbssrrdcyuzeo.supabase.co';
             var S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
             var BUCKET = 'events';
-            var LIVE_PREFIX = 'live';
+            var LIVE_PREFIX = 'event-photos';
             var IMG_RE = /\.(jpe?g|png|gif|webp|heic|bmp|svg)$/i;
 
             function isImageName(name) {

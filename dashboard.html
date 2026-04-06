@@ -399,7 +399,6 @@
 </head>
 <body>
 
-    <!-- ══ State 1: Auth ══ -->
     <div id="state-auth" class="state-shell" aria-hidden="true">
         <div class="glass-card">
             <h1>Host Dashboard</h1>
@@ -416,7 +415,6 @@
         </div>
     </div>
 
-    <!-- ══ State 2: Create event ══ -->
     <div id="state-create" class="state-shell" aria-hidden="true">
         <div class="glass-card">
             <h1>Create your event</h1>
@@ -428,7 +426,6 @@
         </div>
     </div>
 
-    <!-- ══ State 3: Dashboard ══ -->
     <div id="state-dashboard" class="state-shell" aria-hidden="true">
         <header class="dash-header">
             <div class="dash-brand">
@@ -444,7 +441,6 @@
         <main class="dash-main">
             <div class="dash-grid">
 
-                <!-- Card 1: QR & links -->
                 <section class="dash-card">
                     <h2>QR &amp; links</h2>
                     <div class="qr-wrap">
@@ -456,12 +452,10 @@
                     </div>
                 </section>
 
-                <!-- Card 2: Premium / Pricing -->
                 <section class="dash-card" id="cardPremium">
                     <h2>Plan &amp; status</h2>
                     <div class="plan-tag is-free" id="premiumBadge">Free Tier (20 Photo Limit)</div>
 
-                    <!-- ₹999 pricing card — hidden once premium -->
                     <div class="pricing-box" id="pricingBox">
                         <div class="price-row">
                             <span class="price-amount">₹999</span>
@@ -480,7 +474,6 @@
                     <button type="button" class="btn-end" id="btnEndEvent">End Event</button>
                 </section>
 
-                <!-- Card 3: Live stats -->
                 <section class="dash-card">
                     <h2>Live stats</h2>
                     <div class="stat-big" id="statPhotos">0</div>
@@ -491,7 +484,6 @@
         </main>
     </div>
 
-    <!-- ══ UPI Payment Modal ══ -->
     <div id="upiModalOverlay" role="dialog" aria-modal="true" aria-label="Premium upgrade — UPI payment">
         <div class="modal-box">
             <button class="modal-x" id="btnModalX" aria-label="Close">×</button>
@@ -499,7 +491,6 @@
             <p class="modal-sub">Scan &amp; pay ₹999 with any UPI app — PhonePe, GPay, Paytm</p>
 
             <div class="modal-qr-wrap">
-                <!-- QR generated dynamically from the upi:// deep link -->
                 <img id="upiQrImg" src="" alt="UPI payment QR" width="200" height="200">
             </div>
 
@@ -514,25 +505,6 @@
             <button type="button" class="btn-modal-close" id="btnModalCloseBtm">Done — I've sent the screenshot</button>
         </div>
     </div>
-
-    <!--
-    ══════════════════════════════════════════════
-    SUPABASE TABLE SCHEMA (run once in SQL editor)
-    ══════════════════════════════════════════════
-    CREATE TABLE IF NOT EXISTS public.events (
-      id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-      host_email  text NOT NULL,
-      event_code  text NOT NULL UNIQUE,
-      is_premium  boolean DEFAULT false,
-      is_active   boolean DEFAULT true,
-      created_at  timestamptz DEFAULT now()
-    );
-    ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
-    CREATE POLICY "hosts_own_rows" ON public.events
-      USING (host_email = auth.email())
-      WITH CHECK (host_email = auth.email());
-    ══════════════════════════════════════════════
-    -->
 
     <script>
         /* ════════════════════════════════════════
