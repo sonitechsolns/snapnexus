@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0">
     <title>SnapNexus | Guest Portal</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@700;900&display=swap" rel="stylesheet">
@@ -29,7 +28,6 @@
         }
         html {
             font-size: 18px;
-            /* Zoom in */
             transform: scale(var(--zoom-factor));
             transform-origin: top center;
             min-width: 360px;
@@ -182,14 +180,24 @@
             background: var(--fusion-c);
             color: #fff;
         }
-        #upgradeBtn {
+
+        /* Limit-reached banner */
+        #limitBanner {
             display: none;
-            width: var(--btn-width);
-            max-width: 100%;
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: rgba(248,113,113,0.1);
+            border: 1px solid rgba(248,113,113,0.35);
+            color: #991b1b;
+            font-size: 0.92rem;
+            font-weight: 700;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            text-align: left;
         }
-        #upgradeBtn.visible {
-            display: block;
-        }
+        #limitBanner.show { display: block; }
+
         .file-chip {
             display: inline-block;
             margin-top: 7px;
@@ -214,12 +222,9 @@
             transition: color 0.14s;
             word-break: break-word;
         }
-        #status[success] {
-            color: #4ed242;
-        }
-        #status[fail] {
-            color: #f43f5e;
-        }
+        #status[success] { color: #4ed242; }
+        #status[fail]    { color: #f43f5e; }
+
         .footer {
             width: 100vw;
             min-width: 0;
@@ -296,7 +301,6 @@
             opacity: 1;
             pointer-events: auto;
         }
-
         #eventEndedCard {
             width: 100%;
             max-width: 520px;
@@ -323,16 +327,11 @@
             line-height: 1.5;
             font-size: 1.02rem;
         }
-        #eventEndedSub b {
-            color: var(--fusion-c);
-        }
 
         @media (max-width: 900px) {
-            :root {
-                --card-max-width: 430px;
-            }
-            .main-logo-area { margin-top: 52px;}
-            .main-logo-title { font-size: 1.21rem;}
+            :root { --card-max-width: 430px; }
+            .main-logo-area { margin-top: 52px; }
+            .main-logo-title { font-size: 1.21rem; }
             html { font-size: 17px; }
         }
         @media (max-width: 650px) {
@@ -341,32 +340,26 @@
                 --logo-size: 49px;
                 --btn-width: 98vw;
             }
-            html {
-                transform: scale(1);
-                font-size: 16px;
-            }
-            .main-logo-area { margin-top: 34px;}
+            html { transform: scale(1); font-size: 16px; }
+            .main-logo-area { margin-top: 34px; }
             .card { padding: 14px 2vw; }
-            .main-logo-title { font-size: 1.13rem;}
-            .main-logo-img { width: var(--logo-size); height: var(--logo-size);}
-            .simple-btn,
-            .contact-btn,
-            .business-btn { width: 95vw; font-size: 1.05rem;}
-            #upgradeBtn { width: 95vw; }
-            .file-chip { font-size: 0.98rem; max-width: 95vw;}
+            .main-logo-title { font-size: 1.13rem; }
+            .main-logo-img { width: var(--logo-size); height: var(--logo-size); }
+            .simple-btn, .contact-btn, .business-btn { width: 95vw; font-size: 1.05rem; }
+            .file-chip { font-size: 0.98rem; max-width: 95vw; }
         }
         @media (max-width: 440px) {
             .footer { font-size: 0.99rem; padding: 8px 0 4px 0; }
-            .card-description { font-size: 0.97rem;}
+            .card-description { font-size: 0.97rem; }
             .footer .footer-company { font-size: 1rem; }
             .btn-row { gap: 8px; }
         }
         @media (max-width: 380px) {
             .main-logo-area { margin-top: 8px; }
-            .main-logo-title { font-size: 0.97rem;}
-            .main-logo-img { width: 32px; height: 32px;}
-            .footer-logo-img { width: 19px; height: 19px;}
-            html { font-size: 13px;}
+            .main-logo-title { font-size: 0.97rem; }
+            .main-logo-img { width: 32px; height: 32px; }
+            .footer-logo-img { width: 19px; height: 19px; }
+            html { font-size: 13px; }
         }
     </style>
 </head>
@@ -381,12 +374,17 @@
         <div class="card" id="mainCard">
             <div class="card-description">Soni Tech Solutions</div>
             <div class="event-pill" id="eventPill">Event: <span id="eventLabel">public</span></div>
+
+            <!-- Limit-reached banner (shown when free tier hits 20 photos) -->
+            <div id="limitBanner">
+                🚫 Limit reached! Ask the host to upgrade to Premium for unlimited uploads.
+            </div>
+
             <div class="btn-row">
                 <button type="button" class="simple-btn" id="simpleBtn" onclick="document.getElementById('p').click()">
                     Select Photo
                 </button>
             </div>
-            <button type="button" class="business-btn" id="upgradeBtn">Upgrade to Pro for ₹499</button>
             <input type="file" id="p" hidden accept="image/*">
             <div id="selectedFile"></div>
             <div id="status">System Online</div>
@@ -394,19 +392,17 @@
             <hr style="width: 100%; border: 0.5px solid #ff980022; margin: 20px 0;">
             <div id="gallery-container" style="width: 100%;">
                 <h3 style="color: var(--fusion-c); font-size: 1rem; margin-bottom: 12px;">Recent Uplinks</h3>
-                <div id="gallery-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                </div>
+                <div id="gallery-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;"></div>
             </div>
         </div>
     </main>
+
     <footer class="footer">
         <div class="footer-wrap">
             <img src="STS.png" alt="STS Parent Logo" class="footer-logo-img" id="footerLogo">
             <span class="footer-company">Soni Tech Solutions</span>
         </div>
-        <div class="footer-rights">
-            ©2026 STS All rights reserved.
-        </div>
+        <div class="footer-rights">©2026 STS All rights reserved.</div>
     </footer>
 
     <div id="eventEndedScreen" aria-hidden="true">
@@ -417,376 +413,271 @@
     </div>
 
     <script>
-        // SnapNexus photo upload logic
-        const S_URL = 'https://yaxajpojbssrrdcyuzeo.supabase.co';
-        const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
-        /** Replace with your Razorpay Key ID from the dashboard (test or live). */
-        const RAZORPAY_KEY_ID = 'rzp_test_REPLACE_ME';
+        /* ════════════════════════════════════════
+           CONFIG — S_URL / S_KEY untouched
+        ════════════════════════════════════════ */
+        var S_URL = 'https://yaxajpojbssrrdcyuzeo.supabase.co';
+        var S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
 
-        const nexusClient = supabase.createClient(S_URL, S_KEY);
-        const st = document.getElementById('status');
-        const fileInput = document.getElementById('p');
-        const selectedFileDiv = document.getElementById('selectedFile');
-        const simpleBtn = document.getElementById('simpleBtn');
-        const upgradeBtn = document.getElementById('upgradeBtn');
-        const eventLabel = document.getElementById('eventLabel');
-        const watermarkCanvas = document.getElementById('watermarkCanvas');
-        const mainCard = document.getElementById('mainCard');
-        const eventEndedScreen = document.getElementById('eventEndedScreen');
+        /* ─── Storage constants — must match dashboard.html and tv.html ─── */
+        var STORAGE_BUCKET = 'events';
+        var PHOTO_ROOT     = 'event-photos';   /* NEW folder structure */
 
-        const STORAGE_BUCKET = 'events';
-        const LIVE_PREFIX = 'live';
+        var nexusClient = supabase.createClient(S_URL, S_KEY);
 
+        /* ─── DOM refs ─── */
+        var st               = document.getElementById('status');
+        var fileInput        = document.getElementById('p');
+        var selectedFileDiv  = document.getElementById('selectedFile');
+        var simpleBtn        = document.getElementById('simpleBtn');
+        var limitBanner      = document.getElementById('limitBanner');
+        var eventLabel       = document.getElementById('eventLabel');
+        var watermarkCanvas  = document.getElementById('watermarkCanvas');
+        var mainCard         = document.getElementById('mainCard');
+        var eventEndedScreen = document.getElementById('eventEndedScreen');
+
+        /* ─── Event ID ─── */
         function sanitizeEventId(raw) {
             if (!raw || typeof raw !== 'string') return 'public';
-            const s = raw.trim().replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64);
+            var s = raw.trim().replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64);
             return s || 'public';
         }
-
-        function getEventIdFromUrl() {
-            const q = new URLSearchParams(window.location.search).get('event');
-            return sanitizeEventId(q || 'public');
-        }
-
-        const eventId = getEventIdFromUrl();
+        var eventId = sanitizeEventId(new URLSearchParams(window.location.search).get('event') || 'public');
         eventLabel.textContent = eventId;
 
-        function eventFolderPrefix() {
-            return `${LIVE_PREFIX}/${eventId}`;
+        /* ─── Storage folder: event-photos/{eventId}/ ─── */
+        function eventFolder() {
+            return PHOTO_ROOT + '/' + eventId;
         }
 
-        function sessionStorageKey() {
-            return `snapnexus_session_start_${eventId}`;
-        }
+        /* ─── Premium status (fetched from events table, not localStorage) ─── */
+        var eventIsPremium = false;   /* set by checkEventActiveOnce */
+        var eventEnded     = false;
 
-        function isPremium() {
-            return localStorage.getItem('is_premium') === 'true';
-        }
-
-        function ensureSessionStart() {
-            const k = sessionStorageKey();
-            if (!localStorage.getItem(k)) {
-                localStorage.setItem(k, String(Date.now()));
-            }
-            return Number(localStorage.getItem(k), 10);
-        }
-
-        let sessionStartTime = ensureSessionStart();
-
-        let eventEnded = false;
+        /* ─── Prevent flash ─── */
+        mainCard.style.opacity       = '0';
+        mainCard.style.transform     = 'scale(0.99)';
+        mainCard.style.filter        = 'blur(4px)';
+        mainCard.style.pointerEvents = 'none';
 
         function showUploadUI() {
-            if (!mainCard) return;
-            mainCard.style.opacity = '1';
-            mainCard.style.transform = '';
-            mainCard.style.filter = '';
+            mainCard.style.opacity       = '1';
+            mainCard.style.transform     = '';
+            mainCard.style.filter        = '';
             mainCard.style.pointerEvents = 'auto';
         }
 
-        function setEventEndedUI(ended) {
-            if (!ended) return;
+        function setEventEndedUI() {
             if (eventEnded) return;
             eventEnded = true;
-
-            // Smoothly hide upload UI.
-            if (mainCard) {
-                mainCard.style.opacity = '0';
-                mainCard.style.transform = 'scale(0.99)';
-                mainCard.style.filter = 'blur(4px)';
-                mainCard.style.pointerEvents = 'none';
-            }
-
-            if (eventEndedScreen) {
-                eventEndedScreen.classList.add('open');
-                eventEndedScreen.setAttribute('aria-hidden', 'false');
-            }
-
-            // Hard lock controls as well.
-            simpleBtn.disabled = true;
-            upgradeBtn.disabled = true;
-            fileInput.disabled = true;
-        }
-
-        // Prevent flash: hide upload UI until we confirm event is active.
-        if (mainCard) {
-            mainCard.style.opacity = '0';
-            mainCard.style.transform = 'scale(0.99)';
-            mainCard.style.filter = 'blur(4px)';
+            mainCard.style.opacity       = '0';
+            mainCard.style.transform     = 'scale(0.99)';
+            mainCard.style.filter        = 'blur(4px)';
             mainCard.style.pointerEvents = 'none';
+            eventEndedScreen.classList.add('open');
+            eventEndedScreen.setAttribute('aria-hidden', 'false');
+            simpleBtn.disabled  = true;
+            fileInput.disabled  = true;
         }
 
-        function countGalleryFiles(listData) {
-            if (!listData || !listData.length) return 0;
-            return listData.filter(function (f) { return f.name && f.name.indexOf('.') !== -1; }).length;
-        }
-
+        /* ─── Count files in event folder ─── */
         async function getEventPhotoCount() {
-            const prefix = eventFolderPrefix();
-            const { data, error } = await nexusClient.storage.from(STORAGE_BUCKET).list(prefix, { limit: 1000 });
-            if (error) return 0;
-            return countGalleryFiles(data);
+            var res = await nexusClient.storage.from(STORAGE_BUCKET).list(eventFolder(), { limit: 1000 });
+            if (res.error || !res.data) return 0;
+            return res.data.filter(function (f) { return f.name && f.name.indexOf('.') !== -1; }).length;
         }
 
-        function applyUiLocked(locked) {
-            if (isPremium()) {
-                simpleBtn.disabled = false;
+        /* ─── Gatekeeper: checks is_premium from events table + photo count ─── */
+        async function checkUploadAllowed() {
+            /* Premium hosts: always allowed */
+            if (eventIsPremium) {
+                limitBanner.classList.remove('show');
+                simpleBtn.disabled  = false;
                 simpleBtn.style.background = '';
                 simpleBtn.innerText = 'Select Photo';
-                upgradeBtn.classList.remove('visible');
-                return;
+                return true;
             }
-            if (locked) {
+            /* Free tier: count photos in this event's folder */
+            var count = await getEventPhotoCount();
+            if (count >= 20) {
+                limitBanner.classList.add('show');
                 simpleBtn.disabled = true;
                 simpleBtn.style.background = '#94a3b8';
-                simpleBtn.innerText = 'Test Drive Ended';
-                upgradeBtn.classList.add('visible');
-                st.innerHTML = 'Your test drive for this event has ended. Upgrade for unlimited uploads.';
+                simpleBtn.innerText = 'Limit Reached';
+                st.innerText = '';
                 st.removeAttribute('success');
                 st.removeAttribute('fail');
-            } else {
-                simpleBtn.disabled = false;
-                simpleBtn.style.background = '';
-                simpleBtn.innerText = 'Select Photo';
-                upgradeBtn.classList.remove('visible');
-                if (st.innerHTML.indexOf('test drive') !== -1) {
-                    st.innerText = 'System Online';
-                    st.removeAttribute('success');
-                    st.removeAttribute('fail');
-                }
-            }
-        }
-
-        async function checkMonetization() {
-            if (isPremium()) {
-                applyUiLocked(false);
                 return false;
             }
-            const start = Number(localStorage.getItem(sessionStorageKey()), 10) || sessionStartTime;
-            const elapsedMinutes = (Date.now() - start) / 60000;
-            const photoCount = await getEventPhotoCount();
-            const locked = elapsedMinutes > 15 || photoCount >= 20;
-            applyUiLocked(locked);
-            return locked;
+            /* Under limit — ensure UI is unlocked */
+            limitBanner.classList.remove('show');
+            simpleBtn.disabled  = false;
+            simpleBtn.style.background = '';
+            simpleBtn.innerText = 'Select Photo';
+            return true;
         }
 
+        /* ─── Watermark (free tier only) ─── */
         function applyWatermarkToFile(file) {
             return new Promise(function (resolve, reject) {
-                const img = new Image();
-                const url = URL.createObjectURL(file);
+                var img = new Image();
+                var url = URL.createObjectURL(file);
                 img.onload = function () {
                     try {
-                        const w = img.naturalWidth;
-                        const h = img.naturalHeight;
-                        watermarkCanvas.width = w;
+                        var w = img.naturalWidth, h = img.naturalHeight;
+                        watermarkCanvas.width  = w;
                         watermarkCanvas.height = h;
-                        const ctx = watermarkCanvas.getContext('2d');
+                        var ctx = watermarkCanvas.getContext('2d');
                         ctx.drawImage(img, 0, 0);
                         var fontSize = Math.max(16, Math.round(w / 22));
                         ctx.font = 'bold ' + fontSize + "px 'Segoe UI', Urbanist, sans-serif";
                         var text = 'Powered by SnapNexus';
-                        var pad = Math.round(w * 0.025);
-                        var tw = ctx.measureText(text).width;
-                        var x = w - pad - tw;
-                        var y = h - pad;
-                        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-                        ctx.strokeStyle = 'rgba(0, 0, 0, 0.35)';
-                        ctx.lineWidth = Math.max(2, fontSize / 10);
-                        ctx.strokeText(text, x, y);
-                        ctx.fillText(text, x, y);
+                        var pad  = Math.round(w * 0.025);
+                        var tw   = ctx.measureText(text).width;
+                        ctx.fillStyle   = 'rgba(255,255,255,0.5)';
+                        ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+                        ctx.lineWidth   = Math.max(2, fontSize / 10);
+                        ctx.strokeText(text, w - pad - tw, h - pad);
+                        ctx.fillText(text,   w - pad - tw, h - pad);
                         watermarkCanvas.toBlob(function (blob) {
                             URL.revokeObjectURL(url);
-                            if (!blob) {
-                                reject(new Error('Watermark failed'));
-                                return;
-                            }
-                            var base = file.name.replace(/\s/g, '_');
-                            var outName = base.replace(/\.[^.]+$/, '') + '_snapnexus.jpg';
-                            var outFile = new File([blob], outName, { type: 'image/jpeg', lastModified: Date.now() });
-                            resolve(outFile);
+                            if (!blob) { reject(new Error('Watermark failed')); return; }
+                            var outName = file.name.replace(/\s/g, '_').replace(/\.[^.]+$/, '') + '_snapnexus.jpg';
+                            resolve(new File([blob], outName, { type: 'image/jpeg', lastModified: Date.now() }));
                         }, 'image/jpeg', 0.9);
-                    } catch (e) {
-                        URL.revokeObjectURL(url);
-                        reject(e);
-                    }
+                    } catch (e) { URL.revokeObjectURL(url); reject(e); }
                 };
-                img.onerror = function () {
-                    URL.revokeObjectURL(url);
-                    reject(new Error('Image load failed'));
-                };
+                img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('Image load failed')); };
                 img.src = url;
             });
         }
 
+        /* ─── Check event is_active + read is_premium ─── */
         async function checkEventActiveOnce() {
             try {
-                const res = await nexusClient
+                var res = await nexusClient
                     .from('events')
-                    .select('is_active')
+                    .select('is_active, is_premium')
                     .eq('event_code', eventId)
                     .maybeSingle();
-
-                if (res && !res.error && res.data && res.data.is_active === false) {
-                    setEventEndedUI(true);
-                    return false;
+                if (res && !res.error && res.data) {
+                    eventIsPremium = !!res.data.is_premium;
+                    if (res.data.is_active === false) {
+                        setEventEndedUI();
+                        return false;
+                    }
                 }
-            } catch (e) {
-                // Fail open if the lookup fails.
-            }
+            } catch (e) { /* fail open */ }
             return true;
         }
 
+        /* ─── Real-time bouncer: listens for host ending the event ─── */
         function subscribeToEventBouncer() {
             nexusClient
                 .channel('event-bouncer-' + eventId)
-                .on(
-                    'postgres_changes',
-                    {
-                        event: 'UPDATE',
-                        schema: 'public',
-                        table: 'events',
-                        filter: 'event_code=eq.' + eventId
-                    },
-                    function (payload) {
-                        if (!payload || !payload.new) return;
-                        if (payload.new.is_active === false) {
-                            setEventEndedUI(true);
-                        }
+                .on('postgres_changes', {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'events',
+                    filter: 'event_code=eq.' + eventId
+                }, function (payload) {
+                    if (!payload || !payload.new) return;
+                    if (payload.new.is_active === false) setEventEndedUI();
+                    if (typeof payload.new.is_premium === 'boolean') {
+                        eventIsPremium = payload.new.is_premium;
+                        checkUploadAllowed();
                     }
-                )
+                })
                 .subscribe();
         }
 
+        /* ─── Gallery: reads from event-photos/{eventId}/ ─── */
         async function loadGallery() {
-            const grid = document.getElementById('gallery-grid');
-            const prefix = eventFolderPrefix();
-            const { data, error } = await nexusClient.storage.from(STORAGE_BUCKET).list(prefix, {
+            var grid = document.getElementById('gallery-grid');
+            var res  = await nexusClient.storage.from(STORAGE_BUCKET).list(eventFolder(), {
                 limit: 100,
                 sortBy: { column: 'created_at', order: 'desc' }
             });
-            if (error) {
-                grid.innerHTML = '';
-                return;
-            }
-            var files = (data || []).filter(function (f) { return f.name && f.name.indexOf('.') !== -1; }).slice(0, 4);
+            if (res.error) { grid.innerHTML = ''; return; }
+            var files = (res.data || []).filter(function (f) { return f.name && f.name.indexOf('.') !== -1; }).slice(0, 4);
             grid.innerHTML = '';
             files.forEach(function (file) {
-                var path = prefix + '/' + file.name;
-                var urlResult = nexusClient.storage.from(STORAGE_BUCKET).getPublicUrl(path);
-                var publicUrl = urlResult.data.publicUrl;
+                var path      = eventFolder() + '/' + file.name;
+                var publicUrl = nexusClient.storage.from(STORAGE_BUCKET).getPublicUrl(path).data.publicUrl;
                 grid.innerHTML +=
                     '<div style="position:relative">' +
-                    '<img src="' + publicUrl + '" alt="" style="width:100%; height:80px; object-fit:cover; border-radius:10px;">' +
-                    '<a href="' + publicUrl + '" download style="position:absolute; bottom:5px; right:5px; background:rgba(255,152,0,0.8); color:white; padding:2px 5px; border-radius:5px; font-size:10px; text-decoration:none;">📥</a>' +
+                    '<img src="' + publicUrl + '" alt="" style="width:100%;height:80px;object-fit:cover;border-radius:10px;">' +
+                    '<a href="' + publicUrl + '" download style="position:absolute;bottom:5px;right:5px;background:rgba(255,152,0,0.8);color:white;padding:2px 5px;border-radius:5px;font-size:10px;text-decoration:none;">📥</a>' +
                     '</div>';
             });
         }
 
-        upgradeBtn.addEventListener('click', function () {
-            if (typeof Razorpay === 'undefined') {
-                alert('Payment script failed to load. Check your connection.');
-                return;
-            }
-            if (!RAZORPAY_KEY_ID || RAZORPAY_KEY_ID.indexOf('REPLACE') !== -1) {
-                alert('Set RAZORPAY_KEY_ID in index.html to your Razorpay Key ID.');
-                return;
-            }
-            var options = {
-                key: RAZORPAY_KEY_ID,
-                amount: 49900,
-                currency: 'INR',
-                name: 'SnapNexus',
-                description: 'SnapNexus Pro — unlimited uploads',
-                handler: function () {
-                    localStorage.setItem('is_premium', 'true');
-                    applyUiLocked(false);
-                    st.innerText = 'Pro unlocked — unlimited uploads, no watermark.';
-                    st.setAttribute('success', '');
-                    st.removeAttribute('fail');
-                    checkMonetization();
-                    loadGallery();
-                },
-                theme: { color: '#ff9800' },
-                modal: { ondismiss: function () {} }
-            };
-            var rzp = new Razorpay(options);
-            rzp.open();
-        });
-
+        /* ─── File input handler ─── */
         fileInput.onchange = async function (e) {
-            if (eventEnded) {
-                e.target.value = '';
-                return;
-            }
-            if (await checkMonetization()) {
-                e.target.value = '';
-                return;
-            }
+            if (eventEnded) { e.target.value = ''; return; }
+
+            /* Gatekeeper check */
+            var allowed = await checkUploadAllowed();
+            if (!allowed) { e.target.value = ''; return; }
+
             var file = e.target.files[0];
             selectedFileDiv.innerHTML = '';
             if (!file) {
                 st.innerText = 'System Online';
-                st.removeAttribute('success');
-                st.removeAttribute('fail');
+                st.removeAttribute('success'); st.removeAttribute('fail');
                 return;
             }
 
             var chip = document.createElement('div');
-            chip.className = 'file-chip';
-            chip.textContent = file.name.length > 26 ? file.name.slice(0, 22) + '...' : file.name;
+            chip.className   = 'file-chip';
+            chip.textContent = file.name.length > 26 ? file.name.slice(0, 22) + '…' : file.name;
             selectedFileDiv.appendChild(chip);
 
-            st.innerText = 'Uploading...';
-            st.removeAttribute('fail');
-            st.removeAttribute('success');
+            st.innerText = 'Uploading…';
+            st.removeAttribute('fail'); st.removeAttribute('success');
 
+            /* Apply watermark for free tier */
             var uploadFile = file;
-            if (!isPremium()) {
+            if (!eventIsPremium) {
                 try {
-                    st.innerText = 'Applying watermark...';
+                    st.innerText = 'Applying watermark…';
                     uploadFile = await applyWatermarkToFile(file);
                 } catch (err) {
                     alert('Could not process image: ' + (err && err.message ? err.message : String(err)));
-                    st.innerText = '❌ Failed';
-                    st.setAttribute('fail', '');
-                    e.target.value = '';
-                    return;
+                    st.innerText = '❌ Failed'; st.setAttribute('fail', ''); e.target.value = ''; return;
                 }
             }
 
+            /* Upload to event-photos/{eventId}/timestamp_filename */
             var safeName = uploadFile.name.replace(/\s/g, '_');
-            var path = eventFolderPrefix() + '/' + Date.now() + '_' + safeName;
+            var path     = eventFolder() + '/' + Date.now() + '_' + safeName;
 
             var up = await nexusClient.storage.from(STORAGE_BUCKET).upload(path, uploadFile);
-            if (up.error) {
-                alert('Failed: ' + up.error.message);
-                st.innerText = '❌ Failed';
-                st.setAttribute('fail', '');
-                st.removeAttribute('success');
-            } else {
-                alert('✅ Success! Photo uploaded.');
-                st.innerText = '✅ Uploaded!';
-                st.setAttribute('success', '');
-                st.removeAttribute('fail');
-                setTimeout(function () {
-                    loadGallery();
-                    checkMonetization();
-                }, 500);
-            }
             e.target.value = '';
+
+            if (up.error) {
+                alert('Upload failed: ' + up.error.message);
+                st.innerText = '❌ Failed'; st.setAttribute('fail', ''); st.removeAttribute('success');
+            } else {
+                alert('✅ Photo uploaded!');
+                st.innerText = '✅ Uploaded!'; st.setAttribute('success', ''); st.removeAttribute('fail');
+                setTimeout(function () { loadGallery(); checkUploadAllowed(); }, 600);
+            }
         };
 
+        /* ─── Boot ─── */
         (async function boot() {
             var active = await checkEventActiveOnce();
             if (!active) return;
-
             showUploadUI();
             subscribeToEventBouncer();
-
-            checkMonetization();
+            await checkUploadAllowed();
             loadGallery();
-            setInterval(function () {
+            /* Re-check every 30 s (handles edge case where premium is activated mid-event) */
+            setInterval(async function () {
                 if (eventEnded) return;
-                if (!isPremium()) checkMonetization();
+                await checkEventActiveOnce();
+                checkUploadAllowed();
             }, 30000);
         })();
     </script>

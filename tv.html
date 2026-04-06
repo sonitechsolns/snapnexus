@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SnapNexus | Live Event Wall</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@600;700;800;900&display=swap" rel="stylesheet">
@@ -28,48 +27,36 @@
             scrollbar-width: none;
             -ms-overflow-style: none;
         }
-        body::-webkit-scrollbar {
-            display: none;
-        }
+        body::-webkit-scrollbar { display: none; }
 
         .header {
             position: fixed;
-            top: 0;
-            left: 0;
+            top: 0; left: 0;
             width: 100%;
             padding: 18px 32px;
-            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.98) 0%, rgba(15, 23, 42, 0) 100%);
+            background: linear-gradient(to bottom, rgba(15,23,42,0.98) 0%, rgba(15,23,42,0) 100%);
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 200;
             pointer-events: none;
         }
-        .header * {
-            pointer-events: auto;
-        }
+        .header * { pointer-events: auto; }
 
         .brand-area {
             display: flex;
             align-items: center;
             gap: 14px;
         }
-
         .brand-logo {
-            width: 48px;
-            height: 48px;
+            width: 48px; height: 48px;
             border-radius: 12px;
             border: 2px solid #ff9800;
-            box-shadow: 0 0 15px rgba(255, 152, 0, 0.3);
+            box-shadow: 0 0 15px rgba(255,152,0,0.3);
             object-fit: contain;
             background: #fff;
         }
-
-        .brand-text {
-            display: flex;
-            flex-direction: column;
-        }
-
+        .brand-text { display: flex; flex-direction: column; }
         .brand-title {
             font-family: 'Urbanist', sans-serif;
             font-size: clamp(1.35rem, 3.5vw, 2rem);
@@ -78,7 +65,6 @@
             letter-spacing: 1.2px;
             line-height: 1;
         }
-
         .brand-subtitle {
             font-size: clamp(0.8rem, 1.8vw, 1rem);
             color: #94a3b8;
@@ -86,23 +72,21 @@
             letter-spacing: 0.4px;
             margin-top: 3px;
         }
-
         .event-badge {
-            background: rgba(255, 152, 0, 0.15);
-            border: 1px solid rgba(255, 152, 0, 0.4);
+            background: rgba(255,152,0,0.15);
+            border: 1px solid rgba(255,152,0,0.4);
             padding: 8px 20px;
             border-radius: 50px;
-            font-size: clamp(0.95rem, 2vw, 1.15rem);
+            font-size: clamp(0.95rem,2vw,1.15rem);
             font-weight: 800;
             color: #ffb74d;
-            box-shadow: 0 0 20px rgba(255, 152, 0, 0.1);
+            box-shadow: 0 0 20px rgba(255,152,0,0.1);
             font-family: 'Urbanist', sans-serif;
         }
 
         .spotlight-main {
             position: fixed;
-            top: 0;
-            left: 0;
+            top: 0; left: 0;
             width: 100%;
             height: 100vh;
             padding-top: 92px;
@@ -111,7 +95,6 @@
             align-items: center;
             justify-content: center;
         }
-
         .spotlight-stage {
             position: relative;
             width: 100%;
@@ -119,45 +102,35 @@
             max-width: 100vw;
             max-height: 100%;
         }
-
         .spot-layer {
             position: absolute;
-            left: 50%;
-            top: 50%;
+            left: 50%; top: 50%;
             transform: translate(-50%, -50%);
-            max-width: 100%;
-            max-height: 100%;
-            width: auto;
-            height: auto;
+            max-width: 100%; max-height: 100%;
+            width: auto; height: auto;
             object-fit: contain;
             opacity: 0;
             transition: opacity 1.1s ease-in-out;
             pointer-events: none;
             border-radius: 8px;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.55);
+            box-shadow: 0 25px 80px rgba(0,0,0,0.55);
         }
-
-        .spot-layer.visible {
-            opacity: 1;
-        }
+        .spot-layer.visible { opacity: 1; }
 
         .empty-state {
             position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
+            left: 50%; top: 50%;
+            transform: translate(-50%,-50%);
             text-align: center;
             color: #64748b;
-            font-size: clamp(1.1rem, 3vw, 1.5rem);
+            font-size: clamp(1.1rem,3vw,1.5rem);
             font-weight: 700;
             font-family: 'Urbanist', sans-serif;
             z-index: 5;
             padding: 24px;
             display: none;
         }
-        .empty-state.show {
-            display: block;
-        }
+        .empty-state.show { display: block; }
         .empty-state span {
             display: block;
             font-size: 0.92em;
@@ -166,36 +139,32 @@
             margin-top: 10px;
         }
 
-        /* YouTube-style control dock */
+        /* ── YouTube-style control dock ── */
         .yt-dock {
             position: fixed;
-            right: 24px;
-            bottom: 24px;
+            right: 24px; bottom: 24px;
             z-index: 210;
             display: flex;
             align-items: center;
             gap: 10px;
             padding: 10px 14px;
-            background: rgba(15, 23, 42, 0.88);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(15,23,42,0.88);
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.45);
             backdrop-filter: blur(12px);
         }
-
         .fs-wrap {
             position: relative;
             display: inline-flex;
             align-items: center;
             justify-content: center;
         }
-
         .fs-btn {
-            width: 48px;
-            height: 48px;
+            width: 48px; height: 48px;
             border: none;
             border-radius: 10px;
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255,255,255,0.08);
             color: #e2e8f0;
             cursor: pointer;
             display: flex;
@@ -203,56 +172,130 @@
             justify-content: center;
             transition: opacity 0.25s ease, background 0.2s ease, transform 0.15s ease;
         }
-        .fs-btn:hover {
-            background: rgba(255, 255, 255, 0.14);
-        }
-        .fs-btn:active {
-            transform: scale(0.96);
-        }
-
-        .fs-btn.locked {
-            opacity: 0.42;
-            cursor: pointer;
-        }
-
-        .fs-btn.unlocked {
-            opacity: 1;
-            cursor: pointer;
-        }
-
-        .fs-btn svg {
-            width: 26px;
-            height: 26px;
-        }
+        .fs-btn:hover { background: rgba(255,255,255,0.14); }
+        .fs-btn:active { transform: scale(0.96); }
+        .fs-btn.locked   { opacity: 0.42; }
+        .fs-btn.unlocked { opacity: 1; }
+        .fs-btn svg { width: 26px; height: 26px; }
 
         .premium-float {
             position: absolute;
-            top: -8px;
-            right: -6px;
+            top: -8px; right: -6px;
             font-size: 11px;
             font-weight: 900;
             color: #fbbf24;
-            background: rgba(15, 23, 42, 0.95);
-            border: 1px solid rgba(251, 191, 36, 0.5);
+            background: rgba(15,23,42,0.95);
+            border: 1px solid rgba(251,191,36,0.5);
             border-radius: 999px;
             padding: 2px 7px 3px;
             line-height: 1.2;
             white-space: nowrap;
             pointer-events: none;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
             font-family: 'Urbanist', sans-serif;
             letter-spacing: 0.3px;
         }
-        .premium-float.hidden {
-            display: none;
+        .premium-float.hidden { display: none; }
+
+        /* ── FREE TIER: persistent watermark overlay ── */
+        #freeTierWatermark {
+            position: fixed;
+            bottom: 28px;
+            left: 28px;
+            z-index: 205;
+            display: none;               /* shown only for free tier */
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(15,23,42,0.72);
+            border: 1px solid rgba(255,152,0,0.3);
+            border-radius: 999px;
+            backdrop-filter: blur(8px);
+            pointer-events: none;
+        }
+        #freeTierWatermark.show { display: flex; }
+        #freeTierWatermark span {
+            font-family: 'Urbanist', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: rgba(255,152,0,0.85);
+            letter-spacing: 0.5px;
+        }
+        #freeTierWatermark svg {
+            width: 14px; height: 14px;
+            flex-shrink: 0;
         }
 
-        /* Modal */
-        .modal-overlay {
+        /* ── FREE TIER: branding interstitial (shown every 5 photos) ── */
+        #brandInterstitial {
             position: fixed;
             inset: 0;
             z-index: 300;
-            background: rgba(2, 6, 23, 0.72);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(255,152,0,0.18), transparent),
+                        rgba(15,23,42,0.96);
+            backdrop-filter: blur(4px);
+            text-align: center;
+            gap: 18px;
+        }
+        #brandInterstitial.show { display: flex; animation: interstitialIn 0.5s ease; }
+        @keyframes interstitialIn {
+            from { opacity: 0; transform: scale(0.96); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+        .interstitial-logo {
+            width: 80px; height: 80px;
+            border-radius: 20px;
+            border: 2px solid rgba(255,152,0,0.5);
+            object-fit: contain;
+            background: #fff;
+        }
+        .interstitial-title {
+            font-family: 'Urbanist', sans-serif;
+            font-size: clamp(1.8rem, 5vw, 3.2rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff9800 0%, #ffec43 45%, #ff7200 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+        .interstitial-sub {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            color: #94a3b8;
+            font-weight: 600;
+            max-width: 420px;
+            line-height: 1.6;
+        }
+        .interstitial-cta {
+            display: inline-block;
+            padding: 12px 28px;
+            border-radius: 999px;
+            font-family: 'Urbanist', sans-serif;
+            font-weight: 900;
+            font-size: 0.95rem;
+            color: #1a0f00;
+            background: linear-gradient(135deg, #ff9800 0%, #ff7200 100%);
+            box-shadow: 0 6px 28px rgba(255,152,0,0.4);
+            text-decoration: none;
+        }
+        .interstitial-countdown {
+            font-size: 0.82rem;
+            color: #475569;
+            font-weight: 700;
+            font-family: 'Urbanist', sans-serif;
+        }
+
+        /* ── Fullscreen modal (replaces old upsell — now just shows UPI info) ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 400;
+            background: rgba(2,6,23,0.72);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -261,10 +304,7 @@
             visibility: hidden;
             transition: opacity 0.3s ease, visibility 0.3s ease;
         }
-        .modal-overlay.open {
-            opacity: 1;
-            visibility: visible;
-        }
+        .modal-overlay.open { opacity: 1; visibility: visible; }
 
         .modal-card {
             position: relative;
@@ -272,112 +312,93 @@
             max-width: 420px;
             padding: 32px 28px 28px;
             border-radius: 20px;
-            background: rgba(30, 41, 59, 0.55);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+            background: rgba(30,41,59,0.55);
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 24px 80px rgba(0,0,0,0.5);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
+            text-align: center;
         }
-
         .modal-close {
             position: absolute;
-            top: 14px;
-            right: 14px;
-            width: 40px;
-            height: 40px;
+            top: 14px; right: 14px;
+            width: 40px; height: 40px;
             border: none;
             border-radius: 10px;
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(255,255,255,0.06);
             color: #94a3b8;
             font-size: 22px;
             line-height: 1;
             cursor: pointer;
             transition: background 0.2s, color 0.2s;
         }
-        .modal-close:hover {
-            background: rgba(255, 255, 255, 0.12);
-            color: #f1f5f9;
-        }
+        .modal-close:hover { background: rgba(255,255,255,0.12); color: #f1f5f9; }
 
         .modal-title {
             font-family: 'Urbanist', sans-serif;
-            font-size: 1.55rem;
+            font-size: 1.45rem;
             font-weight: 900;
             color: #f8fafc;
-            margin-bottom: 10px;
-            letter-spacing: 0.4px;
+            margin-bottom: 8px;
             padding-right: 36px;
         }
-
         .modal-sub {
-            font-size: 0.98rem;
+            font-size: 0.92rem;
             color: #94a3b8;
             font-weight: 600;
-            line-height: 1.45;
-            margin-bottom: 22px;
-        }
-
-        .modal-label {
-            display: block;
-            font-size: 0.82rem;
-            font-weight: 700;
-            color: #cbd5e1;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
-
-        .modal-input {
-            width: 100%;
-            padding: 14px 16px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            background: rgba(15, 23, 42, 0.65);
-            color: #f8fafc;
-            font-size: 1rem;
-            font-family: 'Urbanist', sans-serif;
+            line-height: 1.5;
             margin-bottom: 20px;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        .modal-input:focus {
-            border-color: rgba(255, 152, 0, 0.55);
-            box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.15);
+        .modal-qr-wrap {
+            display: inline-block;
+            padding: 10px;
+            background: #fff;
+            border-radius: 12px;
+            margin-bottom: 14px;
         }
-        .modal-input::placeholder {
+        .modal-qr-wrap img { display: block; width: 160px; height: 160px; border-radius: 6px; }
+        .modal-upi-pill {
+            display: inline-block;
+            padding: 6px 14px;
+            background: rgba(255,152,0,0.1);
+            border: 1px solid rgba(255,152,0,0.25);
+            border-radius: 999px;
+            font-size: 0.88rem;
+            font-weight: 800;
+            color: #ff9800;
+            margin-bottom: 12px;
+        }
+        .modal-dm-note {
+            font-size: 0.8rem;
+            font-weight: 700;
             color: #64748b;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 10px;
+            padding: 9px 12px;
+            line-height: 1.5;
         }
-
-        .modal-pay {
+        .modal-dm-note span { color: #ff9800; }
+        .btn-modal-dismiss {
             width: 100%;
-            padding: 16px 20px;
-            border: none;
-            border-radius: 14px;
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.05);
+            color: #f8fafc;
             font-family: 'Urbanist', sans-serif;
-            font-size: 1.05rem;
-            font-weight: 900;
-            color: #1a0f00;
+            font-weight: 800;
+            font-size: 0.95rem;
             cursor: pointer;
-            background: linear-gradient(135deg, #ff9800 0%, #ffec43 45%, #ff7200 100%);
-            box-shadow: 0 8px 28px rgba(255, 152, 0, 0.35);
-            transition: transform 0.15s ease, box-shadow 0.2s ease;
+            transition: background 0.2s;
         }
-        .modal-pay:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 12px 36px rgba(255, 152, 0, 0.42);
-        }
-        .modal-pay:active {
-            transform: translateY(0);
-        }
+        .btn-modal-dismiss:hover { background: rgba(255,255,255,0.09); }
 
         @media (max-width: 600px) {
-            .header {
-                padding: 14px 16px;
-            }
-            .yt-dock {
-                right: 12px;
-                bottom: 12px;
-            }
+            .header { padding: 14px 16px; }
+            .yt-dock { right: 12px; bottom: 12px; }
+            #freeTierWatermark { bottom: 14px; left: 14px; }
         }
     </style>
 </head>
@@ -405,6 +426,42 @@
         </div>
     </main>
 
+    <!-- FREE TIER: Persistent bottom-left watermark -->
+    <div id="freeTierWatermark" aria-hidden="true">
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="8" cy="8" r="7" stroke="#ff9800" stroke-width="1.5"/>
+            <path d="M5 8l2 2 4-4" stroke="#ff9800" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Powered by SnapNexus</span>
+    </div>
+
+    <!-- FREE TIER: Branding interstitial (shown every 5 photos, 5 seconds) -->
+    <div id="brandInterstitial" aria-hidden="true">
+        <img src="SNAPN.png" alt="SnapNexus" class="interstitial-logo" onerror="this.style.display='none'">
+        <div class="interstitial-title">SnapNexus</div>
+        <div class="interstitial-sub">Live Interactive Photo Wall — No app needed. Guests scan, snap, and see it on screen instantly.</div>
+        <a href="/" class="interstitial-cta">Get SnapNexus for your event →</a>
+        <div class="interstitial-countdown" id="interstitialCountdown">Resuming in 5…</div>
+    </div>
+
+    <!-- Fullscreen upsell modal (replaces Razorpay — UPI flow instead) -->
+    <div class="modal-overlay" id="upsellModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-card">
+            <button type="button" class="modal-close" id="modalClose" aria-label="Close">×</button>
+            <h2 class="modal-title" id="modalTitle">Unlock True Fullscreen</h2>
+            <p class="modal-sub">Upgrade this event to Premium via UPI, then DM proof to @snapn.exus to activate.</p>
+            <div class="modal-qr-wrap">
+                <img id="fsUpiQr" src="" alt="UPI QR" width="160" height="160">
+            </div>
+            <div class="modal-upi-pill" id="fsUpiPill">YOUR_UPI_ID@upi</div>
+            <div class="modal-dm-note">
+                Pay ₹999 &amp; DM the screenshot to <span>@snapn.exus</span> on Instagram to activate Premium.
+            </div>
+            <button type="button" class="btn-modal-dismiss" id="modalDismiss">Close</button>
+        </div>
+    </div>
+
+    <!-- Fullscreen dock -->
     <div class="yt-dock">
         <div class="fs-wrap">
             <button type="button" class="fs-btn locked" id="fsBtn" aria-label="Fullscreen">
@@ -412,142 +469,185 @@
                     <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
                 </svg>
             </button>
-            <span class="premium-float" id="premiumFloat">👑 Premium</span>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="upsellModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-        <div class="modal-card">
-            <button type="button" class="modal-close" id="modalClose" aria-label="Close">×</button>
-            <h2 class="modal-title" id="modalTitle">Unlock True Fullscreen</h2>
-            <p class="modal-sub">Login as Host to unlock fullscreen and remove all limits for this event.</p>
-            <label class="modal-label" for="hostEmail">Host email</label>
-            <input type="email" class="modal-input" id="hostEmail" placeholder="host@yourstudio.com" autocomplete="email">
-            <button type="button" class="modal-pay" id="modalPayBtn">Pay ₹499 to Unlock</button>
+            <span class="premium-float" id="premiumFloat">👑 Pro</span>
         </div>
     </div>
 
     <script>
-        const S_URL = 'https://yaxajpojbssrrdcyuzeo.supabase.co';
-        const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
-        const RAZORPAY_KEY_ID = 'rzp_test_REPLACE_ME';
+        /* ════════════════════════════════════════
+           CONFIG — S_URL / S_KEY untouched
+        ════════════════════════════════════════ */
+        var S_URL = 'https://yaxajpojbssrrdcyuzeo.supabase.co';
+        var S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
 
-        const nexusClient = supabase.createClient(S_URL, S_KEY);
+        /* ─── UPI config — replace with real UPI ID ─── */
+        var UPI_ID   = 'YOUR_UPI_ID@upi';
+        var UPI_NAME = 'SnapNexus';
+        var UPI_AMT  = '999';
+        var UPI_NOTE = 'Premium_Upgrade';
 
-        const emptyState = document.getElementById('emptyState');
-        const spotlightStage = document.getElementById('spotlightStage');
-        const layer0 = document.getElementById('spotLayer0');
-        const layer1 = document.getElementById('spotLayer1');
-        const eventBadge = document.getElementById('eventBadge');
-        const fsBtn = document.getElementById('fsBtn');
-        const premiumFloat = document.getElementById('premiumFloat');
-        const upsellModal = document.getElementById('upsellModal');
-        const modalClose = document.getElementById('modalClose');
-        const hostEmail = document.getElementById('hostEmail');
-        const modalPayBtn = document.getElementById('modalPayBtn');
+        /* ─── Storage constants — must match dashboard.html and app.html ─── */
+        var BUCKET     = 'events';
+        var PHOTO_ROOT = 'event-photos';   /* NEW: event-photos/{eventId}/ */
 
-        const layers = [layer0, layer1];
-        let visibleLayerIndex = 0;
-        let urls = [];
-        let slideIndex = 0;
-        let lastNewestName = null;
-        let cycleTimer = null;
-        let firstImageShown = false;
+        var nexusClient = supabase.createClient(S_URL, S_KEY);
 
+        /* ─── DOM refs ─── */
+        var emptyState        = document.getElementById('emptyState');
+        var spotlightStage    = document.getElementById('spotlightStage');
+        var layer0            = document.getElementById('spotLayer0');
+        var layer1            = document.getElementById('spotLayer1');
+        var eventBadge        = document.getElementById('eventBadge');
+        var fsBtn             = document.getElementById('fsBtn');
+        var premiumFloat      = document.getElementById('premiumFloat');
+        var upsellModal       = document.getElementById('upsellModal');
+        var modalClose        = document.getElementById('modalClose');
+        var modalDismiss      = document.getElementById('modalDismiss');
+        var freeTierWatermark = document.getElementById('freeTierWatermark');
+        var brandInterstitial = document.getElementById('brandInterstitial');
+        var interstitialCountdown = document.getElementById('interstitialCountdown');
+        var fsUpiQr           = document.getElementById('fsUpiQr');
+        var fsUpiPill         = document.getElementById('fsUpiPill');
+
+        var layers           = [layer0, layer1];
+        var visibleLayerIndex = 0;
+        var urls             = [];
+        var slideIndex       = 0;
+        var lastNewestName   = null;
+        var cycleTimer       = null;
+        var firstImageShown  = false;
+        var photosSinceAd    = 0;        /* counter for free-tier interstitial */
+        var interstitialActive = false;
+        var eventIsPremium   = false;    /* fetched from events table */
+
+        /* ─── Event ID ─── */
         function sanitizeEventId(raw) {
             if (!raw || typeof raw !== 'string') return 'public';
-            const s = raw.trim().replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64);
+            var s = raw.trim().replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64);
             return s || 'public';
         }
-
-        function getEventIdFromUrl() {
-            const q = new URLSearchParams(window.location.search).get('event');
-            return sanitizeEventId(q || 'public');
-        }
-
-        const eventId = getEventIdFromUrl();
+        var eventId  = sanitizeEventId(new URLSearchParams(window.location.search).get('event') || 'public');
         eventBadge.textContent = 'Event: ' + eventId;
-        const folderPath = 'live/' + eventId;
 
-        function isTvPremium() {
-            return localStorage.getItem('tv_premium') === 'true';
+        /* ─── Storage folder: event-photos/{eventId}/ ─── */
+        var folderPath = PHOTO_ROOT + '/' + eventId;
+
+        /* ─── Fetch is_premium from events table ─── */
+        async function fetchPremiumStatus() {
+            try {
+                var res = await nexusClient
+                    .from('events')
+                    .select('is_premium')
+                    .eq('event_code', eventId)
+                    .maybeSingle();
+                if (res && !res.error && res.data) {
+                    eventIsPremium = !!res.data.is_premium;
+                }
+            } catch (e) { /* fail open — treat as free */ }
+            applyFreeTierUi();
         }
 
-        function applyPremiumUi() {
-            fsBtn.classList.remove('locked');
-            fsBtn.classList.add('unlocked');
-            premiumFloat.classList.add('hidden');
+        /* ─── Free-tier UI: watermark + premium float badge ─── */
+        function applyFreeTierUi() {
+            if (eventIsPremium) {
+                freeTierWatermark.classList.remove('show');
+                premiumFloat.classList.add('hidden');
+                fsBtn.classList.remove('locked');
+                fsBtn.classList.add('unlocked');
+            } else {
+                freeTierWatermark.classList.add('show');
+                premiumFloat.classList.remove('hidden');
+                fsBtn.classList.add('locked');
+                fsBtn.classList.remove('unlocked');
+            }
         }
 
-        function applyLockedUi() {
-            fsBtn.classList.add('locked');
-            fsBtn.classList.remove('unlocked');
-            premiumFloat.classList.remove('hidden');
+        /* ─── Branding interstitial (free tier, every 5 photos) ─── */
+        function showInterstitial() {
+            if (eventIsPremium || interstitialActive) return;
+            interstitialActive = true;
+            brandInterstitial.setAttribute('aria-hidden', 'false');
+            brandInterstitial.classList.add('show');
+
+            var secs = 5;
+            interstitialCountdown.textContent = 'Resuming in ' + secs + '…';
+            var tick = setInterval(function () {
+                secs--;
+                if (secs <= 0) {
+                    clearInterval(tick);
+                    brandInterstitial.classList.remove('show');
+                    brandInterstitial.setAttribute('aria-hidden', 'true');
+                    interstitialActive   = false;
+                    photosSinceAd        = 0;
+                } else {
+                    interstitialCountdown.textContent = 'Resuming in ' + secs + '…';
+                }
+            }, 1000);
         }
 
-        if (isTvPremium()) {
-            applyPremiumUi();
-        } else {
-            applyLockedUi();
+        /* ─── UPI deep link for fullscreen modal ─── */
+        function buildUpiDeepLink() {
+            return 'upi://pay?pa=' + encodeURIComponent(UPI_ID)
+                + '&pn=' + encodeURIComponent(UPI_NAME)
+                + '&am=' + UPI_AMT
+                + '&tn=' + encodeURIComponent(UPI_NOTE);
         }
 
+        /* ─── Fullscreen modal ─── */
         function openModal() {
+            fsUpiQr.src = 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=' + encodeURIComponent(buildUpiDeepLink());
+            fsUpiPill.textContent = UPI_ID;
             upsellModal.classList.add('open');
-            hostEmail.focus();
         }
-
         function closeModal() {
             upsellModal.classList.remove('open');
         }
-
         modalClose.addEventListener('click', closeModal);
-        upsellModal.addEventListener('click', function (e) {
-            if (e.target === upsellModal) closeModal();
-        });
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape' && upsellModal.classList.contains('open')) closeModal();
-        });
+        modalDismiss.addEventListener('click', closeModal);
+        upsellModal.addEventListener('click', function (e) { if (e.target === upsellModal) closeModal(); });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && upsellModal.classList.contains('open')) closeModal(); });
 
-        function showUrl(url, onDone) {
-            if (!url) {
-                if (onDone) onDone();
+        /* ─── Fullscreen button ─── */
+        fsBtn.addEventListener('click', function () {
+            if (eventIsPremium) {
+                var el = document.documentElement;
+                if (!document.fullscreenElement) {
+                    var req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+                    if (req) req.call(el).catch(function () {});
+                } else {
+                    var exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+                    if (exit) exit.call(document);
+                }
                 return;
             }
-            const nextIdx = 1 - visibleLayerIndex;
-            const nextEl = layers[nextIdx];
-            const curEl = layers[visibleLayerIndex];
+            openModal();
+        });
 
+        /* ─── Image crossfade ─── */
+        function showUrl(url, onDone) {
+            if (!url) { if (onDone) onDone(); return; }
+            var nextIdx = 1 - visibleLayerIndex;
+            var nextEl  = layers[nextIdx];
+            var curEl   = layers[visibleLayerIndex];
             function finalize() {
                 nextEl.classList.add('visible');
                 curEl.classList.remove('visible');
                 visibleLayerIndex = nextIdx;
                 if (onDone) onDone();
             }
-
-            if (nextEl.src === url) {
-                finalize();
-                return;
-            }
-
+            if (nextEl.src === url) { finalize(); return; }
             var done = false;
-            function finishOnce() {
-                if (done) return;
-                done = true;
-                finalize();
-            }
-
-            nextEl.onload = finishOnce;
+            function finishOnce() { if (done) return; done = true; finalize(); }
+            nextEl.onload  = finishOnce;
             nextEl.onerror = finishOnce;
             nextEl.src = url;
-
-            if (nextEl.complete && nextEl.naturalWidth > 0) {
-                finishOnce();
-            }
+            if (nextEl.complete && nextEl.naturalWidth > 0) finishOnce();
         }
 
         function restartCycleTimer() {
             if (cycleTimer) clearInterval(cycleTimer);
             cycleTimer = setInterval(function () {
+                if (interstitialActive) return;
                 if (urls.length <= 1) return;
                 slideIndex = (slideIndex + 1) % urls.length;
                 showUrl(urls[slideIndex]);
@@ -564,45 +664,36 @@
             }
         }
 
+        /* ─── Fetch from event-photos/{eventId}/ ─── */
         async function fetchLivePhotos() {
-            const { data, error } = await nexusClient.storage.from('events').list(folderPath, {
-                limit: 10,
+            var res = await nexusClient.storage.from(BUCKET).list(folderPath, {
+                limit: 50,
                 sortBy: { column: 'created_at', order: 'desc' }
             });
 
-            if (error) {
-                console.error('Supabase Error:', error);
-                return;
-            }
+            if (res.error) { console.error('Supabase storage error:', res.error); return; }
 
-            const validFiles = (data || []).filter(function (f) {
+            var validFiles = (res.data || []).filter(function (f) {
                 return f.name && f.name.indexOf('.') !== -1;
             });
 
             if (validFiles.length === 0) {
-                urls = [];
-                lastNewestName = null;
-                firstImageShown = false;
-                layer0.classList.remove('visible');
-                layer1.classList.remove('visible');
-                layer0.removeAttribute('src');
-                layer1.removeAttribute('src');
+                urls = []; lastNewestName = null; firstImageShown = false;
+                layer0.classList.remove('visible'); layer1.classList.remove('visible');
+                layer0.removeAttribute('src'); layer1.removeAttribute('src');
                 setEmpty(true);
-                if (cycleTimer) clearInterval(cycleTimer);
-                cycleTimer = null;
+                if (cycleTimer) clearInterval(cycleTimer); cycleTimer = null;
                 return;
             }
 
             setEmpty(false);
 
-            const newUrls = validFiles.map(function (file) {
-                var r = nexusClient.storage.from('events').getPublicUrl(folderPath + '/' + file.name);
-                return r.data.publicUrl;
+            var newUrls = validFiles.map(function (file) {
+                return nexusClient.storage.from(BUCKET).getPublicUrl(folderPath + '/' + file.name).data.publicUrl;
             });
 
-            const newestName = validFiles[0].name;
-            const newestUrl = newUrls[0];
-
+            var newestName = validFiles[0].name;
+            var newestUrl  = newUrls[0];
             urls = newUrls;
 
             if (!firstImageShown) {
@@ -618,74 +709,24 @@
             if (newestName !== lastNewestName) {
                 lastNewestName = newestName;
                 slideIndex = 0;
+                photosSinceAd++;
                 showUrl(newestUrl);
                 restartCycleTimer();
-            }
-        }
 
-        fsBtn.addEventListener('click', function () {
-            if (isTvPremium()) {
-                var el = document.documentElement;
-                if (!document.fullscreenElement) {
-                    var req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
-                    if (req) req.call(el).catch(function () {});
-                } else {
-                    var exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
-                    if (exit) exit.call(document);
+                /* Free tier: show branding interstitial every 5 new photos */
+                if (!eventIsPremium && photosSinceAd >= 5) {
+                    showInterstitial();
                 }
-                return;
             }
-            openModal();
-        });
-
-        function isValidEmail(s) {
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s).trim());
         }
 
-        modalPayBtn.addEventListener('click', function () {
-            if (!isValidEmail(hostEmail.value)) {
-                alert('Please enter a valid host email address.');
-                hostEmail.focus();
-                return;
-            }
-            if (typeof Razorpay === 'undefined') {
-                alert('Payment script failed to load.');
-                return;
-            }
-            if (!RAZORPAY_KEY_ID || RAZORPAY_KEY_ID.indexOf('REPLACE') !== -1) {
-                alert('Set RAZORPAY_KEY_ID in tv.html to your Razorpay Key ID.');
-                return;
-            }
-
-            var emailTrim = hostEmail.value.trim();
-
-            var options = {
-                key: RAZORPAY_KEY_ID,
-                amount: 49900,
-                currency: 'INR',
-                name: 'SnapNexus',
-                description: 'TV Host — True Fullscreen',
-                prefill: { email: emailTrim },
-                handler: function () {
-                    localStorage.setItem('tv_premium', 'true');
-                    localStorage.setItem('tv_host_email', emailTrim);
-                    closeModal();
-                    applyPremiumUi();
-                    var el = document.documentElement;
-                    var req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
-                    if (req) {
-                        req.call(el).catch(function () {});
-                    }
-                },
-                theme: { color: '#ff9800' }
-            };
-
-            var rzp = new Razorpay(options);
-            rzp.open();
-        });
-
+        /* ─── Boot ─── */
+        fetchPremiumStatus();
         fetchLivePhotos();
         setInterval(fetchLivePhotos, 4000);
+
+        /* Re-check premium every 2 minutes (handles mid-event upgrade) */
+        setInterval(fetchPremiumStatus, 120000);
     </script>
 </body>
 </html>
