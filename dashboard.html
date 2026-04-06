@@ -19,11 +19,7 @@
             --glass-border: rgba(255, 255, 255, 0.1);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Urbanist', system-ui, sans-serif;
@@ -33,36 +29,20 @@
             line-height: 1.5;
         }
 
-        .state-shell {
-            display: none;
-            min-height: 100vh;
-            animation: stateIn 0.45s ease;
-        }
-        .state-shell.is-active {
-            display: flex;
-        }
+        .state-shell { display: none; min-height: 100vh; animation: stateIn 0.45s ease; }
+        .state-shell.is-active { display: flex; }
         @keyframes stateIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
-        #state-auth,
-        #state-create {
+        #state-auth, #state-create {
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 24px;
         }
-
-        #state-dashboard {
-            flex-direction: column;
-        }
+        #state-dashboard { flex-direction: column; }
 
         .glass-card {
             width: 100%;
@@ -73,21 +53,10 @@
             border-radius: 20px;
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
-            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 24px 60px rgba(0,0,0,0.35);
         }
-
-        .glass-card h1 {
-            font-size: 1.55rem;
-            font-weight: 900;
-            margin-bottom: 8px;
-            letter-spacing: -0.02em;
-        }
-        .glass-card .lead {
-            color: var(--muted);
-            font-weight: 600;
-            font-size: 0.95rem;
-            margin-bottom: 24px;
-        }
+        .glass-card h1 { font-size: 1.55rem; font-weight: 900; margin-bottom: 8px; letter-spacing: -0.02em; }
+        .glass-card .lead { color: var(--muted); font-weight: 600; font-size: 0.95rem; margin-bottom: 24px; }
 
         label {
             display: block;
@@ -105,8 +74,8 @@
             width: 100%;
             padding: 14px 16px;
             border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(15,23,42,0.65);
             color: var(--text);
             font-family: inherit;
             font-size: 1rem;
@@ -115,16 +84,11 @@
             transition: border-color 0.2s, box-shadow 0.2s;
         }
         input:focus {
-            border-color: rgba(255, 152, 0, 0.45);
-            box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.12);
+            border-color: rgba(255,152,0,0.45);
+            box-shadow: 0 0 0 3px rgba(255,152,0,0.12);
         }
 
-        .btn-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 8px;
-        }
+        .btn-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
 
         .btn-primary {
             flex: 1;
@@ -138,18 +102,11 @@
             cursor: pointer;
             color: #1a0f00;
             background: linear-gradient(135deg, var(--fusion-a) 0%, var(--fusion-c) 100%);
-            box-shadow: 0 6px 28px rgba(255, 152, 0, 0.3);
+            box-shadow: 0 6px 28px rgba(255,152,0,0.3);
             transition: transform 0.15s, box-shadow 0.2s;
         }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 36px rgba(255, 152, 0, 0.4);
-        }
-        .btn-primary:disabled {
-            opacity: 0.55;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 36px rgba(255,152,0,0.4); }
+        .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 
         .btn-secondary {
             flex: 1;
@@ -162,35 +119,23 @@
             font-size: 0.98rem;
             cursor: pointer;
             color: var(--text);
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(255,255,255,0.06);
             transition: background 0.2s, border-color 0.2s;
         }
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 152, 0, 0.35);
-        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,152,0,0.35); }
 
+        /* ── Dashboard header ── */
         .dash-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 18px 24px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-            background: rgba(15, 23, 42, 0.85);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            background: rgba(15,23,42,0.85);
             backdrop-filter: blur(12px);
         }
-        .dash-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .dash-brand img {
-            width: 44px;
-            height: 44px;
-            object-fit: contain;
-            border-radius: 10px;
-            border: 2px solid rgba(255, 152, 0, 0.35);
-        }
+        .dash-brand { display: flex; align-items: center; gap: 12px; }
+        .dash-brand img { width: 44px; height: 44px; object-fit: contain; border-radius: 10px; border: 2px solid rgba(255,152,0,0.35); }
         .dash-brand span {
             font-weight: 900;
             font-size: 1.25rem;
@@ -203,8 +148,8 @@
         .btn-logout {
             padding: 10px 18px;
             border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.05);
             color: var(--muted);
             font-family: inherit;
             font-weight: 800;
@@ -212,24 +157,11 @@
             cursor: pointer;
             transition: color 0.2s, border-color 0.2s;
         }
-        .btn-logout:hover {
-            color: var(--text);
-            border-color: rgba(248, 113, 113, 0.4);
-        }
+        .btn-logout:hover { color: var(--text); border-color: rgba(248,113,113,0.4); }
 
-        .dash-main {
-            flex: 1;
-            padding: 28px 22px 40px;
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-        }
-
-        .dash-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 22px;
-        }
+        /* ── Dashboard grid ── */
+        .dash-main { flex: 1; padding: 28px 22px 40px; max-width: 1200px; width: 100%; margin: 0 auto; }
+        .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 22px; }
 
         .dash-card {
             padding: 24px;
@@ -239,29 +171,13 @@
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
         }
-        .dash-card h2 {
-            font-size: 1.1rem;
-            font-weight: 900;
-            margin-bottom: 16px;
-            letter-spacing: -0.01em;
-        }
+        .dash-card h2 { font-size: 1.1rem; font-weight: 900; margin-bottom: 16px; letter-spacing: -0.01em; }
 
-        .qr-wrap {
-            text-align: center;
-            margin-bottom: 18px;
-        }
-        .qr-wrap img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
+        /* ── QR & links ── */
+        .qr-wrap { text-align: center; margin-bottom: 18px; }
+        .qr-wrap img { max-width: 100%; height: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); }
 
-        .link-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+        .link-list { display: flex; flex-direction: column; gap: 10px; }
         .link-list a {
             color: var(--fusion-a);
             font-weight: 700;
@@ -269,42 +185,72 @@
             word-break: break-all;
             padding: 10px 12px;
             border-radius: 10px;
-            background: rgba(255, 152, 0, 0.08);
-            border: 1px solid rgba(255, 152, 0, 0.15);
+            background: rgba(255,152,0,0.08);
+            border: 1px solid rgba(255,152,0,0.15);
             transition: background 0.2s;
         }
-        .link-list a:hover {
-            background: rgba(255, 152, 0, 0.14);
-        }
+        .link-list a:hover { background: rgba(255,152,0,0.14); }
 
-        .premium-badge {
-            display: inline-block;
-            padding: 6px 14px;
+        /* ── Premium card ── */
+        .plan-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 13px;
             border-radius: 999px;
             font-size: 0.82rem;
             font-weight: 900;
-            margin-bottom: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 16px;
+            border: 1px solid rgba(255,255,255,0.12);
         }
-        .premium-badge.is-premium {
-            border-color: rgba(52, 211, 153, 0.45);
-            color: #6ee7b7;
-            background: rgba(16, 185, 129, 0.1);
-        }
-        .premium-badge.is-free {
-            color: var(--muted);
-        }
+        .plan-tag.is-free { color: var(--muted); background: rgba(255,255,255,0.05); }
+        .plan-tag.is-premium { color: #6ee7b7; background: rgba(16,185,129,0.1); border-color: rgba(52,211,153,0.45); }
+        .plan-tag.is-ended { color: #f87171; background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.45); }
 
-        .premium-badge.is-ended {
-            border-color: rgba(248, 113, 113, 0.45);
-            color: #f87171;
-            background: rgba(248, 113, 113, 0.1);
+        /* Pricing card inside premium section */
+        .pricing-box {
+            border: 1px solid rgba(255,152,0,0.22);
+            border-radius: 14px;
+            padding: 18px 16px;
+            background: rgba(255,152,0,0.04);
+            margin-bottom: 14px;
+        }
+        .pricing-box .price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .pricing-box .price-amount {
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--fusion-a), var(--fusion-c));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .pricing-box .price-sub { color: var(--muted); font-size: 0.88rem; font-weight: 700; }
+        .pricing-box .feature-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+        .pricing-box .feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #cbd5e1;
+        }
+        .pricing-box .feature-list li::before {
+            content: '';
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--fusion-a), var(--fusion-c));
+            flex-shrink: 0;
         }
 
         .btn-upgrade {
             width: 100%;
-            margin-top: 12px;
             padding: 14px;
             border: none;
             border-radius: 12px;
@@ -314,18 +260,11 @@
             cursor: pointer;
             color: #1a0f00;
             background: linear-gradient(135deg, var(--fusion-a) 0%, var(--fusion-c) 100%);
-            box-shadow: 0 0 28px rgba(255, 152, 0, 0.35), 0 6px 24px rgba(255, 114, 0, 0.2);
+            box-shadow: 0 0 28px rgba(255,152,0,0.35), 0 6px 24px rgba(255,114,0,0.2);
             transition: transform 0.15s, box-shadow 0.2s;
         }
-        .btn-upgrade:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 40px rgba(255, 152, 0, 0.45), 0 10px 32px rgba(255, 114, 0, 0.25);
-        }
-        .btn-upgrade:disabled {
-            opacity: 0.45;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .btn-upgrade:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(255,152,0,0.45), 0 10px 32px rgba(255,114,0,0.25); }
+        .btn-upgrade:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
 
         .btn-end {
             width: 100%;
@@ -337,22 +276,15 @@
             font-size: 0.95rem;
             cursor: pointer;
             color: #f87171;
-            background: rgba(248, 113, 113, 0.05);
-            border: 1px solid rgba(248, 113, 113, 0.6);
-            box-shadow: 0 8px 28px rgba(248, 113, 113, 0.12);
+            background: rgba(248,113,113,0.05);
+            border: 1px solid rgba(248,113,113,0.6);
+            box-shadow: 0 8px 28px rgba(248,113,113,0.12);
             transition: background 0.2s, border-color 0.2s, transform 0.15s, opacity 0.2s;
         }
-        .btn-end:hover:not(:disabled) {
-            background: rgba(248, 113, 113, 0.12);
-            border-color: rgba(248, 113, 113, 0.85);
-            transform: translateY(-2px);
-        }
-        .btn-end:disabled {
-            opacity: 0.45;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .btn-end:hover:not(:disabled) { background: rgba(248,113,113,0.12); border-color: rgba(248,113,113,0.85); transform: translateY(-2px); }
+        .btn-end:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
 
+        /* ── Stats card ── */
         .stat-big {
             font-size: 2rem;
             font-weight: 900;
@@ -361,34 +293,113 @@
             background-clip: text;
             color: transparent;
         }
-        .stat-label {
-            color: var(--muted);
-            font-weight: 600;
-            font-size: 0.92rem;
-            margin-top: 6px;
+        .stat-label { color: var(--muted); font-weight: 600; font-size: 0.92rem; margin-top: 6px; }
+
+        .hint { font-size: 0.82rem; color: var(--muted); margin-top: 12px; font-weight: 600; }
+
+        /* ── UPI Modal ── */
+        #upiModalOverlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            background: rgba(0,0,0,0.72);
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+        #upiModalOverlay.is-open { display: flex; animation: stateIn 0.3s ease; }
+
+        .modal-box {
+            width: 100%;
+            max-width: 380px;
+            background: #1e293b;
+            border: 1px solid rgba(255,152,0,0.25);
+            border-radius: 22px;
+            padding: 30px 24px 24px;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.55);
+            text-align: center;
+            position: relative;
+        }
+        .modal-box h3 { font-size: 1.2rem; font-weight: 900; margin-bottom: 4px; }
+        .modal-box .modal-sub { color: var(--muted); font-size: 0.88rem; font-weight: 600; margin-bottom: 20px; }
+
+        .modal-qr-wrap {
+            display: inline-block;
+            padding: 12px;
+            background: #fff;
+            border-radius: 14px;
+            margin-bottom: 18px;
+        }
+        .modal-qr-wrap img { display: block; width: 200px; height: 200px; border-radius: 6px; }
+
+        .upi-id-pill {
+            display: inline-block;
+            padding: 7px 16px;
+            background: rgba(255,152,0,0.1);
+            border: 1px solid rgba(255,152,0,0.25);
+            border-radius: 999px;
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: var(--fusion-a);
+            margin-bottom: 14px;
+            letter-spacing: 0.02em;
         }
 
-        .hint {
+        .dm-note {
             font-size: 0.82rem;
+            font-weight: 700;
             color: var(--muted);
-            margin-top: 12px;
-            font-weight: 600;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 18px;
+            line-height: 1.5;
         }
+        .dm-note span { color: var(--fusion-a); }
+
+        .btn-modal-close {
+            width: 100%;
+            padding: 13px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.06);
+            color: var(--text);
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-modal-close:hover { background: rgba(255,255,255,0.1); }
+
+        .modal-x {
+            position: absolute;
+            top: 14px; right: 16px;
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 1.3rem;
+            cursor: pointer;
+            line-height: 1;
+            padding: 4px 6px;
+            border-radius: 6px;
+            transition: color 0.2s;
+        }
+        .modal-x:hover { color: var(--text); }
 
         @media (max-width: 520px) {
-            .btn-row {
-                flex-direction: column;
-            }
-            .btn-primary,
-            .btn-secondary {
-                width: 100%;
-            }
+            .btn-row { flex-direction: column; }
+            .btn-primary, .btn-secondary { width: 100%; }
         }
     </style>
 </head>
 <body>
 
-    <!-- State 1: Auth -->
+    <!-- ══ State 1: Auth ══ -->
     <div id="state-auth" class="state-shell" aria-hidden="true">
         <div class="glass-card">
             <h1>Host Dashboard</h1>
@@ -401,11 +412,11 @@
                 <button type="button" class="btn-primary" id="btnLogin">Login</button>
                 <button type="button" class="btn-secondary" id="btnSignUp">Create Account</button>
             </div>
-            <p class="hint">New hosts can create an account—check your email if confirmation is required.</p>
+            <p class="hint">New hosts can create an account — check your email if confirmation is required.</p>
         </div>
     </div>
 
-    <!-- State 2: Create event -->
+    <!-- ══ State 2: Create event ══ -->
     <div id="state-create" class="state-shell" aria-hidden="true">
         <div class="glass-card">
             <h1>Create your event</h1>
@@ -417,17 +428,24 @@
         </div>
     </div>
 
-    <!-- State 3: Dashboard -->
+    <!-- ══ State 3: Dashboard ══ -->
     <div id="state-dashboard" class="state-shell" aria-hidden="true">
         <header class="dash-header">
             <div class="dash-brand">
                 <img src="SNAPN.png" alt="SnapNexus" width="44" height="44">
-                <span>SnapNexus</span>
+                <!-- Event name + inline premium badge -->
+                <div>
+                    <span id="brandLabel">SnapNexus</span>
+                    <span id="headerPremiumBadge" style="display:none;margin-left:8px;font-size:0.8rem;font-weight:800;padding:3px 10px;border-radius:999px;background:rgba(16,185,129,0.15);border:1px solid rgba(52,211,153,0.4);color:#6ee7b7;vertical-align:middle;">👑 Premium</span>
+                </div>
             </div>
             <button type="button" class="btn-logout" id="btnLogout">Logout</button>
         </header>
+
         <main class="dash-main">
             <div class="dash-grid">
+
+                <!-- Card 1: QR & links -->
                 <section class="dash-card">
                     <h2>QR &amp; links</h2>
                     <div class="qr-wrap">
@@ -438,65 +456,121 @@
                         <a id="linkTv" href="#" target="_blank" rel="noopener">TV Display Screen</a>
                     </div>
                 </section>
+
+                <!-- Card 2: Premium / Pricing -->
                 <section class="dash-card" id="cardPremium">
-                    <h2>Premium status</h2>
-                    <div class="premium-badge is-free" id="premiumBadge">Free</div>
-                    <p style="color:var(--muted);font-weight:600;font-size:0.95rem;">Unlock unlimited uploads, no watermarks, and more.</p>
-                    <button type="button" class="btn-upgrade" id="btnUpgrade">Upgrade for ₹499</button>
+                    <h2>Plan &amp; status</h2>
+                    <div class="plan-tag is-free" id="premiumBadge">Free Tier (20 Photo Limit)</div>
+
+                    <div class="pricing-box" id="pricingBox">
+                        <div class="price-row">
+                            <span class="price-amount">₹999</span>
+                            <span class="price-sub">/ event</span>
+                        </div>
+                        <ul class="feature-list">
+                            <li>Unlimited photo uploads</li>
+                            <li>No watermarks on photos</li>
+                            <li>Priority TV display refresh</li>
+                            <li>Event analytics &amp; export</li>
+                        </ul>
+                    </div>
+
+                    <button type="button" class="btn-upgrade" id="btnUpgrade">Upgrade to Premium — ₹999</button>
                     <button type="button" class="btn-end" id="btnEndEvent">End Event</button>
                 </section>
+
+                <!-- Card 3: Live stats -->
                 <section class="dash-card">
                     <h2>Live stats</h2>
                     <div class="stat-big" id="statPhotos">0</div>
                     <div class="stat-label">Photos uploaded</div>
                 </section>
+
             </div>
         </main>
     </div>
 
+    <!-- ══ UPI Payment Modal ══ -->
+    <div id="upiModalOverlay" role="dialog" aria-modal="true" aria-label="Premium upgrade payment">
+        <div class="modal-box">
+            <button class="modal-x" id="btnModalClose" aria-label="Close">&times;</button>
+            <h3>Pay to Upgrade</h3>
+            <p class="modal-sub">Scan the QR with any UPI app to pay ₹999</p>
+
+            <div class="modal-qr-wrap">
+                <img id="upiQrImg" src="" alt="UPI payment QR" width="200" height="200">
+            </div>
+
+            <div class="upi-id-pill" id="upiIdPill">YOUR_UPI_ID@upi</div>
+
+            <div class="dm-note">
+                After payment, DM the screenshot to
+                <span>@snapn.exus</span> on Instagram — we'll activate your Premium within minutes.
+            </div>
+
+            <button type="button" class="btn-modal-close" id="btnModalCloseBtm">Done — I've paid</button>
+        </div>
+    </div>
+
     <!--
-      Supabase: create table public.events (
+      Supabase table: public.events
         id uuid primary key default gen_random_uuid(),
         host_email text not null,
         event_code text not null unique,
         is_premium boolean default false,
         is_active boolean default true,
         created_at timestamptz default now()
-      );
-      Add RLS policies so hosts can insert/select rows where host_email = auth.jwt() ->> 'email'.
+
+      If you prefer to check a separate `profiles` table for is_premium,
+      replace the fetchHostEvent() query to also join/query that table.
     -->
     <script>
-        var S_URL = 'https://yaxajpojbssrrdcyuzeo.supabase.co';
-        var S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
-
-        /** Replace with your deployed site origin (no trailing slash), e.g. https://your-app.vercel.app */
+        /* ─── Config ─── */
+        var S_URL  = 'https://yaxajpojbssrrdcyuzeo.supabase.co';
+        var S_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
         var SITE_URL = 'https://snapnexus-jet.vercel.app';
+
+        /* ── Replace with your real UPI ID ── */
+        var UPI_ID   = 'YOUR_UPI_ID@upi';
+        var UPI_NAME = 'SnapNexus';
+        var UPI_AMT  = '999';
+        var UPI_NOTE = 'Premium_Upgrade';
 
         var sb = supabase.createClient(S_URL, S_KEY);
 
-        var stateAuth = document.getElementById('state-auth');
-        var stateCreate = document.getElementById('state-create');
-        var stateDashboard = document.getElementById('state-dashboard');
+        /* ─── Element refs ─── */
+        var stateAuth       = document.getElementById('state-auth');
+        var stateCreate     = document.getElementById('state-create');
+        var stateDashboard  = document.getElementById('state-dashboard');
 
-        var authEmail = document.getElementById('authEmail');
-        var authPassword = document.getElementById('authPassword');
-        var btnLogin = document.getElementById('btnLogin');
-        var btnSignUp = document.getElementById('btnSignUp');
+        var authEmail       = document.getElementById('authEmail');
+        var authPassword    = document.getElementById('authPassword');
+        var btnLogin        = document.getElementById('btnLogin');
+        var btnSignUp       = document.getElementById('btnSignUp');
 
-        var eventCodeInput = document.getElementById('eventCodeInput');
-        var btnInitEvent = document.getElementById('btnInitEvent');
+        var eventCodeInput  = document.getElementById('eventCodeInput');
+        var btnInitEvent    = document.getElementById('btnInitEvent');
 
-        var btnLogout = document.getElementById('btnLogout');
-        var qrImage = document.getElementById('qrImage');
-        var linkGuest = document.getElementById('linkGuest');
-        var linkTv = document.getElementById('linkTv');
-        var premiumBadge = document.getElementById('premiumBadge');
-        var btnUpgrade = document.getElementById('btnUpgrade');
-        var btnEndEvent = document.getElementById('btnEndEvent');
-        var statPhotos = document.getElementById('statPhotos');
+        var btnLogout       = document.getElementById('btnLogout');
+        var qrImage         = document.getElementById('qrImage');
+        var linkGuest       = document.getElementById('linkGuest');
+        var linkTv          = document.getElementById('linkTv');
+        var premiumBadge    = document.getElementById('premiumBadge');
+        var headerBadge     = document.getElementById('headerPremiumBadge');
+        var pricingBox      = document.getElementById('pricingBox');
+        var btnUpgrade      = document.getElementById('btnUpgrade');
+        var btnEndEvent     = document.getElementById('btnEndEvent');
+        var statPhotos      = document.getElementById('statPhotos');
+
+        var upiModal        = document.getElementById('upiModalOverlay');
+        var upiQrImg        = document.getElementById('upiQrImg');
+        var upiIdPill       = document.getElementById('upiIdPill');
+        var btnModalClose   = document.getElementById('btnModalClose');
+        var btnModalCloseBtm = document.getElementById('btnModalCloseBtm');
 
         var currentEvent = null;
 
+        /* ─── State router ─── */
         function showState(which) {
             stateAuth.classList.toggle('is-active', which === 'auth');
             stateAuth.setAttribute('aria-hidden', which !== 'auth');
@@ -506,9 +580,10 @@
             stateDashboard.setAttribute('aria-hidden', which !== 'dashboard');
         }
 
+        /* ─── URL helpers ─── */
         function normalizeSiteUrl() {
             var u = SITE_URL.replace(/\/$/, '');
-            if (u.indexOf('YOUR_VERCEL') !== -1 && typeof window !== 'undefined' && window.location && window.location.origin) {
+            if (u.indexOf('YOUR_VERCEL') !== -1 && window.location && window.location.origin) {
                 return window.location.origin;
             }
             return u;
@@ -516,111 +591,146 @@
 
         function buildEventUrls(eventCode) {
             var base = normalizeSiteUrl();
-            var guest = base + '/app.html?event=' + encodeURIComponent(eventCode);
-            var tv = base + '/tv.html?event=' + encodeURIComponent(eventCode);
-            return { guest: guest, tv: tv };
+            return {
+                guest: base + '/app.html?event=' + encodeURIComponent(eventCode),
+                tv:    base + '/tv.html?event='  + encodeURIComponent(eventCode)
+            };
         }
 
         function updateQrAndLinks(eventCode) {
             var urls = buildEventUrls(eventCode);
-            var qrData = urls.guest;
-            qrImage.src = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' + encodeURIComponent(qrData);
+            qrImage.src = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' + encodeURIComponent(urls.guest);
             linkGuest.href = urls.guest;
             linkGuest.textContent = 'Guest Upload Portal — ' + eventCode;
             linkTv.href = urls.tv;
             linkTv.textContent = 'TV Display Screen — ' + eventCode;
         }
 
+        /* ─── Premium UI ─── */
         function applyPremiumUi(isPremium) {
-            premiumBadge.classList.remove('is-free', 'is-premium');
+            premiumBadge.classList.remove('is-free', 'is-premium', 'is-ended');
             if (isPremium) {
-                premiumBadge.textContent = 'Premium';
+                /* Badge next to event name in header */
+                headerBadge.style.display = 'inline-block';
+
+                /* Plan tag in card */
+                premiumBadge.textContent = '👑 Premium — Unlimited Uploads';
                 premiumBadge.classList.add('is-premium');
-                btnUpgrade.disabled = true;
-                btnUpgrade.textContent = 'You are on Pro';
+
+                /* Hide pricing box, lock upgrade button */
+                pricingBox.style.display  = 'none';
+                btnUpgrade.disabled       = true;
+                btnUpgrade.textContent    = 'You are on Premium';
             } else {
-                premiumBadge.textContent = 'Free';
+                headerBadge.style.display = 'none';
+
+                premiumBadge.textContent = 'Free Tier (20 Photo Limit)';
                 premiumBadge.classList.add('is-free');
-                btnUpgrade.disabled = false;
-                btnUpgrade.textContent = 'Upgrade for ₹499';
+
+                pricingBox.style.display = 'block';
+                btnUpgrade.disabled      = false;
+                btnUpgrade.textContent   = 'Upgrade to Premium — ₹999';
             }
         }
 
+        /* ─── Active / ended UI ─── */
         function applyEventActiveUi(isActive) {
             var active = isActive !== false;
-
-            // Default: let QR + links work only when event is active.
             if (active) {
-                btnEndEvent.disabled = false;
-                btnEndEvent.textContent = 'End Event';
-
-                qrImage.style.opacity = '1';
-                qrImage.style.filter = 'none';
-
+                btnEndEvent.disabled      = false;
+                btnEndEvent.textContent   = 'End Event';
+                qrImage.style.opacity    = '1';
+                qrImage.style.filter     = 'none';
                 linkGuest.style.pointerEvents = 'auto';
-                linkGuest.style.opacity = '1';
-                linkTv.style.pointerEvents = 'auto';
-                linkTv.style.opacity = '1';
-
+                linkGuest.style.opacity  = '1';
+                linkTv.style.pointerEvents    = 'auto';
+                linkTv.style.opacity     = '1';
                 premiumBadge.classList.remove('is-ended');
                 return;
             }
-
-            btnEndEvent.disabled = true;
-            btnEndEvent.textContent = 'Event Ended';
-
-            // Visually lock down the QR.
-            qrImage.style.opacity = '0.55';
-            qrImage.style.filter = 'grayscale(1)';
-
+            btnEndEvent.disabled     = true;
+            btnEndEvent.textContent  = 'Event Ended';
+            qrImage.style.opacity   = '0.55';
+            qrImage.style.filter    = 'grayscale(1)';
             linkGuest.style.pointerEvents = 'none';
             linkGuest.style.opacity = '0.45';
-            linkTv.style.pointerEvents = 'none';
-            linkTv.style.opacity = '0.45';
+            linkTv.style.pointerEvents    = 'none';
+            linkTv.style.opacity    = '0.45';
 
-            // Clearly communicate ended state.
-            premiumBadge.textContent = 'Ended';
+            premiumBadge.textContent = 'Event Ended';
             premiumBadge.classList.remove('is-free', 'is-premium');
             premiumBadge.classList.add('is-ended');
+            headerBadge.style.display = 'none';
 
-            // No upgrades for an ended event.
-            btnUpgrade.disabled = true;
-            btnUpgrade.textContent = 'Event Closed';
+            pricingBox.style.display = 'none';
+            btnUpgrade.disabled      = true;
+            btnUpgrade.textContent   = 'Event Closed';
         }
 
-        function openRazorpay() {
-            alert('Razorpay checkout will open here. Wire your key and options when ready.');
+        /* ─── UPI Modal ─── */
+        function buildUpiUrl() {
+            return 'upi://pay?pa=' + encodeURIComponent(UPI_ID)
+                + '&pn=' + encodeURIComponent(UPI_NAME)
+                + '&am=' + UPI_AMT
+                + '&tn=' + encodeURIComponent(UPI_NOTE);
         }
 
-        btnUpgrade.addEventListener('click', openRazorpay);
+        function openUpiModal() {
+            /* Generate QR from the UPI deep link */
+            var upiUrl = buildUpiUrl();
+            upiQrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(upiUrl);
+            upiIdPill.textContent = UPI_ID;
+            upiModal.classList.add('is-open');
+            document.body.style.overflow = 'hidden';
+        }
 
+        function closeUpiModal() {
+            upiModal.classList.remove('is-open');
+            document.body.style.overflow = '';
+        }
+
+        btnUpgrade.addEventListener('click', function () {
+            if (!currentEvent || currentEvent.is_premium) return;
+            openUpiModal();
+        });
+
+        btnModalClose.addEventListener('click', closeUpiModal);
+        btnModalCloseBtm.addEventListener('click', closeUpiModal);
+
+        /* Close on backdrop click */
+        upiModal.addEventListener('click', function (e) {
+            if (e.target === upiModal) closeUpiModal();
+        });
+
+        /* ─── Supabase: fetch event ─── */
         async function fetchHostEvent(session) {
             var email = session.user.email;
             if (!email) return null;
+
+            /* Querying the `events` table for is_premium.
+               If you want to read is_premium from a separate `profiles` table instead, replace this
+               query with:
+                 var res = await sb.from('profiles').select('is_premium').eq('email', email).limit(1);
+               and merge the result into the event object below. */
             var res = await sb
                 .from('events')
                 .select('event_code, is_premium, is_active')
                 .eq('host_email', email)
                 .limit(1);
-            if (res.error) {
-                console.error(res.error);
-                return null;
-            }
+
+            if (res.error) { console.error(res.error); return null; }
             if (!res.data || res.data.length === 0) return null;
             return res.data[0];
         }
 
+        /* ─── Routing ─── */
         async function routeAfterSession() {
             var session = (await sb.auth.getSession()).data.session;
-            if (!session) {
-                showState('auth');
-                return;
-            }
+            if (!session) { showState('auth'); return; }
+
             var ev = await fetchHostEvent(session);
-            if (!ev) {
-                showState('create');
-                return;
-            }
+            if (!ev) { showState('create'); return; }
+
             currentEvent = ev;
             updateQrAndLinks(ev.event_code);
             applyPremiumUi(!!ev.is_premium);
@@ -629,50 +739,35 @@
             showState('dashboard');
         }
 
+        /* ─── Auth ─── */
         btnLogin.addEventListener('click', async function () {
             var email = authEmail.value.trim();
             var password = authPassword.value;
-            if (!email || !password) {
-                alert('Please enter email and password.');
-                return;
-            }
+            if (!email || !password) { alert('Please enter email and password.'); return; }
             btnLogin.disabled = true;
-            var result = await sb.auth.signInWithPassword({ email: email, password: password });
+            var result = await sb.auth.signInWithPassword({ email, password });
             btnLogin.disabled = false;
-            if (result.error) {
-                alert(result.error.message || 'Login failed.');
-                return;
-            }
+            if (result.error) { alert(result.error.message || 'Login failed.'); return; }
             await routeAfterSession();
         });
 
         btnSignUp.addEventListener('click', async function () {
             var email = authEmail.value.trim();
             var password = authPassword.value;
-            if (!email || !password) {
-                alert('Please enter email and password.');
-                return;
-            }
-            if (password.length < 6) {
-                alert('Password should be at least 6 characters.');
-                return;
-            }
+            if (!email || !password) { alert('Please enter email and password.'); return; }
+            if (password.length < 6) { alert('Password should be at least 6 characters.'); return; }
             btnSignUp.disabled = true;
-            var result = await sb.auth.signUp({ email: email, password: password });
+            var result = await sb.auth.signUp({ email, password });
             btnSignUp.disabled = false;
-            if (result.error) {
-                alert(result.error.message || 'Sign up failed.');
-                return;
-            }
-            alert('Check your email to confirm your account if required by your project settings.');
+            if (result.error) { alert(result.error.message || 'Sign up failed.'); return; }
+            alert('Check your email to confirm your account if required.');
             await routeAfterSession();
         });
 
+        /* ─── Create event ─── */
         function validateEventCode(raw) {
             var s = String(raw).trim().toLowerCase();
-            if (!/^[a-z0-9_]+$/.test(s) || s.length < 2) {
-                return null;
-            }
+            if (!/^[a-z0-9_]+$/.test(s) || s.length < 2) return null;
             return s;
         }
 
@@ -683,11 +778,8 @@
                 return;
             }
             var session = (await sb.auth.getSession()).data.session;
-            if (!session || !session.user.email) {
-                alert('Session expired. Please log in again.');
-                showState('auth');
-                return;
-            }
+            if (!session || !session.user.email) { alert('Session expired. Please log in again.'); showState('auth'); return; }
+
             btnInitEvent.disabled = true;
             var ins = await sb.from('events').insert({
                 host_email: session.user.email,
@@ -696,6 +788,7 @@
                 is_active: true
             });
             btnInitEvent.disabled = false;
+
             if (ins.error) {
                 if (ins.error.code === '23505' || (ins.error.message && ins.error.message.indexOf('duplicate') !== -1)) {
                     alert('That event code is already taken. Try another.');
@@ -712,45 +805,36 @@
             showState('dashboard');
         });
 
+        /* ─── End event ─── */
         btnEndEvent.addEventListener('click', async function () {
             if (!currentEvent || !currentEvent.event_code) return;
-
             var ok = window.confirm('Are you sure? Guests will no longer be able to upload photos.');
             if (!ok) return;
-
             btnEndEvent.disabled = true;
             btnEndEvent.textContent = 'Ending...';
-
-            var upd = await sb
-                .from('events')
-                .update({ is_active: false })
-                .eq('event_code', currentEvent.event_code);
-
+            var upd = await sb.from('events').update({ is_active: false }).eq('event_code', currentEvent.event_code);
             btnEndEvent.disabled = false;
-
             if (upd.error) {
                 alert(upd.error.message || 'Failed to end the event.');
                 btnEndEvent.textContent = 'End Event';
                 applyEventActiveUi(true);
                 return;
             }
-
             currentEvent.is_active = false;
             applyEventActiveUi(false);
         });
 
+        /* ─── Logout ─── */
         btnLogout.addEventListener('click', async function () {
             await sb.auth.signOut();
             currentEvent = null;
             authPassword.value = '';
+            closeUpiModal();
             showState('auth');
         });
 
         sb.auth.onAuthStateChange(function (_event, session) {
-            if (!session) {
-                currentEvent = null;
-                showState('auth');
-            }
+            if (!session) { currentEvent = null; showState('auth'); }
         });
 
         routeAfterSession();
