@@ -319,7 +319,11 @@
             line-height: 1.55;
         }
 
-        /* Pricing Grid Fix: Set to 4 Columns */
+        /* Pricing */
+        #pricing {
+            scroll-margin-top: 88px;
+            margin-bottom: clamp(56px, 10vw, 96px);
+        }
         .pricing-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -328,15 +332,6 @@
             margin: 0 auto;
             align-items: stretch;
         }
-
-        @media (max-width: 1024px) {
-            .pricing-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-
-        @media (max-width: 600px) {
-            .pricing-grid { grid-template-columns: 1fr; }
-        }
-
         .price-card {
             padding: 32px 28px;
             display: flex;
@@ -353,15 +348,6 @@
             font-weight: 900;
             margin-bottom: 20px;
             letter-spacing: -0.03em;
-        }
-        .price-card.free .price-tag {
-            color: var(--muted);
-        }
-        .price-card.pro .price-tag {
-            background: linear-gradient(135deg, var(--fusion-a), var(--fusion-c));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
         }
         .price-card ul {
             list-style: none;
@@ -390,7 +376,8 @@
         .price-card .cta {
             margin-top: auto;
         }
-        .price-card.free .cta a, .price-card.standard .cta a, .price-card.venue .cta a {
+        /* Free Trial button */
+        .price-card.free .cta a {
             display: block;
             text-align: center;
             padding: 14px;
@@ -402,12 +389,29 @@
             background: rgba(255, 255, 255, 0.05);
             transition: background 0.2s, border-color 0.2s;
         }
-        .price-card.free .cta a:hover, .price-card.standard .cta a:hover, .price-card.venue .cta a:hover {
+        .price-card.free .cta a:hover {
             border-color: rgba(255, 152, 0, 0.4);
             background: rgba(255, 255, 255, 0.08);
         }
-        /* Pro card glow */
-        .price-card.pro {
+        /* Pro (₹499) button style (standard) */
+        .price-card.pro .cta a {
+            display: block;
+            text-align: center;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 800;
+            text-decoration: none;
+            color: var(--text);
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.05);
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .price-card.pro .cta a:hover {
+            border-color: rgba(255, 152, 0, 0.4);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        /* Premium card (most prominent - with glow and gradient) */
+        .price-card.premium {
             border: 1px solid rgba(255, 152, 0, 0.45);
             box-shadow:
                 0 0 0 1px rgba(255, 152, 0, 0.15),
@@ -415,7 +419,7 @@
                 0 24px 48px rgba(0, 0, 0, 0.35);
             background: rgba(30, 41, 59, 0.65);
         }
-        .price-card.pro::before {
+        .price-card.premium::before {
             content: 'Most Popular';
             position: absolute;
             top: -12px;
@@ -431,7 +435,7 @@
             border-radius: 999px;
             box-shadow: 0 4px 20px rgba(255, 152, 0, 0.45);
         }
-        .price-card.pro .cta a {
+        .price-card.premium .cta a {
             display: block;
             text-align: center;
             padding: 16px;
@@ -443,9 +447,41 @@
             box-shadow: 0 8px 28px rgba(255, 152, 0, 0.35);
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        .price-card.pro .cta a:hover {
+        .price-card.premium .cta a:hover {
             transform: translateY(-2px);
             box-shadow: 0 12px 36px rgba(255, 152, 0, 0.45);
+        }
+        /* Season Pass button style (similar to standard) */
+        .price-card.season .cta a {
+            display: block;
+            text-align: center;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 800;
+            text-decoration: none;
+            color: var(--text);
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.05);
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .price-card.season .cta a:hover {
+            border-color: rgba(255, 152, 0, 0.4);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .mini-badge {
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 8px;
+            background: rgba(255, 152, 0, 0.12);
+            color: var(--fusion-a);
+            border: 1px solid rgba(255, 152, 0, 0.25);
         }
 
         /* Footer */
@@ -473,6 +509,45 @@
             color: var(--text);
             margin-bottom: 10px;
             font-size: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .stats-inner {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 24px 16px;
+            }
+            .stat-item {
+                border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+                padding-bottom: 20px;
+            }
+            .stat-item:last-child {
+                border-bottom: none;
+                padding-bottom: 12px;
+            }
+            .steps {
+                grid-template-columns: 1fr;
+            }
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .nav {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .nav-actions {
+                justify-content: space-between;
+            }
+            .hero-cta {
+                flex-direction: column;
+            }
+            .btn-primary, .btn-secondary {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -547,71 +622,75 @@
             <h2 class="section-title reveal d1">Simple <span>Pricing</span></h2>
             <p class="section-lead reveal d2">Start free, upgrade when you’re ready for the full experience.</p>
             <div class="pricing-grid">
+                <!-- Free Trial -->
                 <article class="glass price-card free reveal d3">
                     <div class="badge-row">
-                        <span class="mini-badge">Free Forever</span>
+                        <span class="mini-badge">Supported by Ads</span>
                     </div>
-                    <h3>Free</h3>
+                    <h3>Free Trial</h3>
                     <div class="price-tag">₹0</div>
                     <ul>
                         <li>20 photos per event</li>
                         <li>SnapNexus watermark</li>
+                        <li>Ad-supported</li>
                         <li>Instant live display</li>
-                        <li>No time limit</li>
                     </ul>
                     <div class="cta">
                         <a href="dashboard.html">Get Started</a>
                     </div>
                 </article>
 
-                <article class="glass price-card standard reveal d3">
+                <!-- Pro (₹499) -->
+                <article class="glass price-card pro reveal d3">
                     <div class="badge-row">
-                        <span class="mini-badge">Value Pick</span>
+                        <span class="mini-badge">No Ads</span>
                     </div>
-                    <h3>Standard</h3>
+                    <h3>Pro</h3>
                     <div class="price-tag">₹499</div>
                     <ul>
                         <li>Unlimited photos</li>
                         <li>Small watermark</li>
+                        <li>No Ads</li>
                         <li>Real-time TV wall</li>
-                        <li>Event gallery</li>
                     </ul>
                     <div class="cta">
-                        <a href="dashboard.html">Get Standard</a>
+                        <a href="#" class="gatekeeper-btn" data-tier="pro">Go Pro</a>
                     </div>
                 </article>
 
-                <article class="glass price-card pro reveal d4">
+                <!-- Premium (₹999) - most prominent -->
+                <article class="glass price-card premium reveal d4">
                     <div class="badge-row">
-                        <span class="mini-badge">Best value</span>
+                        <span class="mini-badge">No Ads</span>
                     </div>
-                    <h3>Pro</h3>
+                    <h3>Premium</h3>
                     <div class="price-tag">₹999</div>
                     <ul>
                         <li>Unlimited photos</li>
                         <li>No watermark</li>
-                        <li>HD downloads & ZIP export</li>
-                        <li>Priority display refresh</li>
+                        <li>No Ads</li>
+                        <li>HD ZIP exports</li>
                     </ul>
                     <div class="cta">
-                        <a href="dashboard.html">Go Pro</a>
+                        <a href="#" class="gatekeeper-btn" data-tier="premium">Go Premium</a>
                     </div>
                 </article>
 
-                <article class="glass price-card venue reveal d5">
+                <!-- Season Pass (₹2,999/mo) -->
+                <article class="glass price-card season reveal d5">
                     <div class="badge-row">
-                        <span class="mini-badge">For Venues</span>
+                        <span class="mini-badge">No Ads</span>
                     </div>
                     <h3>Season Pass</h3>
                     <div class="price-tag">₹2,999 <span style="font-size:0.9rem;">/month</span></div>
                     <ul>
                         <li>Unlimited monthly events</li>
-                        <li>Custom TV branding</li>
-                        <li>Priority tech support</li>
-                        <li>ZIP file exports</li>
+                        <li>Custom branding</li>
+                        <li>No Ads</li>
+                        <li>Priority support</li>
                     </ul>
                     <div class="cta">
-                        <a href="dashboard.html">Get Started</a>
+                        <a href="#" class="gatekeeper-btn" data-tier="season">Get Season Pass</a>
                     </div>
                 </article>
             </div>
@@ -628,7 +707,7 @@
             var S_URL = 'https://yaxajpojbssrrdcyuzeo.supabase.co';
             var S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
             var BUCKET = 'events';
-            var LIVE_PREFIX = 'event-photos'; // UPDATED FOLDER PATH
+            var LIVE_PREFIX = 'event-photos';
             var IMG_RE = /\.(jpe?g|png|gif|webp|heic|bmp|svg)$/i;
 
             function isImageName(name) {
@@ -761,6 +840,17 @@
             } else {
                 runStats();
             }
+
+            // Gatekeeper for non-free tier buttons
+            function gatekeeperAlert(e) {
+                e.preventDefault();
+                alert('Coming Soon! But you can still register and use the Free Tier right now!');
+            }
+
+            var gatekeeperBtns = document.querySelectorAll('.gatekeeper-btn');
+            gatekeeperBtns.forEach(function(btn) {
+                btn.addEventListener('click', gatekeeperAlert);
+            });
         })();
     </script>
 </body>
