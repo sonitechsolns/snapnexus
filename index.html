@@ -319,19 +319,24 @@
             line-height: 1.55;
         }
 
-        /* Pricing */
-        #pricing {
-            scroll-margin-top: 88px;
-            margin-bottom: clamp(56px, 10vw, 96px);
-        }
+        /* Pricing Grid Fix: Set to 4 Columns */
         .pricing-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 22px;
             max-width: 1120px;
             margin: 0 auto;
             align-items: stretch;
         }
+
+        @media (max-width: 1024px) {
+            .pricing-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 600px) {
+            .pricing-grid { grid-template-columns: 1fr; }
+        }
+
         .price-card {
             padding: 32px 28px;
             display: flex;
@@ -385,7 +390,7 @@
         .price-card .cta {
             margin-top: auto;
         }
-        .price-card.free .cta a {
+        .price-card.free .cta a, .price-card.standard .cta a, .price-card.venue .cta a {
             display: block;
             text-align: center;
             padding: 14px;
@@ -397,7 +402,7 @@
             background: rgba(255, 255, 255, 0.05);
             transition: background 0.2s, border-color 0.2s;
         }
-        .price-card.free .cta a:hover {
+        .price-card.free .cta a:hover, .price-card.standard .cta a:hover, .price-card.venue .cta a:hover {
             border-color: rgba(255, 152, 0, 0.4);
             background: rgba(255, 255, 255, 0.08);
         }
@@ -442,42 +447,6 @@
             transform: translateY(-2px);
             box-shadow: 0 12px 36px rgba(255, 152, 0, 0.45);
         }
-        .price-card.venue .price-tag {
-            color: var(--muted);
-            font-size: clamp(1.45rem, 3vw, 1.85rem);
-            line-height: 1.25;
-        }
-        .price-card.venue .cta a {
-            display: block;
-            text-align: center;
-            padding: 14px;
-            border-radius: 12px;
-            font-weight: 800;
-            text-decoration: none;
-            color: var(--text);
-            border: 1px solid var(--glass-border);
-            background: rgba(255, 255, 255, 0.05);
-            transition: background 0.2s, border-color 0.2s;
-        }
-        .price-card.venue .cta a:hover {
-            border-color: rgba(255, 152, 0, 0.4);
-            background: rgba(255, 255, 255, 0.08);
-        }
-        .badge-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-        .mini-badge {
-            font-size: 0.75rem;
-            font-weight: 800;
-            padding: 4px 10px;
-            border-radius: 8px;
-            background: rgba(255, 152, 0, 0.12);
-            color: var(--fusion-a);
-            border: 1px solid rgba(255, 152, 0, 0.25);
-        }
 
         /* Footer */
         footer {
@@ -505,45 +474,6 @@
             margin-bottom: 10px;
             font-size: 1rem;
         }
-
-        /* Responsive */
-        @media (max-width: 900px) {
-            .stats-inner {
-                grid-template-columns: 1fr;
-                gap: 20px;
-                padding: 24px 16px;
-            }
-            .stat-item {
-                border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-                padding-bottom: 20px;
-            }
-            .stat-item:last-child {
-                border-bottom: none;
-                padding-bottom: 12px;
-            }
-            .steps {
-                grid-template-columns: 1fr;
-            }
-            .pricing-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 520px) {
-            .nav {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .nav-actions {
-                justify-content: space-between;
-            }
-            .hero-cta {
-                flex-direction: column;
-            }
-            .btn-primary, .btn-secondary {
-                width: 100%;
-            }
-        }
     </style>
 </head>
 <body>
@@ -557,7 +487,7 @@
             </div>
             <div class="nav-actions">
                 <a href="dashboard.html" class="link-host">Host Login</a>
-                <a href="/tv.html?event=demo" class="btn-demo-nav">Try Demo</a>
+                <a href="dashboard.html" class="btn-demo-nav">Try Demo</a>
             </div>
         </nav>
     </header>
@@ -569,8 +499,8 @@
             </h1>
             <p class="sub reveal d3">No apps to download. Guests scan a QR code, snap a photo, and see it instantly on the big screen. Built for parties, weddings, and fests in Surat.</p>
             <div class="hero-cta reveal d4">
-                <a href="#pricing" class="btn-primary">Get Started for Free</a>
-                <a href="/tv.html?event=demo" class="btn-secondary">View Live Demo</a>
+                <a href="dashboard.html" class="btn-primary">Get Started for Free</a>
+                <a href="dashboard.html" class="btn-secondary">View Live Demo</a>
             </div>
         </section>
 
@@ -619,49 +549,69 @@
             <div class="pricing-grid">
                 <article class="glass price-card free reveal d3">
                     <div class="badge-row">
-                        <span class="mini-badge">Test Drive</span>
+                        <span class="mini-badge">Free Forever</span>
                     </div>
-                    <h3>Test Drive</h3>
-                    <div class="price-tag">Free</div>
+                    <h3>Free</h3>
+                    <div class="price-tag">₹0</div>
                     <ul>
-                        <li>15 minutes of live uploads</li>
-                        <li>Up to 20 photos per event</li>
-                        <li>STS watermark on guest photos</li>
+                        <li>20 photos per event</li>
+                        <li>SnapNexus watermark</li>
+                        <li>Instant live display</li>
+                        <li>No time limit</li>
                     </ul>
                     <div class="cta">
-                        <a href="/tv.html?event=demo">Start free</a>
+                        <a href="dashboard.html">Get Started</a>
                     </div>
                 </article>
+
+                <article class="glass price-card standard reveal d3">
+                    <div class="badge-row">
+                        <span class="mini-badge">Value Pick</span>
+                    </div>
+                    <h3>Standard</h3>
+                    <div class="price-tag">₹499</div>
+                    <ul>
+                        <li>Unlimited photos</li>
+                        <li>Small watermark</li>
+                        <li>Real-time TV wall</li>
+                        <li>Event gallery</li>
+                    </ul>
+                    <div class="cta">
+                        <a href="dashboard.html">Get Standard</a>
+                    </div>
+                </article>
+
                 <article class="glass price-card pro reveal d4">
                     <div class="badge-row">
                         <span class="mini-badge">Best value</span>
                     </div>
-                    <h3>Pro Event</h3>
-                    <div class="price-tag">₹499</div>
+                    <h3>Pro</h3>
+                    <div class="price-tag">₹999</div>
                     <ul>
-                        <li>Unlimited time</li>
                         <li>Unlimited photos</li>
-                        <li>No watermarks</li>
-                        <li>High-res download</li>
+                        <li>No watermark</li>
+                        <li>HD downloads & ZIP export</li>
+                        <li>Priority display refresh</li>
                     </ul>
                     <div class="cta">
-                        <a href="/tv.html?event=demo">Go Pro</a>
+                        <a href="dashboard.html">Go Pro</a>
                     </div>
                 </article>
+
                 <article class="glass price-card venue reveal d5">
                     <div class="badge-row">
-                        <span class="mini-badge">For Cafes &amp; Halls</span>
+                        <span class="mini-badge">For Venues</span>
                     </div>
-                    <h3>Venue Pass</h3>
-                    <div class="price-tag">₹2,999 / month</div>
+                    <h3>Season Pass</h3>
+                    <div class="price-tag">₹2,999 <span style="font-size:0.9rem;">/month</span></div>
                     <ul>
                         <li>Unlimited monthly events</li>
-                        <li>Custom TV branding (Your Logo)</li>
+                        <li>Custom TV branding</li>
                         <li>Priority tech support</li>
                         <li>ZIP file exports</li>
                     </ul>
                     <div class="cta">
-                        <a href="mailto:sooperfast.net@yahoo.com?subject=SnapNexus%20Venue%20Pass">Contact Sales</a>
+                        <a href="dashboard.html">Get Started</a>
                     </div>
                 </article>
             </div>
@@ -678,7 +628,7 @@
             var S_URL = 'https://yaxajpojbssrrdcyuzeo.supabase.co';
             var S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
             var BUCKET = 'events';
-            var LIVE_PREFIX = 'event-photos';
+            var LIVE_PREFIX = 'event-photos'; // UPDATED FOLDER PATH
             var IMG_RE = /\.(jpe?g|png|gif|webp|heic|bmp|svg)$/i;
 
             function isImageName(name) {
