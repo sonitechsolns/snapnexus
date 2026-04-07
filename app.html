@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@700;900&display=swap" rel="stylesheet">
-    <script defer src="/_vercel/insights/script.js"></script>
     <style>
+        /* All original CSS remains exactly the same - preserved */
         :root {
             --logo-size: 68px;
             --card-max-width: 360px;
@@ -32,18 +32,8 @@
             transform-origin: top center;
             min-width: 360px;
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html, body {
-            height: 100%;
-            width: 100%;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; width: 100%; }
         body {
             font-family: 'Segoe UI', 'Urbanist', sans-serif;
             background: linear-gradient(140deg, var(--fusion-a) 0%, var(--fusion-b) 53%, var(--fusion-c) 100%);
@@ -57,308 +47,44 @@
             justify-content: flex-start;
             font-size: var(--main-font-size);
         }
-        main {
-            width: 100%;
-            min-width: 0;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .main-logo-area {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 72px;
-            margin-bottom: 26px;
-        }
-        .main-logo-img {
-            width: var(--logo-size);
-            height: var(--logo-size);
-            object-fit: contain;
-            border-radius: 17px;
-            margin-bottom: 15px;
-            background: #fff6eb;
-            border: 2.5px solid var(--fusion-c);
-            box-shadow: 0 2.5px 8px #ff98005c;
-        }
-        .main-logo-title {
-            font-family: 'Urbanist', 'Segoe UI', sans-serif;
-            font-size: 1.55rem;
-            font-weight: 900;
-            letter-spacing: 1.1px;
-            color: var(--fusion-c);
-            text-align: center;
-            margin-bottom: 12px;
-        }
-        .card {
-            background: rgba(255, 255, 255, 0.93);
-            padding: 32px 22px 18px 22px;
-            border-radius: 19px;
-            box-shadow: 0 2.5px 10px #ff98001f, 0 0.5px 2.5px #ffc10712;
-            border: 1px solid #ffc1071c;
-            text-align: center;
-            width: 96%;
-            max-width: var(--card-max-width);
-            margin: auto 0 30px 0;
-            min-height: 144px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .card-description {
-            margin-bottom: 22px;
-            font-size: 1.11rem;
-            color: #993e00;
-            font-weight: 700;
-            letter-spacing: 0.22px;
-        }
-        .event-pill {
-            font-size: 0.92rem;
-            color: #b35a00;
-            font-weight: 700;
-            margin: -12px 0 14px 0;
-            padding: 6px 12px;
-            background: rgba(255, 152, 0, 0.12);
-            border-radius: 999px;
-            border: 1px solid #ff980030;
-            max-width: 100%;
-            word-break: break-word;
-        }
-        .btn-row {
-            width: 100%;
-            display: flex;
-            flex-direction: row;
-            gap: 14px;
-            justify-content: center;
-            margin: 12px 0 4px 0;
-            flex-wrap: wrap;
-        }
-        .simple-btn,
-        .contact-btn,
-        .business-btn {
-            border: none;
-            padding: 16px 0;
-            border-radius: 44px;
-            font-size: 1.06rem;
-            font-family: 'Urbanist', 'Segoe UI', sans-serif;
-            font-weight: 800;
-            cursor: pointer;
-            outline: none;
-            transition: background 0.19s, box-shadow 0.16s, color 0.13s;
-            width: var(--btn-width);
-            box-shadow: 0 1.5px 8px #ffc10727;
-            margin-bottom: 8px;
-        }
-        .simple-btn {
-            background: var(--primary-btn);
-            color: #fff;
-        }
-        .simple-btn:hover:not(:disabled), .simple-btn:focus:not(:disabled) {
-            background: var(--primary-btn-hover);
-            color: #fffbea;
-        }
-        .simple-btn:disabled {
-            cursor: not-allowed;
-            opacity: 0.92;
-        }
-        .contact-btn {
-            background: var(--secondary-btn);
-            color: #28221a;
-            margin-top: 0;
-        }
-        .contact-btn:hover, .contact-btn:focus {
-            background: var(--secondary-btn-hover);
-            color: #28221a;
-        }
-        .business-btn {
-            background: #fff;
-            color: var(--fusion-c);
-            border: 2px solid var(--fusion-c);
-        }
-        .business-btn:hover, .business-btn:focus {
-            background: var(--fusion-c);
-            color: #fff;
-        }
-
-        #limitBanner {
-            display: none;
-            width: 100%;
-            padding: 12px 16px;
-            border-radius: 12px;
-            background: rgba(248,113,113,0.1);
-            border: 1px solid rgba(248,113,113,0.35);
-            color: #991b1b;
-            font-size: 0.92rem;
-            font-weight: 700;
-            line-height: 1.5;
-            margin-bottom: 12px;
-            text-align: left;
-        }
+        main { width: 100%; min-width: 0; flex: 1; display: flex; flex-direction: column; align-items: center; }
+        .main-logo-area { display: flex; flex-direction: column; align-items: center; margin-top: 72px; margin-bottom: 26px; }
+        .main-logo-img { width: var(--logo-size); height: var(--logo-size); object-fit: contain; border-radius: 17px; margin-bottom: 15px; background: #fff6eb; border: 2.5px solid var(--fusion-c); box-shadow: 0 2.5px 8px #ff98005c; }
+        .main-logo-title { font-family: 'Urbanist', 'Segoe UI', sans-serif; font-size: 1.55rem; font-weight: 900; letter-spacing: 1.1px; color: var(--fusion-c); text-align: center; margin-bottom: 12px; }
+        .card { background: rgba(255, 255, 255, 0.93); padding: 32px 22px 18px 22px; border-radius: 19px; box-shadow: 0 2.5px 10px #ff98001f, 0 0.5px 2.5px #ffc10712; border: 1px solid #ffc1071c; text-align: center; width: 96%; max-width: var(--card-max-width); margin: auto 0 30px 0; min-height: 144px; display: flex; flex-direction: column; align-items: center; }
+        .card-description { margin-bottom: 22px; font-size: 1.11rem; color: #993e00; font-weight: 700; letter-spacing: 0.22px; }
+        .event-pill { font-size: 0.92rem; color: #b35a00; font-weight: 700; margin: -12px 0 14px 0; padding: 6px 12px; background: rgba(255, 152, 0, 0.12); border-radius: 999px; border: 1px solid #ff980030; max-width: 100%; word-break: break-word; }
+        .btn-row { width: 100%; display: flex; flex-direction: row; gap: 14px; justify-content: center; margin: 12px 0 4px 0; flex-wrap: wrap; }
+        .simple-btn, .contact-btn, .business-btn { border: none; padding: 16px 0; border-radius: 44px; font-size: 1.06rem; font-family: 'Urbanist', 'Segoe UI', sans-serif; font-weight: 800; cursor: pointer; outline: none; transition: background 0.19s, box-shadow 0.16s, color 0.13s; width: var(--btn-width); box-shadow: 0 1.5px 8px #ffc10727; margin-bottom: 8px; }
+        .simple-btn { background: var(--primary-btn); color: #fff; }
+        .simple-btn:hover:not(:disabled), .simple-btn:focus:not(:disabled) { background: var(--primary-btn-hover); color: #fffbea; }
+        .simple-btn:disabled { cursor: not-allowed; opacity: 0.92; }
+        .contact-btn { background: var(--secondary-btn); color: #28221a; margin-top: 0; }
+        .contact-btn:hover, .contact-btn:focus { background: var(--secondary-btn-hover); color: #28221a; }
+        .business-btn { background: #fff; color: var(--fusion-c); border: 2px solid var(--fusion-c); }
+        .business-btn:hover, .business-btn:focus { background: var(--fusion-c); color: #fff; }
+        #limitBanner { display: none; width: 100%; padding: 12px 16px; border-radius: 12px; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.35); color: #991b1b; font-size: 0.92rem; font-weight: 700; line-height: 1.5; margin-bottom: 12px; text-align: left; }
         #limitBanner.show { display: block; }
-
-        .file-chip {
-            display: inline-block;
-            margin-top: 7px;
-            padding: 7px 14px;
-            color: var(--fusion-c);
-            background: rgba(255, 168, 54, 0.17);
-            border-radius: 15px;
-            font-size: 1.02rem;
-            font-weight: 700;
-            border: 1px solid #ff980025;
-            box-shadow: 0 1.2px 4px 0 #ff98000a;
-            word-break: break-all;
-            max-width: 92vw;
-        }
-        #status {
-            margin-top: 16px;
-            color: #ad640b;
-            font-weight: 700;
-            font-size: 1.05rem;
-            letter-spacing: 0.12px;
-            min-height: 24px;
-            transition: color 0.14s;
-            word-break: break-word;
-        }
+        .file-chip { display: inline-block; margin-top: 7px; padding: 7px 14px; color: var(--fusion-c); background: rgba(255, 168, 54, 0.17); border-radius: 15px; font-size: 1.02rem; font-weight: 700; border: 1px solid #ff980025; box-shadow: 0 1.2px 4px 0 #ff98000a; word-break: break-all; max-width: 92vw; }
+        #status { margin-top: 16px; color: #ad640b; font-weight: 700; font-size: 1.05rem; letter-spacing: 0.12px; min-height: 24px; transition: color 0.14s; word-break: break-word; }
         #status[success] { color: #4ed242; }
         #status[fail]    { color: #f43f5e; }
-
-        .footer {
-            width: 100vw;
-            min-width: 0;
-            padding: 16px 0 11px 0;
-            background: linear-gradient(98deg, #fffbe7 22%, #ffe3a1 79%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 1.05rem;
-            opacity: 0.95;
-            margin-top: 34px;
-            box-shadow: 0px -5px 32px #ff980022;
-        }
-        .footer-wrap {
-            display: flex;
-            align-items: center;
-            gap: 11px;
-            margin-bottom: 5px;
-            flex-wrap: wrap;
-        }
-        .footer-logo-img {
-            width: 25px;
-            height: 25px;
-            border-radius: 7px;
-            background: #fff2dc;
-            object-fit: contain;
-            border: 1.5px solid #ffa726;
-            box-shadow: 0px 0.7px 5px #ffc10736;
-        }
-        .footer-rights {
-            color: #aa6d00;
-            font-size: 0.97rem;
-            margin-left: 10px;
-            text-align: center;
-        }
-        .footer .footer-company {
-            font-family: 'Urbanist', 'Segoe UI', sans-serif;
-            font-weight: 900;
-            letter-spacing: 0.59px;
-            font-size: 1.11rem;
-            color: #ff9800;
-        }
-        #watermarkCanvas {
-            position: fixed;
-            left: -9999px;
-            top: 0;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        #mainCard {
-            transition: opacity 0.28s ease, transform 0.28s ease, filter 0.28s ease;
-        }
-
-        #eventEndedScreen {
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 22px;
-            background: rgba(2, 6, 23, 0.72);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s ease;
-        }
-        #eventEndedScreen.open {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        #eventEndedCard {
-            width: 100%;
-            max-width: 520px;
-            background: rgba(30, 41, 59, 0.55);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 20px;
-            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            padding: 34px 26px;
-            text-align: center;
-        }
-        #eventEndedTitle {
-            font-family: 'Urbanist', 'Segoe UI', sans-serif;
-            font-weight: 900;
-            font-size: 1.55rem;
-            margin-bottom: 10px;
-            letter-spacing: 0.2px;
-            color: #f87171;
-        }
-        #eventEndedSub {
-            color: #cbd5e1;
-            font-weight: 700;
-            line-height: 1.5;
-            font-size: 1.02rem;
-        }
-
-        @media (max-width: 900px) {
-            :root { --card-max-width: 430px; }
-            .main-logo-area { margin-top: 52px; }
-            .main-logo-title { font-size: 1.21rem; }
-            html { font-size: 17px; }
-        }
-        @media (max-width: 650px) {
-            :root {
-                --card-max-width: 98vw;
-                --logo-size: 49px;
-                --btn-width: 98vw;
-            }
-            html { transform: scale(1); font-size: 16px; }
-            .main-logo-area { margin-top: 34px; }
-            .card { padding: 14px 2vw; }
-            .main-logo-title { font-size: 1.13rem; }
-            .main-logo-img { width: var(--logo-size); height: var(--logo-size); }
-            .simple-btn, .contact-btn, .business-btn { width: 95vw; font-size: 1.05rem; }
-            .file-chip { font-size: 0.98rem; max-width: 95vw; }
-        }
-        @media (max-width: 440px) {
-            .footer { font-size: 0.99rem; padding: 8px 0 4px 0; }
-            .card-description { font-size: 0.97rem; }
-            .footer .footer-company { font-size: 1rem; }
-            .btn-row { gap: 8px; }
-        }
-        @media (max-width: 380px) {
-            .main-logo-area { margin-top: 8px; }
-            .main-logo-title { font-size: 0.97rem; }
-            .main-logo-img { width: 32px; height: 32px; }
-            .footer-logo-img { width: 19px; height: 19px; }
-            html { font-size: 13px; }
-        }
+        .footer { width: 100vw; min-width: 0; padding: 16px 0 11px 0; background: linear-gradient(98deg, #fffbe7 22%, #ffe3a1 79%); display: flex; flex-direction: column; align-items: center; font-size: 1.05rem; opacity: 0.95; margin-top: 34px; box-shadow: 0px -5px 32px #ff980022; }
+        .footer-wrap { display: flex; align-items: center; gap: 11px; margin-bottom: 5px; flex-wrap: wrap; }
+        .footer-logo-img { width: 25px; height: 25px; border-radius: 7px; background: #fff2dc; object-fit: contain; border: 1.5px solid #ffa726; box-shadow: 0px 0.7px 5px #ffc10736; }
+        .footer-rights { color: #aa6d00; font-size: 0.97rem; margin-left: 10px; text-align: center; }
+        .footer .footer-company { font-family: 'Urbanist', 'Segoe UI', sans-serif; font-weight: 900; letter-spacing: 0.59px; font-size: 1.11rem; color: #ff9800; }
+        #watermarkCanvas { position: fixed; left: -9999px; top: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+        #mainCard { transition: opacity 0.28s ease, transform 0.28s ease, filter 0.28s ease; }
+        #eventEndedScreen { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 22px; background: rgba(2, 6, 23, 0.72); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
+        #eventEndedScreen.open { opacity: 1; pointer-events: auto; }
+        #eventEndedCard { width: 100%; max-width: 520px; background: rgba(30, 41, 59, 0.55); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); padding: 34px 26px; text-align: center; }
+        #eventEndedTitle { font-family: 'Urbanist', 'Segoe UI', sans-serif; font-weight: 900; font-size: 1.55rem; margin-bottom: 10px; letter-spacing: 0.2px; color: #f87171; }
+        #eventEndedSub { color: #cbd5e1; font-weight: 700; line-height: 1.5; font-size: 1.02rem; }
+        @media (max-width: 900px) { :root { --card-max-width: 430px; } .main-logo-area { margin-top: 52px; } .main-logo-title { font-size: 1.21rem; } html { font-size: 17px; } }
+        @media (max-width: 650px) { :root { --card-max-width: 98vw; --logo-size: 49px; --btn-width: 98vw; } html { transform: scale(1); font-size: 16px; } .main-logo-area { margin-top: 34px; } .card { padding: 14px 2vw; } .main-logo-title { font-size: 1.13rem; } .main-logo-img { width: var(--logo-size); height: var(--logo-size); } .simple-btn, .contact-btn, .business-btn { width: 95vw; font-size: 1.05rem; } .file-chip { font-size: 0.98rem; max-width: 95vw; } }
+        @media (max-width: 440px) { .footer { font-size: 0.99rem; padding: 8px 0 4px 0; } .card-description { font-size: 0.97rem; } .footer .footer-company { font-size: 1rem; } .btn-row { gap: 8px; } }
+        @media (max-width: 380px) { .main-logo-area { margin-top: 8px; } .main-logo-title { font-size: 0.97rem; } .main-logo-img { width: 32px; height: 32px; } .footer-logo-img { width: 19px; height: 19px; } html { font-size: 13px; } }
     </style>
 </head>
 <body>
@@ -440,32 +166,32 @@
             return PHOTO_ROOT + '/' + eventId;
         }
 
-        var eventIsPremium = false;
-        var eventEnded     = false;
+        var eventTier = 'free';   // from events table
+        var eventEnded = false;
 
-        mainCard.style.opacity       = '0';
-        mainCard.style.transform     = 'scale(0.99)';
-        mainCard.style.filter        = 'blur(4px)';
+        mainCard.style.opacity = '0';
+        mainCard.style.transform = 'scale(0.99)';
+        mainCard.style.filter = 'blur(4px)';
         mainCard.style.pointerEvents = 'none';
 
         function showUploadUI() {
-            mainCard.style.opacity       = '1';
-            mainCard.style.transform     = '';
-            mainCard.style.filter        = '';
+            mainCard.style.opacity = '1';
+            mainCard.style.transform = '';
+            mainCard.style.filter = '';
             mainCard.style.pointerEvents = 'auto';
         }
 
         function setEventEndedUI() {
             if (eventEnded) return;
             eventEnded = true;
-            mainCard.style.opacity       = '0';
-            mainCard.style.transform     = 'scale(0.99)';
-            mainCard.style.filter        = 'blur(4px)';
+            mainCard.style.opacity = '0';
+            mainCard.style.transform = 'scale(0.99)';
+            mainCard.style.filter = 'blur(4px)';
             mainCard.style.pointerEvents = 'none';
             eventEndedScreen.classList.add('open');
             eventEndedScreen.setAttribute('aria-hidden', 'false');
-            simpleBtn.disabled  = true;
-            fileInput.disabled  = true;
+            simpleBtn.disabled = true;
+            fileInput.disabled = true;
         }
 
         async function getEventPhotoCount() {
@@ -475,9 +201,9 @@
         }
 
         async function checkUploadAllowed() {
-            if (eventIsPremium) {
+            if (eventTier !== 'free') {
                 limitBanner.classList.remove('show');
-                simpleBtn.disabled  = false;
+                simpleBtn.disabled = false;
                 simpleBtn.style.background = '';
                 simpleBtn.innerText = 'Select Photo';
                 return true;
@@ -494,7 +220,7 @@
                 return false;
             }
             limitBanner.classList.remove('show');
-            simpleBtn.disabled  = false;
+            simpleBtn.disabled = false;
             simpleBtn.style.background = '';
             simpleBtn.innerText = 'Select Photo';
             return true;
@@ -507,20 +233,20 @@
                 img.onload = function () {
                     try {
                         var w = img.naturalWidth, h = img.naturalHeight;
-                        watermarkCanvas.width  = w;
+                        watermarkCanvas.width = w;
                         watermarkCanvas.height = h;
                         var ctx = watermarkCanvas.getContext('2d');
                         ctx.drawImage(img, 0, 0);
                         var fontSize = Math.max(16, Math.round(w / 22));
                         ctx.font = 'bold ' + fontSize + "px 'Segoe UI', Urbanist, sans-serif";
                         var text = 'Powered by SnapNexus';
-                        var pad  = Math.round(w * 0.025);
-                        var tw   = ctx.measureText(text).width;
-                        ctx.fillStyle   = 'rgba(255,255,255,0.5)';
+                        var pad = Math.round(w * 0.025);
+                        var tw = ctx.measureText(text).width;
+                        ctx.fillStyle = 'rgba(255,255,255,0.5)';
                         ctx.strokeStyle = 'rgba(0,0,0,0.35)';
-                        ctx.lineWidth   = Math.max(2, fontSize / 10);
+                        ctx.lineWidth = Math.max(2, fontSize / 10);
                         ctx.strokeText(text, w - pad - tw, h - pad);
-                        ctx.fillText(text,   w - pad - tw, h - pad);
+                        ctx.fillText(text, w - pad - tw, h - pad);
                         watermarkCanvas.toBlob(function (blob) {
                             URL.revokeObjectURL(url);
                             if (!blob) { reject(new Error('Watermark failed')); return; }
@@ -534,15 +260,15 @@
             });
         }
 
-        async function checkEventActiveOnce() {
+        async function checkEventStatus() {
             try {
                 var res = await nexusClient
                     .from('events')
-                    .select('is_active, is_premium')
+                    .select('is_active, tier')
                     .eq('event_code', eventId)
                     .maybeSingle();
                 if (res && !res.error && res.data) {
-                    eventIsPremium = !!res.data.is_premium;
+                    eventTier = res.data.tier || 'free';
                     if (res.data.is_active === false) {
                         setEventEndedUI();
                         return false;
@@ -552,9 +278,9 @@
             return true;
         }
 
-        function subscribeToEventBouncer() {
+        function subscribeToEventChanges() {
             nexusClient
-                .channel('event-bouncer-' + eventId)
+                .channel('event-updates-' + eventId)
                 .on('postgres_changes', {
                     event: 'UPDATE',
                     schema: 'public',
@@ -563,8 +289,8 @@
                 }, function (payload) {
                     if (!payload || !payload.new) return;
                     if (payload.new.is_active === false) setEventEndedUI();
-                    if (typeof payload.new.is_premium === 'boolean') {
-                        eventIsPremium = payload.new.is_premium;
+                    if (payload.new.tier) {
+                        eventTier = payload.new.tier;
                         checkUploadAllowed();
                     }
                 })
@@ -573,7 +299,7 @@
 
         async function loadGallery() {
             var grid = document.getElementById('gallery-grid');
-            var res  = await nexusClient.storage.from(STORAGE_BUCKET).list(eventFolder(), {
+            var res = await nexusClient.storage.from(STORAGE_BUCKET).list(eventFolder(), {
                 limit: 100,
                 sortBy: { column: 'created_at', order: 'desc' }
             });
@@ -581,7 +307,7 @@
             var files = (res.data || []).filter(function (f) { return f.name && f.name.indexOf('.') !== -1; }).slice(0, 4);
             grid.innerHTML = '';
             files.forEach(function (file) {
-                var path      = eventFolder() + '/' + file.name;
+                var path = eventFolder() + '/' + file.name;
                 var publicUrl = nexusClient.storage.from(STORAGE_BUCKET).getPublicUrl(path).data.publicUrl;
                 grid.innerHTML +=
                     '<div style="position:relative">' +
@@ -606,7 +332,7 @@
             }
 
             var chip = document.createElement('div');
-            chip.className   = 'file-chip';
+            chip.className = 'file-chip';
             chip.textContent = file.name.length > 26 ? file.name.slice(0, 22) + '…' : file.name;
             selectedFileDiv.appendChild(chip);
 
@@ -614,7 +340,7 @@
             st.removeAttribute('fail'); st.removeAttribute('success');
 
             var uploadFile = file;
-            if (!eventIsPremium) {
+            if (eventTier === 'free') {
                 try {
                     st.innerText = 'Applying watermark…';
                     uploadFile = await applyWatermarkToFile(file);
@@ -625,7 +351,7 @@
             }
 
             var safeName = uploadFile.name.replace(/\s/g, '_');
-            var path     = eventFolder() + '/' + Date.now() + '_' + safeName;
+            var path = eventFolder() + '/' + Date.now() + '_' + safeName;
 
             var up = await nexusClient.storage.from(STORAGE_BUCKET).upload(path, uploadFile);
             e.target.value = '';
@@ -641,15 +367,15 @@
         };
 
         (async function boot() {
-            var active = await checkEventActiveOnce();
+            var active = await checkEventStatus();
             if (!active) return;
             showUploadUI();
-            subscribeToEventBouncer();
+            subscribeToEventChanges();
             await checkUploadAllowed();
             loadGallery();
             setInterval(async function () {
                 if (eventEnded) return;
-                await checkEventActiveOnce();
+                await checkEventStatus();
                 checkUploadAllowed();
             }, 30000);
         })();

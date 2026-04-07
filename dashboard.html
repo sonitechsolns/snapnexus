@@ -159,7 +159,21 @@
         .btn-logout:hover { color: var(--text); border-color: rgba(248,113,113,0.4); }
 
         .dash-main { flex: 1; padding: 28px 22px 40px; max-width: 1200px; width: 100%; margin: 0 auto; }
-        .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 22px; }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 900;
+            margin: 24px 0 16px 0;
+            color: var(--fusion-a);
+            border-left: 4px solid var(--fusion-a);
+            padding-left: 12px;
+        }
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 22px;
+            margin-bottom: 32px;
+        }
 
         .dash-card {
             padding: 24px;
@@ -199,67 +213,11 @@
             margin-bottom: 16px;
             border: 1px solid rgba(255,255,255,0.12);
         }
-        .plan-tag.is-free { color: var(--muted); background: rgba(255,255,255,0.05); }
-        .plan-tag.is-premium { color: #6ee7b7; background: rgba(16,185,129,0.1); border-color: rgba(52,211,153,0.45); }
-        .plan-tag.is-ended { color: #f87171; background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.45); }
-
-        .pricing-box {
-            border: 1px solid rgba(255,152,0,0.22);
-            border-radius: 14px;
-            padding: 18px 16px;
-            background: rgba(255,152,0,0.04);
-            margin-bottom: 14px;
-        }
-        .pricing-box .price-row {
-            display: flex;
-            align-items: baseline;
-            gap: 6px;
-            margin-bottom: 12px;
-        }
-        .pricing-box .price-amount {
-            font-size: 2rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, var(--fusion-a), var(--fusion-c));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        .pricing-box .price-sub { color: var(--muted); font-size: 0.88rem; font-weight: 700; }
-        .pricing-box .feature-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-        .pricing-box .feature-list li {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: #cbd5e1;
-        }
-        .pricing-box .feature-list li::before {
-            content: '';
-            display: inline-block;
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--fusion-a), var(--fusion-c));
-            flex-shrink: 0;
-        }
-
-        .btn-upgrade {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            font-family: inherit;
-            font-weight: 900;
-            font-size: 0.95rem;
-            cursor: pointer;
-            color: #1a0f00;
-            background: linear-gradient(135deg, var(--fusion-a) 0%, var(--fusion-c) 100%);
-            box-shadow: 0 0 28px rgba(255,152,0,0.35), 0 6px 24px rgba(255,114,0,0.2);
-            transition: transform 0.15s, box-shadow 0.2s;
-        }
-        .btn-upgrade:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(255,152,0,0.45), 0 10px 32px rgba(255,114,0,0.25); }
-        .btn-upgrade:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+        .plan-tag.free { color: var(--muted); background: rgba(255,255,255,0.05); }
+        .plan-tag.pro { color: #60a5fa; background: rgba(96,165,250,0.1); border-color: rgba(96,165,250,0.3); }
+        .plan-tag.premium { color: #6ee7b7; background: rgba(16,185,129,0.1); border-color: rgba(52,211,153,0.45); }
+        .plan-tag.season { color: #fbbf24; background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.45); }
+        .plan-tag.ended { color: #f87171; background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.45); }
 
         .btn-end {
             width: 100%;
@@ -273,11 +231,27 @@
             color: #f87171;
             background: rgba(248,113,113,0.05);
             border: 1px solid rgba(248,113,113,0.6);
-            box-shadow: 0 8px 28px rgba(248,113,113,0.12);
-            transition: background 0.2s, border-color 0.2s, transform 0.15s, opacity 0.2s;
+            transition: background 0.2s, border-color 0.2s;
         }
-        .btn-end:hover:not(:disabled) { background: rgba(248,113,113,0.12); border-color: rgba(248,113,113,0.85); transform: translateY(-2px); }
-        .btn-end:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+        .btn-end:hover:not(:disabled) { background: rgba(248,113,113,0.12); border-color: rgba(248,113,113,0.85); }
+
+        .create-event-card {
+            background: linear-gradient(135deg, rgba(255,152,0,0.1), rgba(255,114,0,0.05));
+            border: 1px dashed var(--fusion-a);
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .create-event-card:hover {
+            background: rgba(255,152,0,0.2);
+            transform: translateY(-2px);
+        }
+        .create-event-card h2 { margin-bottom: 8px; }
+        .create-event-card p { color: var(--muted); font-size: 0.85rem; }
 
         .stat-big {
             font-size: 2rem;
@@ -290,56 +264,6 @@
         .stat-label { color: var(--muted); font-weight: 600; font-size: 0.92rem; margin-top: 6px; }
 
         .hint { font-size: 0.82rem; color: var(--muted); margin-top: 12px; font-weight: 600; }
-
-        .event-item {
-            background: rgba(30,41,59,0.7);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 16px;
-            border: 1px solid rgba(255,255,255,0.08);
-        }
-        .event-code {
-            font-size: 1.2rem;
-            font-weight: 900;
-            color: var(--fusion-a);
-        }
-        .event-status {
-            font-size: 0.85rem;
-            margin: 8px 0;
-        }
-        .event-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 12px;
-        }
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 0.8rem;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 800;
-        }
-        .btn-end-sm {
-            background: rgba(248,113,113,0.2);
-            color: #f87171;
-            border: 1px solid rgba(248,113,113,0.5);
-        }
-        .btn-end-sm:hover { background: rgba(248,113,113,0.4); }
-        .btn-copy {
-            background: rgba(255,152,0,0.2);
-            color: var(--fusion-a);
-        }
-        .create-event-card {
-            background: linear-gradient(135deg, rgba(255,152,0,0.1), rgba(255,114,0,0.05));
-            border: 1px dashed var(--fusion-a);
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .create-event-card:hover {
-            background: rgba(255,152,0,0.2);
-            transform: translateY(-2px);
-        }
 
         @media (max-width: 520px) {
             .btn-row { flex-direction: column; }
@@ -371,15 +295,20 @@
                 <img src="SNAPN.png" alt="SnapNexus" width="44" height="44">
                 <div>
                     <span id="brandLabel">SnapNexus</span>
-                    <span id="headerTierBadge" style="display:none;margin-left:8px;font-size:0.8rem;font-weight:800;padding:3px 10px;border-radius:999px;background:rgba(16,185,129,0.15);border:1px solid rgba(52,211,153,0.4);color:#6ee7b7;vertical-align:middle;"></span>
+                    <span id="headerTierBadge" style="display:none;margin-left:8px;font-size:0.8rem;font-weight:800;padding:3px 10px;border-radius:999px;"></span>
                 </div>
             </div>
             <button type="button" class="btn-logout" id="btnLogout">Logout</button>
         </header>
 
         <main class="dash-main">
-            <div class="dash-grid" id="eventsGrid">
-                <!-- Events will be injected here -->
+            <div id="activeEventsSection">
+                <div class="section-title">Active Events</div>
+                <div id="activeEventsGrid" class="events-grid"></div>
+            </div>
+            <div id="historySection">
+                <div class="section-title">Event History</div>
+                <div id="historyGrid" class="events-grid"></div>
             </div>
         </main>
     </div>
@@ -398,7 +327,8 @@
         var btnLogin = document.getElementById('btnLogin');
         var btnSignUp = document.getElementById('btnSignUp');
         var btnLogout = document.getElementById('btnLogout');
-        var eventsGrid = document.getElementById('eventsGrid');
+        var activeEventsGrid = document.getElementById('activeEventsGrid');
+        var historyGrid = document.getElementById('historyGrid');
         var headerTierBadge = document.getElementById('headerTierBadge');
 
         var currentUser = null;
@@ -409,112 +339,125 @@
             stateDashboard.classList.toggle('is-active', which === 'dashboard');
         }
 
-        async function getUserProfile(email) {
+        async function getUserTier(email) {
             let { data, error } = await sb.from('profiles').select('tier').eq('email', email).maybeSingle();
             if (error || !data) {
-                // Create default profile
                 await sb.from('profiles').insert({ email: email, tier: 'free' });
                 return 'free';
             }
             return data.tier;
         }
 
-        async function loadEvents() {
-            if (!currentUser) return;
-            let { data, error } = await sb.from('events').select('*').eq('host_email', currentUser.email).order('created_at', { ascending: false });
-            if (error) return;
-            renderEvents(data);
-        }
-
         function getMaxActiveEvents() {
             if (userTier === 'season') return Infinity;
             if (userTier === 'premium') return 7;
-            return 1; // free and pro both limited to 1 active event
+            return 1; // free and pro
         }
 
-        async function renderEvents(events) {
-            let activeCount = events.filter(e => e.is_active).length;
+        async function loadEvents() {
+            if (!currentUser) return;
+            let { data, error } = await sb.from('events')
+                .select('*')
+                .eq('host_email', currentUser.email)
+                .order('created_at', { ascending: false });
+            if (error) return;
+            
+            const activeEvents = data.filter(e => e.is_active === true);
+            const endedEvents = data.filter(e => e.is_active === false);
+            
+            renderEvents(activeEvents, activeEventsGrid, true);
+            renderEvents(endedEvents, historyGrid, false);
+            
+            // Show/hide create card based on active limit
+            let activeCount = activeEvents.length;
             let maxActive = getMaxActiveEvents();
             let canCreate = activeCount < maxActive;
-
-            let html = `<div class="dash-card create-event-card" id="createEventCard">
-                            <h2>+ Create New Event</h2>
-                            <p style="color:var(--muted); margin-top:8px;">${canCreate ? 'Click to start a new event' : `You have reached the limit of ${maxActive === Infinity ? 'unlimited' : maxActive} active event${maxActive !== 1 ? 's' : ''}. End an existing event first.`}</p>
-                        </div>`;
-
+            let createCard = document.getElementById('createEventCard');
+            if (createCard) createCard.remove();
+            
+            let card = document.createElement('div');
+            card.className = 'dash-card create-event-card';
+            card.id = 'createEventCard';
+            card.innerHTML = `<h2>+ Create New Event</h2>
+                              <p>${canCreate ? 'Click to start a new event' : `Limit reached (${maxActive === Infinity ? 'unlimited' : maxActive} active). End an event first.`}</p>`;
+            if (canCreate) {
+                card.addEventListener('click', createNewEvent);
+            }
+            activeEventsGrid.prepend(card);
+        }
+        
+        async function createNewEvent() {
+            let code = prompt('Enter a unique event code (letters, numbers, underscores only):');
+            if (!code) return;
+            if (!/^[a-z0-9_]+$/.test(code)) {
+                alert('Use only lowercase letters, numbers, underscores.');
+                return;
+            }
+            let { error } = await sb.from('events').insert({
+                host_email: currentUser.email,
+                event_code: code,
+                tier: 'free',      // default free tier
+                is_active: true
+            });
+            if (error) alert(error.message || 'Event code already exists.');
+            else loadEvents();
+        }
+        
+        function renderEvents(events, container, isActiveSection) {
+            if (!container) return;
+            container.innerHTML = '';
             for (let ev of events) {
-                let status = ev.is_active ? '🟢 Active' : '🔴 Ended';
-                let badgeClass = ev.is_premium ? 'is-premium' : 'is-free';
-                let badgeText = ev.is_premium ? '👑 Premium' : 'Free Tier';
+                let tierClass = ev.tier || 'free';
+                let tierDisplay = tierClass.charAt(0).toUpperCase() + tierClass.slice(1);
+                let badgeColor = '';
+                if (tierClass === 'free') badgeColor = 'free';
+                else if (tierClass === 'pro') badgeColor = 'pro';
+                else if (tierClass === 'premium') badgeColor = 'premium';
+                else if (tierClass === 'season') badgeColor = 'season';
+                else badgeColor = 'free';
+                
                 let guestUrl = `${SITE_URL}/app.html?event=${encodeURIComponent(ev.event_code)}`;
                 let tvUrl = `${SITE_URL}/tv.html?event=${encodeURIComponent(ev.event_code)}`;
-                html += `
-                    <div class="dash-card">
-                        <div class="plan-tag ${badgeClass}">${badgeText}</div>
-                        <div class="event-code">📌 ${ev.event_code}</div>
-                        <div class="event-status">${status}</div>
-                        <div class="link-list">
-                            <a href="${guestUrl}" target="_blank">Guest Upload Portal</a>
-                            <a href="${tvUrl}" target="_blank">TV Display Screen</a>
-                        </div>
-                        <div class="event-actions">
-                            <button class="btn-sm btn-end-sm" data-code="${ev.event_code}" data-active="${ev.is_active}">${ev.is_active ? 'End Event' : 'Event Ended'}</button>
-                            <button class="btn-sm btn-copy" data-url="${guestUrl}">Copy Guest URL</button>
-                        </div>
-                    </div>`;
+                
+                let card = document.createElement('div');
+                card.className = 'dash-card';
+                card.innerHTML = `
+                    <div class="plan-tag ${badgeColor}">${tierDisplay}</div>
+                    <div class="event-code">📌 ${ev.event_code}</div>
+                    <div class="link-list">
+                        <a href="${guestUrl}" target="_blank">Guest Upload Portal</a>
+                        <a href="${tvUrl}" target="_blank">TV Display Screen</a>
+                    </div>
+                    ${isActiveSection ? `<button class="btn-end" data-code="${ev.event_code}">End Event</button>` : '<button class="btn-end" disabled style="opacity:0.5;">Ended</button>'}
+                `;
+                container.appendChild(card);
             }
-            eventsGrid.innerHTML = html;
-
-            document.getElementById('createEventCard')?.addEventListener('click', async () => {
-                if (!canCreate) {
-                    alert(`You have reached your active event limit (${maxActive === Infinity ? 'unlimited' : maxActive}). Please end an event before creating a new one.`);
-                    return;
-                }
-                let code = prompt('Enter a unique event code (letters, numbers, underscores only):');
-                if (!code) return;
-                if (!/^[a-z0-9_]+$/.test(code)) {
-                    alert('Use only lowercase letters, numbers, underscores.');
-                    return;
-                }
-                let { error } = await sb.from('events').insert({
-                    host_email: currentUser.email,
-                    event_code: code,
-                    is_premium: false,
-                    is_active: true
+            
+            // Attach end event handlers for active section
+            if (isActiveSection) {
+                document.querySelectorAll('#activeEventsGrid .btn-end[data-code]').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        let code = btn.getAttribute('data-code');
+                        if (!confirm(`End event "${code}"? Guests will no longer be able to upload.`)) return;
+                        await sb.from('events').update({ is_active: false }).eq('event_code', code);
+                        loadEvents();
+                    });
                 });
-                if (error) alert(error.message || 'Event code already exists.');
-                else loadEvents();
-            });
-
-            document.querySelectorAll('.btn-end-sm').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    let code = btn.getAttribute('data-code');
-                    let isActive = btn.getAttribute('data-active') === 'true';
-                    if (!isActive) return;
-                    if (!confirm(`End event "${code}"? Guests will no longer be able to upload.`)) return;
-                    await sb.from('events').update({ is_active: false }).eq('event_code', code);
-                    loadEvents();
-                });
-            });
-
-            document.querySelectorAll('.btn-copy').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    let url = btn.getAttribute('data-url');
-                    navigator.clipboard.writeText(url);
-                    alert('Guest URL copied!');
-                });
-            });
+            }
         }
 
         async function routeAfterSession() {
             let session = (await sb.auth.getSession()).data.session;
             if (!session) { showState('auth'); return; }
             currentUser = session.user;
-            userTier = await getUserProfile(currentUser.email);
+            userTier = await getUserTier(currentUser.email);
             headerTierBadge.style.display = 'inline-block';
             headerTierBadge.textContent = userTier === 'season' ? '🏆 Season Pass' : (userTier === 'premium' ? '👑 Premium' : (userTier === 'pro' ? '⭐ Pro' : '✨ Free'));
+            let badgeColor = userTier === 'season' ? '#fbbf24' : (userTier === 'premium' ? '#6ee7b7' : (userTier === 'pro' ? '#60a5fa' : '#94a3b8'));
+            headerTierBadge.style.background = `rgba(${userTier === 'season' ? '251,191,36' : (userTier === 'premium' ? '16,185,129' : (userTier === 'pro' ? '96,165,250' : '148,163,184'))},0.15)`;
+            headerTierBadge.style.border = `1px solid ${badgeColor}`;
+            headerTierBadge.style.color = badgeColor;
             await loadEvents();
             showState('dashboard');
         }
@@ -551,14 +494,6 @@
         });
 
         routeAfterSession();
-
-        // Coming Soon gatekeeper for any upgrade button (if present in future)
-        document.body.addEventListener('click', (e) => {
-            if (e.target.classList && e.target.classList.contains('btn-upgrade')) {
-                e.preventDefault();
-                alert('Coming Soon! But you can still register and use the Free Tier right now!');
-            }
-        });
     </script>
 </body>
 </html>

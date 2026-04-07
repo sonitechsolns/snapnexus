@@ -9,392 +9,63 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html, body {
-            height: 100%;
-            background-color: #0f172a;
-        }
-
-        body {
-            font-family: 'Urbanist', 'Segoe UI', sans-serif;
-            color: #f8fafc;
-            overflow: hidden;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
+        /* All original CSS preserved */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; background-color: #0f172a; }
+        body { font-family: 'Urbanist', 'Segoe UI', sans-serif; color: #f8fafc; overflow: hidden; scrollbar-width: none; -ms-overflow-style: none; }
         body::-webkit-scrollbar { display: none; }
-
-        .tv-split {
-            display: flex;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-        }
-        .tv-sidebar {
-            width: 25%;
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(12px);
-            border-right: 1px solid rgba(255,255,255,0.08);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 32px 16px;
-            text-align: center;
-            z-index: 10;
-        }
-        .tv-main {
-            flex: 1;
-            position: relative;
-            background: #0f172a;
-        }
-        .tv-main.full-width {
-            width: 100%;
-        }
-        .sidebar-qr {
-            background: rgba(255,255,255,0.95);
-            padding: 16px;
-            border-radius: 20px;
-            margin-bottom: 24px;
-            width: 100%;
-            max-width: 200px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .sidebar-qr img {
-            width: 100%;
-            height: auto;
-            border-radius: 12px;
-        }
-        .sidebar-text {
-            font-weight: 800;
-            font-size: 1.2rem;
-            color: #ff9800;
-            margin: 16px 0;
-        }
-        .sponsor-space {
-            background: rgba(255,152,0,0.1);
-            border: 1px solid rgba(255,152,0,0.3);
-            border-radius: 20px;
-            padding: 20px;
-            width: 100%;
-            font-weight: 800;
-            font-size: 1rem;
-            color: #ffb74d;
-            text-align: center;
-        }
-
-        .header {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%;
-            padding: 18px 32px;
-            background: linear-gradient(to bottom, rgba(15,23,42,0.98) 0%, rgba(15,23,42,0) 100%);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 200;
-            pointer-events: none;
-        }
+        .tv-split { display: flex; width: 100vw; height: 100vh; overflow: hidden; }
+        .tv-sidebar { width: 25%; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); border-right: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 32px 16px; text-align: center; z-index: 10; }
+        .tv-main { flex: 1; position: relative; background: #0f172a; }
+        .tv-main.full-width { width: 100%; }
+        .sidebar-qr { background: rgba(255,255,255,0.95); padding: 16px; border-radius: 20px; margin-bottom: 24px; width: 100%; max-width: 200px; margin-left: auto; margin-right: auto; }
+        .sidebar-qr img { width: 100%; height: auto; border-radius: 12px; }
+        .sidebar-text { font-weight: 800; font-size: 1.2rem; color: #ff9800; margin: 16px 0; }
+        .sponsor-space { background: rgba(255,152,0,0.1); border: 1px solid rgba(255,152,0,0.3); border-radius: 20px; padding: 20px; width: 100%; font-weight: 800; font-size: 1rem; color: #ffb74d; text-align: center; }
+        .header { position: fixed; top: 0; left: 0; width: 100%; padding: 18px 32px; background: linear-gradient(to bottom, rgba(15,23,42,0.98) 0%, rgba(15,23,42,0) 100%); display: flex; justify-content: space-between; align-items: center; z-index: 200; pointer-events: none; }
         .header * { pointer-events: auto; }
-
-        .brand-area {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-        .brand-logo {
-            width: 48px; height: 48px;
-            border-radius: 12px;
-            border: 2px solid #ff9800;
-            box-shadow: 0 0 15px rgba(255,152,0,0.3);
-            object-fit: contain;
-            background: #fff;
-        }
+        .brand-area { display: flex; align-items: center; gap: 14px; }
+        .brand-logo { width: 48px; height: 48px; border-radius: 12px; border: 2px solid #ff9800; box-shadow: 0 0 15px rgba(255,152,0,0.3); object-fit: contain; background: #fff; }
         .brand-text { display: flex; flex-direction: column; }
-        .brand-title {
-            font-family: 'Urbanist', sans-serif;
-            font-size: clamp(1.35rem, 3.5vw, 2rem);
-            font-weight: 900;
-            color: #ff9800;
-            letter-spacing: 1.2px;
-            line-height: 1;
-        }
-        .brand-subtitle {
-            font-size: clamp(0.8rem, 1.8vw, 1rem);
-            color: #94a3b8;
-            font-weight: 600;
-            letter-spacing: 0.4px;
-            margin-top: 3px;
-        }
-        .event-badge {
-            background: rgba(255,152,0,0.15);
-            border: 1px solid rgba(255,152,0,0.4);
-            padding: 8px 20px;
-            border-radius: 50px;
-            font-size: clamp(0.95rem,2vw,1.15rem);
-            font-weight: 800;
-            color: #ffb74d;
-            box-shadow: 0 0 20px rgba(255,152,0,0.1);
-            font-family: 'Urbanist', sans-serif;
-        }
-
-        .spotlight-main {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%;
-            height: 100%;
-            padding-top: 92px;
-            padding-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .spotlight-stage {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            max-width: 100vw;
-            max-height: 100%;
-        }
-        .spot-layer {
-            position: absolute;
-            left: 50%; top: 50%;
-            transform: translate(-50%, -50%);
-            max-width: 100%; max-height: 100%;
-            width: auto; height: auto;
-            object-fit: contain;
-            opacity: 0;
-            transition: opacity 1.1s ease-in-out;
-            pointer-events: none;
-            border-radius: 8px;
-            box-shadow: 0 25px 80px rgba(0,0,0,0.55);
-        }
+        .brand-title { font-family: 'Urbanist', sans-serif; font-size: clamp(1.35rem, 3.5vw, 2rem); font-weight: 900; color: #ff9800; letter-spacing: 1.2px; line-height: 1; }
+        .brand-subtitle { font-size: clamp(0.8rem, 1.8vw, 1rem); color: #94a3b8; font-weight: 600; letter-spacing: 0.4px; margin-top: 3px; }
+        .event-badge { background: rgba(255,152,0,0.15); border: 1px solid rgba(255,152,0,0.4); padding: 8px 20px; border-radius: 50px; font-size: clamp(0.95rem,2vw,1.15rem); font-weight: 800; color: #ffb74d; box-shadow: 0 0 20px rgba(255,152,0,0.1); font-family: 'Urbanist', sans-serif; }
+        .spotlight-main { position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding-top: 92px; padding-bottom: 20px; display: flex; align-items: center; justify-content: center; }
+        .spotlight-stage { position: relative; width: 100%; height: 100%; max-width: 100vw; max-height: 100%; }
+        .spot-layer { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; opacity: 0; transition: opacity 1.1s ease-in-out; pointer-events: none; border-radius: 8px; box-shadow: 0 25px 80px rgba(0,0,0,0.55); }
         .spot-layer.visible { opacity: 1; }
-
-        .empty-state {
-            position: absolute;
-            left: 50%; top: 50%;
-            transform: translate(-50%,-50%);
-            text-align: center;
-            color: #64748b;
-            font-size: clamp(1.1rem,3vw,1.5rem);
-            font-weight: 700;
-            font-family: 'Urbanist', sans-serif;
-            z-index: 5;
-            padding: 24px;
-            display: none;
-        }
+        .empty-state { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); text-align: center; color: #64748b; font-size: clamp(1.1rem,3vw,1.5rem); font-weight: 700; font-family: 'Urbanist', sans-serif; z-index: 5; padding: 24px; display: none; }
         .empty-state.show { display: block; }
-        .empty-state span {
-            display: block;
-            font-size: 0.92em;
-            color: #475569;
-            font-weight: 600;
-            margin-top: 10px;
-        }
-
-        .yt-dock {
-            position: fixed;
-            right: 24px; bottom: 24px;
-            z-index: 210;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 14px;
-            background: rgba(15,23,42,0.88);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.45);
-            backdrop-filter: blur(12px);
-        }
-        .fs-wrap {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .fs-btn {
-            width: 48px; height: 48px;
-            border: none;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.08);
-            color: #e2e8f0;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.25s ease, background 0.2s ease, transform 0.15s ease;
-        }
+        .empty-state span { display: block; font-size: 0.92em; color: #475569; font-weight: 600; margin-top: 10px; }
+        .yt-dock { position: fixed; right: 24px; bottom: 24px; z-index: 210; display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(15,23,42,0.88); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.45); backdrop-filter: blur(12px); }
+        .fs-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+        .fs-btn { width: 48px; height: 48px; border: none; border-radius: 10px; background: rgba(255,255,255,0.08); color: #e2e8f0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: opacity 0.25s ease, background 0.2s ease, transform 0.15s ease; }
         .fs-btn:hover { background: rgba(255,255,255,0.14); }
         .fs-btn:active { transform: scale(0.96); }
-        .fs-btn.locked   { opacity: 0.42; }
+        .fs-btn.locked { opacity: 0.42; }
         .fs-btn.unlocked { opacity: 1; }
         .fs-btn svg { width: 26px; height: 26px; }
-
-        .premium-float {
-            position: absolute;
-            top: -8px; right: -6px;
-            font-size: 11px;
-            font-weight: 900;
-            color: #fbbf24;
-            background: rgba(15,23,42,0.95);
-            border: 1px solid rgba(251,191,36,0.5);
-            border-radius: 999px;
-            padding: 2px 7px 3px;
-            line-height: 1.2;
-            white-space: nowrap;
-            pointer-events: none;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-            font-family: 'Urbanist', sans-serif;
-            letter-spacing: 0.3px;
-        }
+        .premium-float { position: absolute; top: -8px; right: -6px; font-size: 11px; font-weight: 900; color: #fbbf24; background: rgba(15,23,42,0.95); border: 1px solid rgba(251,191,36,0.5); border-radius: 999px; padding: 2px 7px 3px; line-height: 1.2; white-space: nowrap; pointer-events: none; box-shadow: 0 2px 10px rgba(0,0,0,0.4); font-family: 'Urbanist', sans-serif; letter-spacing: 0.3px; }
         .premium-float.hidden { display: none; }
-
-        #freeTierWatermark {
-            position: absolute;
-            bottom: 28px;
-            left: 28px;
-            z-index: 205;
-            display: none;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: rgba(15,23,42,0.72);
-            border: 1px solid rgba(255,152,0,0.3);
-            border-radius: 999px;
-            backdrop-filter: blur(8px);
-            pointer-events: none;
-        }
+        #freeTierWatermark { position: absolute; bottom: 28px; left: 28px; z-index: 205; display: none; align-items: center; gap: 8px; padding: 8px 16px; background: rgba(15,23,42,0.72); border: 1px solid rgba(255,152,0,0.3); border-radius: 999px; backdrop-filter: blur(8px); pointer-events: none; }
         #freeTierWatermark.show { display: flex; }
-        #freeTierWatermark span {
-            font-family: 'Urbanist', sans-serif;
-            font-size: 0.82rem;
-            font-weight: 800;
-            color: rgba(255,152,0,0.85);
-            letter-spacing: 0.5px;
-        }
-        #freeTierWatermark svg {
-            width: 14px; height: 14px;
-            flex-shrink: 0;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 400;
-            background: rgba(2,6,23,0.72);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
+        #freeTierWatermark span { font-family: 'Urbanist', sans-serif; font-size: 0.82rem; font-weight: 800; color: rgba(255,152,0,0.85); letter-spacing: 0.5px; }
+        #freeTierWatermark svg { width: 14px; height: 14px; flex-shrink: 0; }
+        .modal-overlay { position: fixed; inset: 0; z-index: 400; background: rgba(2,6,23,0.72); display: flex; align-items: center; justify-content: center; padding: 24px; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
         .modal-overlay.open { opacity: 1; visibility: visible; }
-
-        .modal-card {
-            position: relative;
-            width: 100%;
-            max-width: 420px;
-            padding: 32px 28px 28px;
-            border-radius: 20px;
-            background: rgba(30,41,59,0.55);
-            border: 1px solid rgba(255,255,255,0.12);
-            box-shadow: 0 24px 80px rgba(0,0,0,0.5);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            text-align: center;
-        }
-        .modal-close {
-            position: absolute;
-            top: 14px; right: 14px;
-            width: 40px; height: 40px;
-            border: none;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.06);
-            color: #94a3b8;
-            font-size: 22px;
-            line-height: 1;
-            cursor: pointer;
-            transition: background 0.2s, color 0.2s;
-        }
+        .modal-card { position: relative; width: 100%; max-width: 420px; padding: 32px 28px 28px; border-radius: 20px; background: rgba(30,41,59,0.55); border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 24px 80px rgba(0,0,0,0.5); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); text-align: center; }
+        .modal-close { position: absolute; top: 14px; right: 14px; width: 40px; height: 40px; border: none; border-radius: 10px; background: rgba(255,255,255,0.06); color: #94a3b8; font-size: 22px; line-height: 1; cursor: pointer; transition: background 0.2s, color 0.2s; }
         .modal-close:hover { background: rgba(255,255,255,0.12); color: #f1f5f9; }
-
-        .modal-title {
-            font-family: 'Urbanist', sans-serif;
-            font-size: 1.45rem;
-            font-weight: 900;
-            color: #f8fafc;
-            margin-bottom: 8px;
-            padding-right: 36px;
-        }
-        .modal-sub {
-            font-size: 0.92rem;
-            color: #94a3b8;
-            font-weight: 600;
-            line-height: 1.5;
-            margin-bottom: 20px;
-        }
-        .modal-qr-wrap {
-            display: inline-block;
-            padding: 10px;
-            background: #fff;
-            border-radius: 12px;
-            margin-bottom: 14px;
-        }
+        .modal-title { font-family: 'Urbanist', sans-serif; font-size: 1.45rem; font-weight: 900; color: #f8fafc; margin-bottom: 8px; padding-right: 36px; }
+        .modal-sub { font-size: 0.92rem; color: #94a3b8; font-weight: 600; line-height: 1.5; margin-bottom: 20px; }
+        .modal-qr-wrap { display: inline-block; padding: 10px; background: #fff; border-radius: 12px; margin-bottom: 14px; }
         .modal-qr-wrap img { display: block; width: 160px; height: 160px; border-radius: 6px; }
-        .modal-upi-pill {
-            display: inline-block;
-            padding: 6px 14px;
-            background: rgba(255,152,0,0.1);
-            border: 1px solid rgba(255,152,0,0.25);
-            border-radius: 999px;
-            font-size: 0.88rem;
-            font-weight: 800;
-            color: #ff9800;
-            margin-bottom: 12px;
-        }
-        .modal-dm-note {
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: #64748b;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.07);
-            border-radius: 10px;
-            padding: 9px 12px;
-            line-height: 1.5;
-        }
+        .modal-upi-pill { display: inline-block; padding: 6px 14px; background: rgba(255,152,0,0.1); border: 1px solid rgba(255,152,0,0.25); border-radius: 999px; font-size: 0.88rem; font-weight: 800; color: #ff9800; margin-bottom: 12px; }
+        .modal-dm-note { font-size: 0.8rem; font-weight: 700; color: #64748b; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 9px 12px; line-height: 1.5; }
         .modal-dm-note span { color: #ff9800; }
-        .btn-modal-dismiss {
-            width: 100%;
-            margin-top: 16px;
-            padding: 12px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.12);
-            background: rgba(255,255,255,0.05);
-            color: #f8fafc;
-            font-family: 'Urbanist', sans-serif;
-            font-weight: 800;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
+        .btn-modal-dismiss { width: 100%; margin-top: 16px; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); color: #f8fafc; font-family: 'Urbanist', sans-serif; font-weight: 800; font-size: 0.95rem; cursor: pointer; transition: background 0.2s; }
         .btn-modal-dismiss:hover { background: rgba(255,255,255,0.09); }
-
-        @media (max-width: 600px) {
-            .header { padding: 14px 16px; }
-            .yt-dock { right: 12px; bottom: 12px; }
-            .tv-sidebar { width: 30%; padding: 16px 8px; }
-            .sidebar-text { font-size: 0.9rem; }
-            .sponsor-space { font-size: 0.8rem; }
-        }
+        @media (max-width: 600px) { .header { padding: 14px 16px; } .yt-dock { right: 12px; bottom: 12px; } .tv-sidebar { width: 30%; padding: 16px 8px; } .sidebar-text { font-size: 0.9rem; } .sponsor-space { font-size: 0.8rem; } }
     </style>
 </head>
 <body>
@@ -421,7 +92,6 @@
                 </div>
                 <div class="event-badge" id="eventBadge">Event: Public</div>
             </div>
-
             <div class="spotlight-main">
                 <div class="empty-state" id="emptyState">
                     Waiting for the first upload…
@@ -432,7 +102,6 @@
                     <img class="spot-layer" id="spotLayer1" alt="">
                 </div>
             </div>
-
             <div id="freeTierWatermark" aria-hidden="true">
                 <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="8" cy="8" r="7" stroke="#ff9800" stroke-width="1.5"/>
@@ -440,7 +109,6 @@
                 </svg>
                 <span>Powered by SnapNexus</span>
             </div>
-
             <div class="yt-dock">
                 <div class="fs-wrap">
                     <button type="button" class="fs-btn locked" id="fsBtn" aria-label="Fullscreen">
@@ -453,7 +121,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal-overlay" id="upsellModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
         <div class="modal-card">
             <button type="button" class="modal-close" id="modalClose" aria-label="Close">×</button>
@@ -508,7 +175,7 @@
         var lastNewestName   = null;
         var cycleTimer       = null;
         var firstImageShown  = false;
-        var eventIsPremium   = false;
+        var eventTier        = 'free';   // free, pro, premium, season
 
         function sanitizeEventId(raw) {
             if (!raw || typeof raw !== 'string') return 'public';
@@ -523,36 +190,29 @@
         var guestUrl = baseSiteUrl + '/app.html?event=' + encodeURIComponent(eventId);
         sidebarQrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(guestUrl);
 
-        async function fetchPremiumStatus() {
+        async function fetchEventTier() {
             try {
                 var res = await nexusClient
                     .from('events')
-                    .select('is_premium')
+                    .select('tier')
                     .eq('event_code', eventId)
                     .maybeSingle();
                 if (res && !res.error && res.data) {
-                    eventIsPremium = !!res.data.is_premium;
+                    eventTier = res.data.tier || 'free';
                 }
             } catch (e) { }
-            applyFreeTierUi();
+            applyTierUi();
         }
 
-        function applyFreeTierUi() {
-            if (eventIsPremium) {
-                tvSidebar.style.display = 'none';
-                tvMain.classList.add('full-width');
-                freeTierWatermark.classList.remove('show');
-                premiumFloat.classList.add('hidden');
-                fsBtn.classList.remove('locked');
-                fsBtn.classList.add('unlocked');
-            } else {
+        function applyTierUi() {
+            if (eventTier === 'free') {
                 tvSidebar.style.display = 'flex';
                 tvMain.classList.remove('full-width');
                 freeTierWatermark.classList.add('show');
                 premiumFloat.classList.remove('hidden');
                 fsBtn.classList.add('locked');
                 fsBtn.classList.remove('unlocked');
-
+                // Rotate sponsor text
                 const sponsorEl = document.getElementById('rotatingSponsor');
                 const messages = [
                     'Want this for your event? Visit SnapNexus.in',
@@ -564,6 +224,14 @@
                     idx = (idx + 1) % messages.length;
                     if (sponsorEl) sponsorEl.textContent = messages[idx];
                 }, 5000);
+            } else {
+                // pro, premium, season → no ads, no watermark, full width
+                tvSidebar.style.display = 'none';
+                tvMain.classList.add('full-width');
+                freeTierWatermark.classList.remove('show');
+                premiumFloat.classList.add('hidden');
+                fsBtn.classList.remove('locked');
+                fsBtn.classList.add('unlocked');
             }
         }
 
@@ -588,7 +256,7 @@
         document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && upsellModal.classList.contains('open')) closeModal(); });
 
         fsBtn.addEventListener('click', function () {
-            if (eventIsPremium) {
+            if (eventTier !== 'free') {
                 var el = document.documentElement;
                 if (!document.fullscreenElement) {
                     var req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
@@ -646,13 +314,10 @@
                 limit: 50,
                 sortBy: { column: 'created_at', order: 'desc' }
             });
-
             if (res.error) { console.error(res.error); return; }
-
             var validFiles = (res.data || []).filter(function (f) {
                 return f.name && f.name.indexOf('.') !== -1;
             });
-
             if (validFiles.length === 0) {
                 urls = []; lastNewestName = null; firstImageShown = false;
                 layer0.classList.remove('visible'); layer1.classList.remove('visible');
@@ -661,17 +326,13 @@
                 if (cycleTimer) clearInterval(cycleTimer); cycleTimer = null;
                 return;
             }
-
             setEmpty(false);
-
             var newUrls = validFiles.map(function (file) {
                 return nexusClient.storage.from(BUCKET).getPublicUrl(folderPath + '/' + file.name).data.publicUrl;
             });
-
             var newestName = validFiles[0].name;
             var newestUrl  = newUrls[0];
             urls = newUrls;
-
             if (!firstImageShown) {
                 firstImageShown = true;
                 lastNewestName = newestName;
@@ -681,7 +342,6 @@
                 restartCycleTimer();
                 return;
             }
-
             if (newestName !== lastNewestName) {
                 lastNewestName = newestName;
                 slideIndex = 0;
@@ -690,10 +350,10 @@
             }
         }
 
-        fetchPremiumStatus();
+        fetchEventTier();
         fetchLivePhotos();
         setInterval(fetchLivePhotos, 4000);
-        setInterval(fetchPremiumStatus, 120000);
+        setInterval(fetchEventTier, 120000);
     </script>
 </body>
 </html>
