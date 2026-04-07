@@ -418,13 +418,11 @@
         var S_URL = 'https://yaxajpojbssrrdcyuzeo.supabase.co';
         var S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
 
-        /* ─── Storage constants — must match dashboard.html and tv.html ─── */
         var STORAGE_BUCKET = 'events';
-        var PHOTO_ROOT     = 'event-photos';   /* NEW folder structure */
+        var PHOTO_ROOT     = 'event-photos';
 
         var nexusClient = supabase.createClient(S_URL, S_KEY);
 
-        /* ─── DOM refs ─── */
         var st               = document.getElementById('status');
         var fileInput        = document.getElementById('p');
         var selectedFileDiv  = document.getElementById('selectedFile');
@@ -435,7 +433,6 @@
         var mainCard         = document.getElementById('mainCard');
         var eventEndedScreen = document.getElementById('eventEndedScreen');
 
-        /* ─── Event ID ─── */
         function sanitizeEventId(raw) {
             if (!raw || typeof raw !== 'string') return 'public';
             var s = raw.trim().replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64);
@@ -444,16 +441,13 @@
         var eventId = sanitizeEventId(new URLSearchParams(window.location.search).get('event') || 'public');
         eventLabel.textContent = eventId;
 
-        /* ─── Storage folder: event-photos/{eventId}/ ─── */
         function eventFolder() {
             return PHOTO_ROOT + '/' + eventId;
         }
 
-        /* ─── Premium status (fetched from events table, not localStorage) ─── */
-        var eventIsPremium = false;   /* set by checkEventActiveOnce */
+        var eventIsPremium = false;
         var eventEnded     = false;
 
-        /* ─── Prevent flash ─── */
         mainCard.style.opacity       = '0';
         mainCard.style.transform     = 'scale(0.99)';
         mainCard.style.filter        = 'blur(4px)';
@@ -479,14 +473,12 @@
             fileInput.disabled  = true;
         }
 
-        /* ─── Count files in event folder ─── */
         async function getEventPhotoCount() {
             var res = await nexusClient.storage.from(STORAGE_BUCKET).list(eventFolder(), { limit: 1000 });
             if (res.error || !res.data) return 0;
             return res.data.filter(function (f) { return f.name && f.name.indexOf('.') !== -1; }).length;
         }
 
-        /* ─── Gatekeeper: checks is_premium from events table + photo count ─── */
         async function checkUploadAllowed() {
             if (eventIsPremium) {
                 limitBanner.classList.remove('show');
@@ -513,7 +505,6 @@
             return true;
         }
 
-        /* ─── Watermark (free tier only) ─── */
         function applyWatermarkToFile(file) {
             return new Promise(function (resolve, reject) {
                 var img = new Image();
@@ -548,7 +539,6 @@
             });
         }
 
-        /* ─── Check event is_active + read is_premium ─── */
         async function checkEventActiveOnce() {
             try {
                 var res = await nexusClient
@@ -567,7 +557,6 @@
             return true;
         }
 
-        /* ─── Real-time bouncer: listens for host ending the event ─── */
         function subscribeToEventBouncer() {
             nexusClient
                 .channel('event-bouncer-' + eventId)
@@ -587,7 +576,6 @@
                 .subscribe();
         }
 
-        /* ─── Gallery: reads from event-photos/{eventId}/ ─── */
         async function loadGallery() {
             var grid = document.getElementById('gallery-grid');
             var res  = await nexusClient.storage.from(STORAGE_BUCKET).list(eventFolder(), {
@@ -608,11 +596,9 @@
             });
         }
 
-        /* ─── File input handler ─── */
         fileInput.onchange = async function (e) {
             if (eventEnded) { e.target.value = ''; return; }
 
-            /* Gatekeeper check */
             var allowed = await checkUploadAllowed();
             if (!allowed) { e.target.value = ''; return; }
 
@@ -632,7 +618,6 @@
             st.innerText = 'Uploading…';
             st.removeAttribute('fail'); st.removeAttribute('success');
 
-            /* Apply watermark for free tier */
             var uploadFile = file;
             if (!eventIsPremium) {
                 try {
@@ -644,7 +629,6 @@
                 }
             }
 
-            /* Upload to event-photos/{eventId}/timestamp_filename */
             var safeName = uploadFile.name.replace(/\s/g, '_');
             var path     = eventFolder() + '/' + Date.now() + '_' + safeName;
 
@@ -661,7 +645,6 @@
             }
         };
 
-        /* ─── Boot ─── */
         (async function boot() {
             var active = await checkEventActiveOnce();
             if (!active) return;
@@ -669,7 +652,6 @@
             subscribeToEventBouncer();
             await checkUploadAllowed();
             loadGallery();
-            /* Re-check every 30 s (handles edge case where premium is activated mid-event) */
             setInterval(async function () {
                 if (eventEnded) return;
                 await checkEventActiveOnce();

@@ -29,6 +29,70 @@
         }
         body::-webkit-scrollbar { display: none; }
 
+        /* Split layout for free tier */
+        .tv-split {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .tv-sidebar {
+            width: 25%;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 32px 16px;
+            text-align: center;
+            z-index: 10;
+        }
+        .tv-main {
+            flex: 1;
+            position: relative;
+            background: #0f172a;
+        }
+        .tv-main.full-width {
+            width: 100%;
+        }
+        .sidebar-qr {
+            background: rgba(255,255,255,0.95);
+            padding: 16px;
+            border-radius: 20px;
+            margin-bottom: 24px;
+            width: 100%;
+            max-width: 200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .sidebar-qr img {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+        }
+        .sidebar-text {
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: #ff9800;
+            margin: 16px 0;
+        }
+        .sponsor-space {
+            background: rgba(255,152,0,0.1);
+            border: 1px solid rgba(255,152,0,0.3);
+            border-radius: 20px;
+            padding: 20px;
+            width: 100%;
+            font-weight: 800;
+            font-size: 1rem;
+            color: #ffb74d;
+            text-align: center;
+        }
+        .rotating-text {
+            transition: opacity 0.5s ease;
+        }
+
         .header {
             position: fixed;
             top: 0; left: 0;
@@ -85,12 +149,12 @@
         }
 
         .spotlight-main {
-            position: fixed;
+            position: absolute;
             top: 0; left: 0;
             width: 100%;
-            height: 100vh;
+            height: 100%;
             padding-top: 92px;
-            padding-bottom: 100px;
+            padding-bottom: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -139,7 +203,6 @@
             margin-top: 10px;
         }
 
-        /* ── YouTube-style control dock ── */
         .yt-dock {
             position: fixed;
             right: 24px; bottom: 24px;
@@ -197,13 +260,13 @@
         }
         .premium-float.hidden { display: none; }
 
-        /* ── FREE TIER: persistent watermark overlay ── */
+        /* Free tier watermark overlay (over the photo) */
         #freeTierWatermark {
-            position: fixed;
+            position: absolute;
             bottom: 28px;
             left: 28px;
             z-index: 205;
-            display: none;               /* shown only for free tier */
+            display: none;
             align-items: center;
             gap: 8px;
             padding: 8px 16px;
@@ -226,71 +289,6 @@
             flex-shrink: 0;
         }
 
-        /* ── FREE TIER: branding interstitial (shown every 5 photos) ── */
-        #brandInterstitial {
-            position: fixed;
-            inset: 0;
-            z-index: 300;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(255,152,0,0.18), transparent),
-                        rgba(15,23,42,0.96);
-            backdrop-filter: blur(4px);
-            text-align: center;
-            gap: 18px;
-        }
-        #brandInterstitial.show { display: flex; animation: interstitialIn 0.5s ease; }
-        @keyframes interstitialIn {
-            from { opacity: 0; transform: scale(0.96); }
-            to   { opacity: 1; transform: scale(1); }
-        }
-        .interstitial-logo {
-            width: 80px; height: 80px;
-            border-radius: 20px;
-            border: 2px solid rgba(255,152,0,0.5);
-            object-fit: contain;
-            background: #fff;
-        }
-        .interstitial-title {
-            font-family: 'Urbanist', sans-serif;
-            font-size: clamp(1.8rem, 5vw, 3.2rem);
-            font-weight: 900;
-            background: linear-gradient(135deg, #ff9800 0%, #ffec43 45%, #ff7200 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            letter-spacing: -0.02em;
-            line-height: 1.1;
-        }
-        .interstitial-sub {
-            font-size: clamp(0.9rem, 2vw, 1.1rem);
-            color: #94a3b8;
-            font-weight: 600;
-            max-width: 420px;
-            line-height: 1.6;
-        }
-        .interstitial-cta {
-            display: inline-block;
-            padding: 12px 28px;
-            border-radius: 999px;
-            font-family: 'Urbanist', sans-serif;
-            font-weight: 900;
-            font-size: 0.95rem;
-            color: #1a0f00;
-            background: linear-gradient(135deg, #ff9800 0%, #ff7200 100%);
-            box-shadow: 0 6px 28px rgba(255,152,0,0.4);
-            text-decoration: none;
-        }
-        .interstitial-countdown {
-            font-size: 0.82rem;
-            color: #475569;
-            font-weight: 700;
-            font-family: 'Urbanist', sans-serif;
-        }
-
-        /* ── Fullscreen modal (replaces old upsell — now just shows UPI info) ── */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -398,48 +396,67 @@
         @media (max-width: 600px) {
             .header { padding: 14px 16px; }
             .yt-dock { right: 12px; bottom: 12px; }
-            #freeTierWatermark { bottom: 14px; left: 14px; }
+            .tv-sidebar { width: 30%; padding: 16px 8px; }
+            .sidebar-text { font-size: 0.9rem; }
+            .sponsor-space { font-size: 0.8rem; }
         }
     </style>
 </head>
 <body>
-
-    <div class="header">
-        <div class="brand-area">
-            <img src="SNAPN.png" alt="Logo" class="brand-logo" onerror="this.src='https://via.placeholder.com/50?text=SN'">
-            <div class="brand-text">
-                <div class="brand-title">SnapNexus</div>
-                <div class="brand-subtitle">Live Interactive Display</div>
+    <div class="tv-split" id="tvSplit">
+        <div class="tv-sidebar" id="tvSidebar" style="display: none;">
+            <div>
+                <div class="sidebar-qr">
+                    <img id="sidebarQrImg" src="" alt="Event QR">
+                </div>
+                <div class="sidebar-text">Scan to Post</div>
+            </div>
+            <div class="sponsor-space" id="sponsorSpace">
+                <span id="rotatingSponsor">Want this for your event? Visit SnapNexus.in</span>
             </div>
         </div>
-        <div class="event-badge" id="eventBadge">Event: Public</div>
-    </div>
+        <div class="tv-main" id="tvMain">
+            <div class="header">
+                <div class="brand-area">
+                    <img src="SNAPN.png" alt="Logo" class="brand-logo" onerror="this.src='https://via.placeholder.com/50?text=SN'">
+                    <div class="brand-text">
+                        <div class="brand-title">SnapNexus</div>
+                        <div class="brand-subtitle">Live Interactive Display</div>
+                    </div>
+                </div>
+                <div class="event-badge" id="eventBadge">Event: Public</div>
+            </div>
 
-    <main class="spotlight-main">
-        <div class="empty-state" id="emptyState">
-            Waiting for the first upload…
-            <span>Scan the QR code to join the feed.</span>
+            <div class="spotlight-main">
+                <div class="empty-state" id="emptyState">
+                    Waiting for the first upload…
+                    <span>Scan the QR code to join the feed.</span>
+                </div>
+                <div class="spotlight-stage" id="spotlightStage" aria-hidden="true">
+                    <img class="spot-layer" id="spotLayer0" alt="">
+                    <img class="spot-layer" id="spotLayer1" alt="">
+                </div>
+            </div>
+
+            <div id="freeTierWatermark" aria-hidden="true">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="8" cy="8" r="7" stroke="#ff9800" stroke-width="1.5"/>
+                    <path d="M5 8l2 2 4-4" stroke="#ff9800" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Powered by SnapNexus</span>
+            </div>
+
+            <div class="yt-dock">
+                <div class="fs-wrap">
+                    <button type="button" class="fs-btn locked" id="fsBtn" aria-label="Fullscreen">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                        </svg>
+                    </button>
+                    <span class="premium-float" id="premiumFloat">👑 Pro</span>
+                </div>
+            </div>
         </div>
-        <div class="spotlight-stage" id="spotlightStage" aria-hidden="true">
-            <img class="spot-layer" id="spotLayer0" alt="">
-            <img class="spot-layer" id="spotLayer1" alt="">
-        </div>
-    </main>
-
-    <div id="freeTierWatermark" aria-hidden="true">
-        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="8" cy="8" r="7" stroke="#ff9800" stroke-width="1.5"/>
-            <path d="M5 8l2 2 4-4" stroke="#ff9800" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Powered by SnapNexus</span>
-    </div>
-
-    <div id="brandInterstitial" aria-hidden="true">
-        <img src="SNAPN.png" alt="SnapNexus" class="interstitial-logo" onerror="this.style.display='none'">
-        <div class="interstitial-title">SnapNexus</div>
-        <div class="interstitial-sub">Live Interactive Photo Wall — No app needed. Guests scan, snap, and see it on screen instantly.</div>
-        <a href="/" class="interstitial-cta">Get SnapNexus for your event →</a>
-        <div class="interstitial-countdown" id="interstitialCountdown">Resuming in 5…</div>
     </div>
 
     <div class="modal-overlay" id="upsellModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -458,37 +475,20 @@
         </div>
     </div>
 
-    <div class="yt-dock">
-        <div class="fs-wrap">
-            <button type="button" class="fs-btn locked" id="fsBtn" aria-label="Fullscreen">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
-                </svg>
-            </button>
-            <span class="premium-float" id="premiumFloat">👑 Pro</span>
-        </div>
-    </div>
-
     <script>
-        /* ════════════════════════════════════════
-           CONFIG — S_URL / S_KEY untouched
-        ════════════════════════════════════════ */
         var S_URL = 'https://yaxajpojbssrrdcyuzeo.supabase.co';
         var S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
 
-        /* ─── UPI config — replace with real UPI ID ─── */
         var UPI_ID   = 'YOUR_UPI_ID@upi';
         var UPI_NAME = 'SnapNexus';
         var UPI_AMT  = '999';
         var UPI_NOTE = 'Premium_Upgrade';
 
-        /* ─── Storage constants — must match dashboard.html and app.html ─── */
         var BUCKET     = 'events';
-        var PHOTO_ROOT = 'event-photos';   /* NEW: event-photos/{eventId}/ */
+        var PHOTO_ROOT = 'event-photos';
 
         var nexusClient = supabase.createClient(S_URL, S_KEY);
 
-        /* ─── DOM refs ─── */
         var emptyState        = document.getElementById('emptyState');
         var spotlightStage    = document.getElementById('spotlightStage');
         var layer0            = document.getElementById('spotLayer0');
@@ -500,10 +500,11 @@
         var modalClose        = document.getElementById('modalClose');
         var modalDismiss      = document.getElementById('modalDismiss');
         var freeTierWatermark = document.getElementById('freeTierWatermark');
-        var brandInterstitial = document.getElementById('brandInterstitial');
-        var interstitialCountdown = document.getElementById('interstitialCountdown');
         var fsUpiQr           = document.getElementById('fsUpiQr');
         var fsUpiPill         = document.getElementById('fsUpiPill');
+        var tvSidebar         = document.getElementById('tvSidebar');
+        var tvMain            = document.getElementById('tvMain');
+        var sidebarQrImg      = document.getElementById('sidebarQrImg');
 
         var layers           = [layer0, layer1];
         var visibleLayerIndex = 0;
@@ -512,11 +513,8 @@
         var lastNewestName   = null;
         var cycleTimer       = null;
         var firstImageShown  = false;
-        var photosSinceAd    = 0;        /* counter for free-tier interstitial */
-        var interstitialActive = false;
-        var eventIsPremium   = false;    /* fetched from events table */
+        var eventIsPremium   = false;
 
-        /* ─── Event ID ─── */
         function sanitizeEventId(raw) {
             if (!raw || typeof raw !== 'string') return 'public';
             var s = raw.trim().replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64);
@@ -524,11 +522,13 @@
         }
         var eventId  = sanitizeEventId(new URLSearchParams(window.location.search).get('event') || 'public');
         eventBadge.textContent = 'Event: ' + eventId;
-
-        /* ─── Storage folder: event-photos/{eventId}/ ─── */
         var folderPath = PHOTO_ROOT + '/' + eventId;
 
-        /* ─── Fetch is_premium from events table ─── */
+        // Build QR for sidebar (same as guest portal)
+        var baseSiteUrl = window.location.origin;
+        var guestUrl = baseSiteUrl + '/app.html?event=' + encodeURIComponent(eventId);
+        sidebarQrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(guestUrl);
+
         async function fetchPremiumStatus() {
             try {
                 var res = await nexusClient
@@ -539,49 +539,42 @@
                 if (res && !res.error && res.data) {
                     eventIsPremium = !!res.data.is_premium;
                 }
-            } catch (e) { /* fail open — treat as free */ }
+            } catch (e) { }
             applyFreeTierUi();
         }
 
-        /* ─── Free-tier UI: watermark + premium float badge ─── */
         function applyFreeTierUi() {
             if (eventIsPremium) {
+                // Hide sidebar, full width main
+                tvSidebar.style.display = 'none';
+                tvMain.classList.add('full-width');
                 freeTierWatermark.classList.remove('show');
                 premiumFloat.classList.add('hidden');
                 fsBtn.classList.remove('locked');
                 fsBtn.classList.add('unlocked');
             } else {
+                // Show sidebar (split 25% / 75%)
+                tvSidebar.style.display = 'flex';
+                tvMain.classList.remove('full-width');
                 freeTierWatermark.classList.add('show');
                 premiumFloat.classList.remove('hidden');
                 fsBtn.classList.add('locked');
                 fsBtn.classList.remove('unlocked');
+                // Rotating sponsor text
+                const sponsorEl = document.getElementById('rotatingSponsor');
+                const messages = [
+                    'Want this for your event? Visit SnapNexus.in',
+                    '✨ Create your own live photo wall ✨',
+                    '📸 Make memories interactive – SnapNexus'
+                ];
+                let idx = 0;
+                setInterval(() => {
+                    idx = (idx + 1) % messages.length;
+                    if (sponsorEl) sponsorEl.textContent = messages[idx];
+                }, 5000);
             }
         }
 
-        /* ─── Branding interstitial (free tier, every 5 photos) ─── */
-        function showInterstitial() {
-            if (eventIsPremium || interstitialActive) return;
-            interstitialActive = true;
-            brandInterstitial.setAttribute('aria-hidden', 'false');
-            brandInterstitial.classList.add('show');
-
-            var secs = 5;
-            interstitialCountdown.textContent = 'Resuming in ' + secs + '…';
-            var tick = setInterval(function () {
-                secs--;
-                if (secs <= 0) {
-                    clearInterval(tick);
-                    brandInterstitial.classList.remove('show');
-                    brandInterstitial.setAttribute('aria-hidden', 'true');
-                    interstitialActive   = false;
-                    photosSinceAd        = 0;
-                } else {
-                    interstitialCountdown.textContent = 'Resuming in ' + secs + '…';
-                }
-            }, 1000);
-        }
-
-        /* ─── UPI deep link for fullscreen modal ─── */
         function buildUpiDeepLink() {
             return 'upi://pay?pa=' + encodeURIComponent(UPI_ID)
                 + '&pn=' + encodeURIComponent(UPI_NAME)
@@ -589,7 +582,6 @@
                 + '&tn=' + encodeURIComponent(UPI_NOTE);
         }
 
-        /* ─── Fullscreen modal ─── */
         function openModal() {
             fsUpiQr.src = 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=' + encodeURIComponent(buildUpiDeepLink());
             fsUpiPill.textContent = UPI_ID;
@@ -603,7 +595,6 @@
         upsellModal.addEventListener('click', function (e) { if (e.target === upsellModal) closeModal(); });
         document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && upsellModal.classList.contains('open')) closeModal(); });
 
-        /* ─── Fullscreen button ─── */
         fsBtn.addEventListener('click', function () {
             if (eventIsPremium) {
                 var el = document.documentElement;
@@ -619,7 +610,6 @@
             openModal();
         });
 
-        /* ─── Image crossfade ─── */
         function showUrl(url, onDone) {
             if (!url) { if (onDone) onDone(); return; }
             var nextIdx = 1 - visibleLayerIndex;
@@ -643,7 +633,6 @@
         function restartCycleTimer() {
             if (cycleTimer) clearInterval(cycleTimer);
             cycleTimer = setInterval(function () {
-                if (interstitialActive) return;
                 if (urls.length <= 1) return;
                 slideIndex = (slideIndex + 1) % urls.length;
                 showUrl(urls[slideIndex]);
@@ -660,14 +649,13 @@
             }
         }
 
-        /* ─── Fetch from event-photos/{eventId}/ ─── */
         async function fetchLivePhotos() {
             var res = await nexusClient.storage.from(BUCKET).list(folderPath, {
                 limit: 50,
                 sortBy: { column: 'created_at', order: 'desc' }
             });
 
-            if (res.error) { console.error('Supabase storage error:', res.error); return; }
+            if (res.error) { console.error(res.error); return; }
 
             var validFiles = (res.data || []).filter(function (f) {
                 return f.name && f.name.indexOf('.') !== -1;
@@ -705,23 +693,14 @@
             if (newestName !== lastNewestName) {
                 lastNewestName = newestName;
                 slideIndex = 0;
-                photosSinceAd++;
                 showUrl(newestUrl);
                 restartCycleTimer();
-
-                /* Free tier: show branding interstitial every 5 new photos */
-                if (!eventIsPremium && photosSinceAd >= 5) {
-                    showInterstitial();
-                }
             }
         }
 
-        /* ─── Boot ─── */
         fetchPremiumStatus();
         fetchLivePhotos();
         setInterval(fetchLivePhotos, 4000);
-
-        /* Re-check premium every 2 minutes (handles mid-event upgrade) */
         setInterval(fetchPremiumStatus, 120000);
     </script>
 </body>

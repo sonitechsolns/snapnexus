@@ -124,7 +124,6 @@
         }
         .btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,152,0,0.35); }
 
-        /* ── Dashboard header ── */
         .dash-header {
             display: flex;
             align-items: center;
@@ -159,7 +158,6 @@
         }
         .btn-logout:hover { color: var(--text); border-color: rgba(248,113,113,0.4); }
 
-        /* ── Dashboard grid ── */
         .dash-main { flex: 1; padding: 28px 22px 40px; max-width: 1200px; width: 100%; margin: 0 auto; }
         .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 22px; }
 
@@ -173,7 +171,6 @@
         }
         .dash-card h2 { font-size: 1.1rem; font-weight: 900; margin-bottom: 16px; letter-spacing: -0.01em; }
 
-        /* ── QR & links ── */
         .qr-wrap { text-align: center; margin-bottom: 18px; }
         .qr-wrap img { max-width: 100%; height: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); }
 
@@ -191,7 +188,6 @@
         }
         .link-list a:hover { background: rgba(255,152,0,0.14); }
 
-        /* ── Premium card ── */
         .plan-tag {
             display: inline-flex;
             align-items: center;
@@ -207,7 +203,6 @@
         .plan-tag.is-premium { color: #6ee7b7; background: rgba(16,185,129,0.1); border-color: rgba(52,211,153,0.45); }
         .plan-tag.is-ended { color: #f87171; background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.45); }
 
-        /* ── ₹999 Pricing card ── */
         .pricing-box {
             border: 1px solid rgba(255,152,0,0.22);
             border-radius: 14px;
@@ -284,7 +279,6 @@
         .btn-end:hover:not(:disabled) { background: rgba(248,113,113,0.12); border-color: rgba(248,113,113,0.85); transform: translateY(-2px); }
         .btn-end:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
 
-        /* ── Stats card ── */
         .stat-big {
             font-size: 2rem;
             font-weight: 900;
@@ -296,100 +290,6 @@
         .stat-label { color: var(--muted); font-weight: 600; font-size: 0.92rem; margin-top: 6px; }
 
         .hint { font-size: 0.82rem; color: var(--muted); margin-top: 12px; font-weight: 600; }
-
-        /* ── UPI Modal ── */
-        #upiModalOverlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 999;
-            background: rgba(0,0,0,0.72);
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-        }
-        #upiModalOverlay.is-open { display: flex; animation: stateIn 0.3s ease; }
-
-        .modal-box {
-            width: 100%;
-            max-width: 380px;
-            background: #1e293b;
-            border: 1px solid rgba(255,152,0,0.25);
-            border-radius: 22px;
-            padding: 30px 24px 24px;
-            box-shadow: 0 32px 80px rgba(0,0,0,0.55);
-            text-align: center;
-            position: relative;
-        }
-        .modal-box h3 { font-size: 1.2rem; font-weight: 900; margin-bottom: 4px; }
-        .modal-box .modal-sub { color: var(--muted); font-size: 0.88rem; font-weight: 600; margin-bottom: 20px; }
-
-        .modal-qr-wrap {
-            display: inline-block;
-            padding: 12px;
-            background: #fff;
-            border-radius: 14px;
-            margin-bottom: 18px;
-        }
-        .modal-qr-wrap img { display: block; width: 200px; height: 200px; border-radius: 6px; }
-
-        .upi-id-pill {
-            display: inline-block;
-            padding: 7px 16px;
-            background: rgba(255,152,0,0.1);
-            border: 1px solid rgba(255,152,0,0.25);
-            border-radius: 999px;
-            font-size: 0.9rem;
-            font-weight: 800;
-            color: var(--fusion-a);
-            margin-bottom: 14px;
-            letter-spacing: 0.02em;
-        }
-
-        .dm-note {
-            font-size: 0.82rem;
-            font-weight: 700;
-            color: var(--muted);
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 10px;
-            padding: 10px 14px;
-            margin-bottom: 18px;
-            line-height: 1.5;
-        }
-        .dm-note span { color: var(--fusion-a); }
-
-        .btn-modal-close {
-            width: 100%;
-            padding: 13px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.12);
-            background: rgba(255,255,255,0.06);
-            color: var(--text);
-            font-family: inherit;
-            font-weight: 800;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .btn-modal-close:hover { background: rgba(255,255,255,0.1); }
-
-        .modal-x {
-            position: absolute;
-            top: 14px; right: 16px;
-            background: none;
-            border: none;
-            color: var(--muted);
-            font-size: 1.3rem;
-            cursor: pointer;
-            line-height: 1;
-            padding: 4px 6px;
-            border-radius: 6px;
-            transition: color 0.2s;
-        }
-        .modal-x:hover { color: var(--text); }
 
         @media (max-width: 520px) {
             .btn-row { flex-direction: column; }
@@ -440,7 +340,6 @@
 
         <main class="dash-main">
             <div class="dash-grid">
-
                 <section class="dash-card">
                     <h2>QR &amp; links</h2>
                     <div class="qr-wrap">
@@ -479,31 +378,8 @@
                     <div class="stat-big" id="statPhotos">0</div>
                     <div class="stat-label">Photos uploaded</div>
                 </section>
-
             </div>
         </main>
-    </div>
-
-    <div id="upiModalOverlay" role="dialog" aria-modal="true" aria-label="Premium upgrade — UPI payment">
-        <div class="modal-box">
-            <button class="modal-x" id="btnModalX" aria-label="Close">×</button>
-            <h3>Upgrade to Premium</h3>
-            <p class="modal-sub">Scan &amp; pay ₹999 with any UPI app — PhonePe, GPay, Paytm</p>
-
-            <div class="modal-qr-wrap">
-                <img id="upiQrImg" src="" alt="UPI payment QR" width="200" height="200">
-            </div>
-
-            <div class="upi-id-pill" id="upiIdPill"></div>
-
-            <div class="dm-note">
-                After paying, DM the payment screenshot to
-                <span>@snapn.exus</span> on Instagram.<br>
-                We'll activate Premium within minutes. ✅
-            </div>
-
-            <button type="button" class="btn-modal-close" id="btnModalCloseBtm">Done — I've sent the screenshot</button>
-        </div>
     </div>
 
     <script>
@@ -514,19 +390,8 @@
         var S_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
         var SITE_URL = 'https://snapnexus-jet.vercel.app';
 
-        /* ─── UPI config — replace YOUR_UPI_ID@upi with your real UPI handle ─── */
-        var UPI_ID   = 'YOUR_UPI_ID@upi';
-        var UPI_NAME = 'SnapNexus';
-        var UPI_AMT  = '999';
-        var UPI_NOTE = 'Premium_Upgrade';
-
-        /* ─── Storage constants — must match app.html and tv.html ─── */
-        var BUCKET     = 'events';
-        var PHOTO_ROOT = 'event-photos';
-
         var sb = supabase.createClient(S_URL, S_KEY);
 
-        /* ─── Element refs ─── */
         var stateAuth       = document.getElementById('state-auth');
         var stateCreate     = document.getElementById('state-create');
         var stateDashboard  = document.getElementById('state-dashboard');
@@ -546,16 +411,10 @@
         var btnUpgrade      = document.getElementById('btnUpgrade');
         var btnEndEvent     = document.getElementById('btnEndEvent');
         var statPhotos      = document.getElementById('statPhotos');
-        var upiModal        = document.getElementById('upiModalOverlay');
-        var upiQrImg        = document.getElementById('upiQrImg');
-        var upiIdPill       = document.getElementById('upiIdPill');
-        var btnModalX       = document.getElementById('btnModalX');
-        var btnModalCloseBtm = document.getElementById('btnModalCloseBtm');
 
         var currentEvent = null;
         var statTimer    = null;
 
-        /* ─── State router ─── */
         function showState(which) {
             stateAuth.classList.toggle('is-active', which === 'auth');
             stateAuth.setAttribute('aria-hidden', String(which !== 'auth'));
@@ -565,7 +424,6 @@
             stateDashboard.setAttribute('aria-hidden', String(which !== 'dashboard'));
         }
 
-        /* ─── URL helpers ─── */
         function normalizeSiteUrl() {
             var u = SITE_URL.replace(/\/$/, '');
             if (u.indexOf('YOUR_VERCEL') !== -1 && window.location && window.location.origin) return window.location.origin;
@@ -587,17 +445,15 @@
             linkTv.textContent = 'TV Display Screen — ' + code;
         }
 
-        /* ─── Live photo count from event-photos/{code}/ ─── */
         async function refreshPhotoCount() {
             if (!currentEvent) return;
-            var folder = PHOTO_ROOT + '/' + currentEvent.event_code;
-            var res = await sb.storage.from(BUCKET).list(folder, { limit: 1000 });
+            var folder = 'event-photos/' + currentEvent.event_code;
+            var res = await sb.storage.from('events').list(folder, { limit: 1000 });
             if (res.error || !res.data) return;
             var count = res.data.filter(function (f) { return f.name && f.name.indexOf('.') !== -1; }).length;
             statPhotos.textContent = String(count);
         }
 
-        /* ─── Premium UI ─── */
         function applyPremiumUi(isPremium) {
             premiumBadge.classList.remove('is-free', 'is-premium', 'is-ended');
             if (isPremium) {
@@ -617,7 +473,6 @@
             }
         }
 
-        /* ─── Active / ended UI ─── */
         function applyEventActiveUi(isActive) {
             var active = isActive !== false;
             if (active) {
@@ -643,35 +498,12 @@
             btnUpgrade.textContent = 'Event Closed';
         }
 
-        /* ─── UPI Modal ─── */
-        function buildUpiDeepLink() {
-            return 'upi://pay?pa=' + encodeURIComponent(UPI_ID)
-                + '&pn=' + encodeURIComponent(UPI_NAME)
-                + '&am=' + UPI_AMT
-                + '&tn=' + encodeURIComponent(UPI_NOTE);
-        }
-        function openUpiModal() {
-            upiQrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='
-                + encodeURIComponent(buildUpiDeepLink());
-            upiIdPill.textContent = UPI_ID;
-            upiModal.classList.add('is-open');
-            document.body.style.overflow = 'hidden';
-        }
-        function closeUpiModal() {
-            upiModal.classList.remove('is-open');
-            document.body.style.overflow = '';
-        }
-
+        // Coming Soon alert for upgrade buttons
         btnUpgrade.addEventListener('click', function () {
-            if (!currentEvent || currentEvent.is_premium) return;
-            openUpiModal();
+            if (currentEvent && currentEvent.is_premium) return;
+            alert('Coming Soon! But you can still use the Free Tier right now!');
         });
-        btnModalX.addEventListener('click', closeUpiModal);
-        btnModalCloseBtm.addEventListener('click', closeUpiModal);
-        upiModal.addEventListener('click', function (e) { if (e.target === upiModal) closeUpiModal(); });
-        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeUpiModal(); });
 
-        /* ─── Supabase: fetch event (events table only — no separate profiles table) ─── */
         async function fetchHostEvent(session) {
             var email = session.user.email;
             if (!email) return null;
@@ -685,7 +517,6 @@
             return res.data[0];
         }
 
-        /* ─── Routing ─── */
         async function routeAfterSession() {
             var session = (await sb.auth.getSession()).data.session;
             if (!session) { showState('auth'); return; }
@@ -701,7 +532,6 @@
             showState('dashboard');
         }
 
-        /* ─── Auth ─── */
         btnLogin.addEventListener('click', async function () {
             var email = authEmail.value.trim(), password = authPassword.value;
             if (!email || !password) { alert('Please enter email and password.'); return; }
@@ -724,7 +554,6 @@
             await routeAfterSession();
         });
 
-        /* ─── Create event ─── */
         function validateEventCode(raw) {
             var s = String(raw).trim().toLowerCase();
             return (/^[a-z0-9_]+$/.test(s) && s.length >= 2) ? s : null;
@@ -760,7 +589,6 @@
             showState('dashboard');
         });
 
-        /* ─── End event ─── */
         btnEndEvent.addEventListener('click', async function () {
             if (!currentEvent || !currentEvent.event_code) return;
             if (!window.confirm('Are you sure? Guests will no longer be able to upload photos.')) return;
@@ -778,13 +606,11 @@
             if (statTimer) clearInterval(statTimer);
         });
 
-        /* ─── Logout ─── */
         btnLogout.addEventListener('click', async function () {
             if (statTimer) clearInterval(statTimer);
             await sb.auth.signOut();
             currentEvent = null;
             authPassword.value = '';
-            closeUpiModal();
             showState('auth');
         });
 
