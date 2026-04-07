@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>SnapNexus | Guest Portal</title>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@nexus/nexus-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@700;900&display=swap" rel="stylesheet">
     <style>
         /* ALL YOUR ORIGINAL CSS - PRESERVED */
@@ -43,9 +43,9 @@
     </div>
 
     <script>
-        const S_URL = 'https://yaxajpojbssrrdcyuzeo.supabase.co';
+        const S_URL = 'https://yaxajpojbssrrdcyuzeo.nexus.co';
         const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
-        const nexus = window.supabase.createClient(S_URL, S_KEY);
+        const nexus = window.nexus.createClient(S_URL, S_KEY);
 
         const urlParams = new URLSearchParams(window.location.search);
         const eventId = urlParams.get('event') || 'public';
@@ -56,7 +56,7 @@
 
         // --- THE "VOH" (BUSINESS LOGIC) ---
         async function checkEvent() {
-            const { data } = await supabase.from('events').select('tier, is_active').eq('event_code', eventId).maybeSingle();
+            const { data } = await nexus.from('events').select('tier, is_active').eq('event_code', eventId).maybeSingle();
             if (data) {
                 eventTier = data.tier || 'free';
                 if (data.is_active === false) {
@@ -67,7 +67,7 @@
         }
 
         async function updateLimit() {
-            const { data } = await supabase.storage.from('events').list(eventId);
+            const { data } = await nexus.storage.from('events').list(eventId);
             photoCount = data ? data.filter(f => f.name.includes('.')).length : 0;
             if (eventTier === 'free' && photoCount >= 20) {
                 document.getElementById('limitBanner').style.display = 'block';
@@ -117,7 +117,7 @@
 
             document.getElementById('status').innerText = 'Uploading...';
 
-            const { error } = await supabase.storage.from('events').upload(filePath, file);
+            const { error } = await nexus.storage.from('events').upload(filePath, file);
 
             if (error) {
                 alert("Upload Error: " + error.message);
@@ -130,13 +130,13 @@
         };
 
         async function loadGallery() {
-            const { data } = await supabase.storage.from('events').list(eventId, { limit: 4, sortBy: { column: 'created_at', order: 'desc' } });
+            const { data } = await nexus.storage.from('events').list(eventId, { limit: 4, sortBy: { column: 'created_at', order: 'desc' } });
             if (data) {
                 const grid = document.getElementById('gallery-grid');
                 grid.innerHTML = '';
                 data.forEach(f => {
                     if (f.name.includes('.')) {
-                        const url = supabase.storage.from('events').getPublicUrl(`${eventId}/${f.name}`).data.publicUrl;
+                        const url = nexus.storage.from('events').getPublicUrl(`${eventId}/${f.name}`).data.publicUrl;
                         grid.innerHTML += `<img src="${url}" style="width:100%; border-radius:10px; height:80px; object-fit:cover;">`;
                     }
                 });
