@@ -4,38 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>SnapNexus | Guest Portal</title>
-    <script src="https://unpkg.com/@nexus/nexus-js@2"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        /* ALL YOUR ORIGINAL CSS - PRESERVED */
         :root { --fusion-a: #ff9800; --fusion-b: #ffec43; --fusion-c: #ff7200; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Urbanist', sans-serif; background: linear-gradient(140deg, var(--fusion-a) 0%, var(--fusion-b) 100%); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
         .card { background: rgba(255,255,255,0.95); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        .simple-btn { background: #ff9800; color: white; border: none; padding: 18px 0; border-radius: 50px; font-weight: 900; cursor: pointer; width: 100%; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(255,152,0,0.3); }
+        .simple-btn { background: #ff9800; color: white; border: none; padding: 18px 0; border-radius: 50px; font-weight: 900; cursor: pointer; width: 100%; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(255,152,0,0.3); transition: 0.2s; }
+        .simple-btn:disabled { background: #ccc; cursor: not-allowed; }
         #status { margin-top: 15px; font-weight: 700; color: #ad640b; min-height: 24px; }
-        .file-chip { margin-top: 10px; background: rgba(255,152,0,0.1); padding: 8px 15px; border-radius: 12px; font-size: 0.9rem; font-weight: 700; color: #ff7200; }
         #gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 25px; }
-        #watermarkCanvas { display: none; }
+        canvas { display: none; }
     </style>
 </head>
 <body>
     <canvas id="watermarkCanvas"></canvas>
     <div class="card">
-        <img src="SNAPN.png" style="width: 60px; margin-bottom: 10px; border-radius: 12px;">
         <h2 style="color: #ff7200; margin-bottom: 5px; font-weight: 900;">SnapNexus</h2>
         <div id="eventPill" style="background: #fff3e0; padding: 5px 15px; border-radius: 20px; display: inline-block; font-size: 0.8rem; font-weight: 800; color: #ff7200; margin-bottom: 20px;">
-            EVENT: <span id="eventLabel">...</span>
+            EVENT: <span id="eventLabel">Loading...</span>
         </div>
 
-        <div id="limitBanner" style="display:none; color: red; font-size: 0.8rem; margin-bottom: 10px; font-weight: 800;">
+        <div id="limitBanner" style="display:none; color: #ef4444; font-size: 0.85rem; margin-bottom: 12px; font-weight: 800;">
             🚫 Limit Reached (20/20). Ask host to upgrade!
         </div>
 
         <button class="simple-btn" id="uploadBtn" onclick="document.getElementById('fileInput').click()">SELECT PHOTO</button>
         <input type="file" id="fileInput" hidden accept="image/*">
         
-        <div id="selectedFile"></div>
-        <div id="status">System Ready</div>
+        <div id="status">Connecting to System...</div>
 
         <hr style="border: 0.5px solid #eee; margin: 25px 0;">
         <h4 style="color: #ff7200; font-size: 0.9rem; margin-bottom: 10px;">RECENT UPLOADS</h4>
@@ -43,40 +43,101 @@
     </div>
 
     <script>
-        const S_URL = 'https://yaxajpojbssrrdcyuzeo.nexus.co';
+        // --- 1. THE BULLETPROOF INITIALIZATION ---
+        let nexus;
+        const S_URL = 'https://yaxajpojbssrrdcyuzeo.supabase.co';
         const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
-        const nexus = window.nexus.createClient(S_URL, S_KEY);
 
+        function init() {
+            try {
+                // Check all possible ways the library could be named
+                const lib = window.supabase || supabase;
+                if (!lib) throw new Error("Lib not loaded");
+                
+                nexus = lib.createClient(S_URL, S_KEY);
+                document.getElementById('status').innerText = 'System Online';
+                runApp();
+            } catch (e) {
+                console.log("Retrying connection...");
+                setTimeout(init, 200); // Retry every 200ms
+            }
+        }
+        init();
+
+        // --- 2. THE CORE LOGIC ---
         const urlParams = new URLSearchParams(window.location.search);
         const eventId = urlParams.get('event') || 'public';
         document.getElementById('eventLabel').innerText = eventId;
 
         let eventTier = 'free';
-        let photoCount = 0;
 
-        // --- THE "VOH" (BUSINESS LOGIC) ---
-        async function checkEvent() {
+        async function runApp() {
+            // Check Event Status
             const { data } = await nexus.from('events').select('tier, is_active').eq('event_code', eventId).maybeSingle();
             if (data) {
                 eventTier = data.tier || 'free';
                 if (data.is_active === false) {
-                    document.body.innerHTML = "<h1 style='color:white; text-align:center; margin-top:50px;'>Event Ended 🏁</h1>";
+                    document.body.innerHTML = "<div class='card'><h1 style='color:#ff7200;'>Event Ended 🏁</h1><p>This wall is closed.</p></div>";
+                    return;
                 }
             }
-            updateLimit();
+            loadGallery();
+            checkLimits();
         }
 
-        async function updateLimit() {
+        async function checkLimits() {
             const { data } = await nexus.storage.from('events').list(eventId);
-            photoCount = data ? data.filter(f => f.name.includes('.')).length : 0;
-            if (eventTier === 'free' && photoCount >= 20) {
+            const count = data ? data.filter(f => f.name.includes('.')).length : 0;
+            if (eventTier === 'free' && count >= 20) {
                 document.getElementById('limitBanner').style.display = 'block';
                 document.getElementById('uploadBtn').disabled = true;
-                document.getElementById('uploadBtn').style.background = '#ccc';
             }
         }
 
-        // --- WATERMARK LOGIC (THE HEAVY STUFF) ---
+        async function loadGallery() {
+            const { data } = await nexus.storage.from('events').list(eventId, { limit: 4, sortBy: { column: 'created_at', order: 'desc' } });
+            if (data) {
+                const grid = document.getElementById('gallery-grid');
+                grid.innerHTML = '';
+                data.forEach(f => {
+                    if (f.name.includes('.')) {
+                        const url = nexus.storage.from('events').getPublicUrl(`${eventId}/${f.name}`).data.publicUrl;
+                        grid.innerHTML += `<img src="${url}" style="width:100%; border-radius:10px; height:90px; object-fit:cover;">`;
+                    }
+                });
+            }
+        }
+
+        // --- 3. THE UPLOAD (With Watermark) ---
+        document.getElementById('fileInput').onchange = async (e) => {
+            let file = e.target.files[0];
+            if (!file) return;
+
+            document.getElementById('status').innerText = 'Processing...';
+            
+            if (eventTier === 'free') {
+                file = await applyWatermark(file);
+            }
+
+            const cleanName = file.name.replace(/[^a-z0-9.]/gi, '_').toLowerCase();
+            const filePath = `${eventId}/${Date.now()}_${cleanName}`;
+
+            document.getElementById('status').innerText = 'Uploading to Wall...';
+
+            const { error } = await nexus.storage.from('events').upload(filePath, file);
+
+            if (error) {
+                alert("Upload Error: " + error.message);
+                document.getElementById('status').innerText = '❌ Failed';
+            } else {
+                document.getElementById('status').innerText = '✅ SUCCESS!';
+                alert("Uploaded! Look at the TV Screen.");
+                loadGallery();
+                checkLimits();
+            }
+            e.target.value = '';
+        };
+
         function applyWatermark(file) {
             return new Promise((resolve) => {
                 const img = new Image();
@@ -87,64 +148,14 @@
                     canvas.width = img.width;
                     canvas.height = img.height;
                     ctx.drawImage(img, 0, 0);
-                    
-                    const size = Math.round(img.width / 20);
+                    const size = Math.round(img.width / 18);
                     ctx.font = `bold ${size}px Urbanist`;
-                    ctx.fillStyle = "rgba(255,255,255,0.6)";
-                    ctx.fillText("Powered by SnapNexus", 20, img.height - 40);
-                    
-                    canvas.toBlob((blob) => {
-                        resolve(new File([blob], file.name, { type: 'image/jpeg' }));
-                    }, 'image/jpeg', 0.8);
+                    ctx.fillStyle = "rgba(255,152,0,0.7)";
+                    ctx.fillText("SnapNexus", 30, img.height - 40);
+                    canvas.toBlob((blob) => resolve(new File([blob], file.name, { type: 'image/jpeg' })), 'image/jpeg', 0.8);
                 };
             });
         }
-
-        document.getElementById('fileInput').onchange = async (e) => {
-            let file = e.target.files[0];
-            if (!file) return;
-
-            document.getElementById('status').innerText = 'Processing...';
-            
-            // Apply watermark ONLY if free
-            if (eventTier === 'free') {
-                file = await applyWatermark(file);
-            }
-
-            // CLEAN PATH (Crucial for 400 error fix)
-            const cleanName = file.name.replace(/[^a-z0-9.]/gi, '_').toLowerCase();
-            const filePath = `${eventId}/${Date.now()}_${cleanName}`;
-
-            document.getElementById('status').innerText = 'Uploading...';
-
-            const { error } = await nexus.storage.from('events').upload(filePath, file);
-
-            if (error) {
-                alert("Upload Error: " + error.message);
-                document.getElementById('status').innerText = '❌ Failed';
-            } else {
-                document.getElementById('status').innerText = '✅ Success!';
-                loadGallery();
-                updateLimit();
-            }
-        };
-
-        async function loadGallery() {
-            const { data } = await nexus.storage.from('events').list(eventId, { limit: 4, sortBy: { column: 'created_at', order: 'desc' } });
-            if (data) {
-                const grid = document.getElementById('gallery-grid');
-                grid.innerHTML = '';
-                data.forEach(f => {
-                    if (f.name.includes('.')) {
-                        const url = nexus.storage.from('events').getPublicUrl(`${eventId}/${f.name}`).data.publicUrl;
-                        grid.innerHTML += `<img src="${url}" style="width:100%; border-radius:10px; height:80px; object-fit:cover;">`;
-                    }
-                });
-            }
-        }
-
-        checkEvent();
-        loadGallery();
     </script>
 </body>
 </html>
