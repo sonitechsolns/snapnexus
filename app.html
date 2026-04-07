@@ -45,7 +45,7 @@
     <script>
         const S_URL = 'https://yaxajpojbssrrdcyuzeo.supabase.co';
         const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
-        const supabase = window.supabase.createClient(S_URL, S_KEY);
+        const nexus = window.supabase.createClient(S_URL, S_KEY);
 
         const urlParams = new URLSearchParams(window.location.search);
         const eventId = urlParams.get('event') || 'public';
