@@ -47,6 +47,12 @@
         let nexus;
         const S_URL = 'https://yaxajpojbssrrdcyuzeo.supabase.co';
         const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
+        // ISSE SABSE UPAR RAKHO (Above init function)
+    const urlParams = new URLSearchParams(window.location.search);
+const eventId = urlParams.get('event') || 'public';
+document.getElementById('eventLabel').innerText = eventId;
+
+// PHIR YE INIT FUNCTION AAYEGA
 
         function init() {
             try {
@@ -65,9 +71,7 @@
         init();
 
         // --- 2. THE CORE LOGIC ---
-        const urlParams = new URLSearchParams(window.location.search);
-        const eventId = urlParams.get('event') || 'public';
-        document.getElementById('eventLabel').innerText = eventId;
+        
 
         let eventTier = 'free';
 
@@ -158,4 +162,4 @@
         }
     </script>
 </body>
-</html>
+</html> 
