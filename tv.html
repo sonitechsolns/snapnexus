@@ -29,7 +29,6 @@
         }
         body::-webkit-scrollbar { display: none; }
 
-        /* Split layout for free tier */
         .tv-split {
             display: flex;
             width: 100vw;
@@ -88,9 +87,6 @@
             font-size: 1rem;
             color: #ffb74d;
             text-align: center;
-        }
-        .rotating-text {
-            transition: opacity 0.5s ease;
         }
 
         .header {
@@ -260,7 +256,6 @@
         }
         .premium-float.hidden { display: none; }
 
-        /* Free tier watermark overlay (over the photo) */
         #freeTierWatermark {
             position: absolute;
             bottom: 28px;
@@ -524,7 +519,6 @@
         eventBadge.textContent = 'Event: ' + eventId;
         var folderPath = PHOTO_ROOT + '/' + eventId;
 
-        // Build QR for sidebar (same as guest portal)
         var baseSiteUrl = window.location.origin;
         var guestUrl = baseSiteUrl + '/app.html?event=' + encodeURIComponent(eventId);
         sidebarQrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(guestUrl);
@@ -545,7 +539,6 @@
 
         function applyFreeTierUi() {
             if (eventIsPremium) {
-                // Hide sidebar, full width main
                 tvSidebar.style.display = 'none';
                 tvMain.classList.add('full-width');
                 freeTierWatermark.classList.remove('show');
@@ -553,14 +546,13 @@
                 fsBtn.classList.remove('locked');
                 fsBtn.classList.add('unlocked');
             } else {
-                // Show sidebar (split 25% / 75%)
                 tvSidebar.style.display = 'flex';
                 tvMain.classList.remove('full-width');
                 freeTierWatermark.classList.add('show');
                 premiumFloat.classList.remove('hidden');
                 fsBtn.classList.add('locked');
                 fsBtn.classList.remove('unlocked');
-                // Rotating sponsor text
+
                 const sponsorEl = document.getElementById('rotatingSponsor');
                 const messages = [
                     'Want this for your event? Visit SnapNexus.in',

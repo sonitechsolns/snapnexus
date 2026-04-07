@@ -291,6 +291,56 @@
 
         .hint { font-size: 0.82rem; color: var(--muted); margin-top: 12px; font-weight: 600; }
 
+        .event-item {
+            background: rgba(30,41,59,0.7);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .event-code {
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--fusion-a);
+        }
+        .event-status {
+            font-size: 0.85rem;
+            margin: 8px 0;
+        }
+        .event-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 800;
+        }
+        .btn-end-sm {
+            background: rgba(248,113,113,0.2);
+            color: #f87171;
+            border: 1px solid rgba(248,113,113,0.5);
+        }
+        .btn-end-sm:hover { background: rgba(248,113,113,0.4); }
+        .btn-copy {
+            background: rgba(255,152,0,0.2);
+            color: var(--fusion-a);
+        }
+        .create-event-card {
+            background: linear-gradient(135deg, rgba(255,152,0,0.1), rgba(255,114,0,0.05));
+            border: 1px dashed var(--fusion-a);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .create-event-card:hover {
+            background: rgba(255,152,0,0.2);
+            transform: translateY(-2px);
+        }
+
         @media (max-width: 520px) {
             .btn-row { flex-direction: column; }
             .btn-primary, .btn-secondary { width: 100%; }
@@ -315,314 +365,200 @@
         </div>
     </div>
 
-    <div id="state-create" class="state-shell" aria-hidden="true">
-        <div class="glass-card">
-            <h1>Create your event</h1>
-            <p class="lead">Choose a short code for URLs and QR (letters, numbers, underscores only).</p>
-            <label for="eventCodeInput">Event code</label>
-            <input type="text" id="eventCodeInput" placeholder="rahul_bday" autocomplete="off" spellcheck="false">
-            <button type="button" class="btn-primary" id="btnInitEvent" style="width:100%;margin-top:4px;">Initialize Event</button>
-            <p class="hint">Example: <code style="color:var(--fusion-a);">summer_wedding_2026</code></p>
-        </div>
-    </div>
-
     <div id="state-dashboard" class="state-shell" aria-hidden="true">
         <header class="dash-header">
             <div class="dash-brand">
                 <img src="SNAPN.png" alt="SnapNexus" width="44" height="44">
                 <div>
                     <span id="brandLabel">SnapNexus</span>
-                    <span id="headerPremiumBadge" style="display:none;margin-left:8px;font-size:0.8rem;font-weight:800;padding:3px 10px;border-radius:999px;background:rgba(16,185,129,0.15);border:1px solid rgba(52,211,153,0.4);color:#6ee7b7;vertical-align:middle;">👑 Premium</span>
+                    <span id="headerTierBadge" style="display:none;margin-left:8px;font-size:0.8rem;font-weight:800;padding:3px 10px;border-radius:999px;background:rgba(16,185,129,0.15);border:1px solid rgba(52,211,153,0.4);color:#6ee7b7;vertical-align:middle;"></span>
                 </div>
             </div>
             <button type="button" class="btn-logout" id="btnLogout">Logout</button>
         </header>
 
         <main class="dash-main">
-            <div class="dash-grid">
-                <section class="dash-card">
-                    <h2>QR &amp; links</h2>
-                    <div class="qr-wrap">
-                        <img id="qrImage" src="" alt="Event QR code" width="250" height="250">
-                    </div>
-                    <div class="link-list">
-                        <a id="linkGuest" href="#" target="_blank" rel="noopener">Guest Upload Portal</a>
-                        <a id="linkTv" href="#" target="_blank" rel="noopener">TV Display Screen</a>
-                    </div>
-                </section>
-
-                <section class="dash-card" id="cardPremium">
-                    <h2>Plan &amp; status</h2>
-                    <div class="plan-tag is-free" id="premiumBadge">Free Tier (20 Photo Limit)</div>
-
-                    <div class="pricing-box" id="pricingBox">
-                        <div class="price-row">
-                            <span class="price-amount">₹999</span>
-                            <span class="price-sub">/ event · one-time</span>
-                        </div>
-                        <ul class="feature-list">
-                            <li>Unlimited photo uploads</li>
-                            <li>No watermarks on photos</li>
-                            <li>No branding ads on TV wall</li>
-                            <li>Priority display refresh</li>
-                            <li>Event analytics &amp; ZIP export</li>
-                        </ul>
-                    </div>
-
-                    <button type="button" class="btn-upgrade" id="btnUpgrade">⚡ Upgrade for ₹999</button>
-                    <button type="button" class="btn-end" id="btnEndEvent">End Event</button>
-                </section>
-
-                <section class="dash-card">
-                    <h2>Live stats</h2>
-                    <div class="stat-big" id="statPhotos">0</div>
-                    <div class="stat-label">Photos uploaded</div>
-                </section>
+            <div class="dash-grid" id="eventsGrid">
+                <!-- Events will be injected here -->
             </div>
         </main>
     </div>
 
     <script>
-        /* ════════════════════════════════════════
-           CONFIG — do not change S_URL / S_KEY
-        ════════════════════════════════════════ */
-        var S_URL  = 'https://yaxajpojbssrrdcyuzeo.supabase.co';
-        var S_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
+        var S_URL = 'https://yaxajpojbssrrdcyuzeo.supabase.co';
+        var S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
         var SITE_URL = 'https://snapnexus-jet.vercel.app';
 
         var sb = supabase.createClient(S_URL, S_KEY);
 
-        var stateAuth       = document.getElementById('state-auth');
-        var stateCreate     = document.getElementById('state-create');
-        var stateDashboard  = document.getElementById('state-dashboard');
-        var authEmail       = document.getElementById('authEmail');
-        var authPassword    = document.getElementById('authPassword');
-        var btnLogin        = document.getElementById('btnLogin');
-        var btnSignUp       = document.getElementById('btnSignUp');
-        var eventCodeInput  = document.getElementById('eventCodeInput');
-        var btnInitEvent    = document.getElementById('btnInitEvent');
-        var btnLogout       = document.getElementById('btnLogout');
-        var qrImage         = document.getElementById('qrImage');
-        var linkGuest       = document.getElementById('linkGuest');
-        var linkTv          = document.getElementById('linkTv');
-        var premiumBadge    = document.getElementById('premiumBadge');
-        var headerBadge     = document.getElementById('headerPremiumBadge');
-        var pricingBox      = document.getElementById('pricingBox');
-        var btnUpgrade      = document.getElementById('btnUpgrade');
-        var btnEndEvent     = document.getElementById('btnEndEvent');
-        var statPhotos      = document.getElementById('statPhotos');
+        var stateAuth = document.getElementById('state-auth');
+        var stateDashboard = document.getElementById('state-dashboard');
+        var authEmail = document.getElementById('authEmail');
+        var authPassword = document.getElementById('authPassword');
+        var btnLogin = document.getElementById('btnLogin');
+        var btnSignUp = document.getElementById('btnSignUp');
+        var btnLogout = document.getElementById('btnLogout');
+        var eventsGrid = document.getElementById('eventsGrid');
+        var headerTierBadge = document.getElementById('headerTierBadge');
 
-        var currentEvent = null;
-        var statTimer    = null;
+        var currentUser = null;
+        var userTier = 'free'; // free, pro, premium, season
 
         function showState(which) {
             stateAuth.classList.toggle('is-active', which === 'auth');
-            stateAuth.setAttribute('aria-hidden', String(which !== 'auth'));
-            stateCreate.classList.toggle('is-active', which === 'create');
-            stateCreate.setAttribute('aria-hidden', String(which !== 'create'));
             stateDashboard.classList.toggle('is-active', which === 'dashboard');
-            stateDashboard.setAttribute('aria-hidden', String(which !== 'dashboard'));
         }
 
-        function normalizeSiteUrl() {
-            var u = SITE_URL.replace(/\/$/, '');
-            if (u.indexOf('YOUR_VERCEL') !== -1 && window.location && window.location.origin) return window.location.origin;
-            return u;
-        }
-        function buildEventUrls(code) {
-            var base = normalizeSiteUrl();
-            return {
-                guest: base + '/app.html?event=' + encodeURIComponent(code),
-                tv:    base + '/tv.html?event='  + encodeURIComponent(code)
-            };
-        }
-        function updateQrAndLinks(code) {
-            var urls = buildEventUrls(code);
-            qrImage.src = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' + encodeURIComponent(urls.guest);
-            linkGuest.href = urls.guest;
-            linkGuest.textContent = 'Guest Upload Portal — ' + code;
-            linkTv.href = urls.tv;
-            linkTv.textContent = 'TV Display Screen — ' + code;
-        }
-
-        async function refreshPhotoCount() {
-            if (!currentEvent) return;
-            var folder = 'event-photos/' + currentEvent.event_code;
-            var res = await sb.storage.from('events').list(folder, { limit: 1000 });
-            if (res.error || !res.data) return;
-            var count = res.data.filter(function (f) { return f.name && f.name.indexOf('.') !== -1; }).length;
-            statPhotos.textContent = String(count);
-        }
-
-        function applyPremiumUi(isPremium) {
-            premiumBadge.classList.remove('is-free', 'is-premium', 'is-ended');
-            if (isPremium) {
-                headerBadge.style.display = 'inline-block';
-                premiumBadge.textContent = '👑 Premium — Unlimited Uploads';
-                premiumBadge.classList.add('is-premium');
-                pricingBox.style.display = 'none';
-                btnUpgrade.disabled = true;
-                btnUpgrade.textContent = '✅ You are on Premium';
-            } else {
-                headerBadge.style.display = 'none';
-                premiumBadge.textContent = 'Free Tier (20 Photo Limit)';
-                premiumBadge.classList.add('is-free');
-                pricingBox.style.display = 'block';
-                btnUpgrade.disabled = false;
-                btnUpgrade.textContent = '⚡ Upgrade for ₹999';
+        async function getUserProfile(email) {
+            let { data, error } = await sb.from('profiles').select('tier').eq('email', email).maybeSingle();
+            if (error || !data) {
+                // Create default profile
+                await sb.from('profiles').insert({ email: email, tier: 'free' });
+                return 'free';
             }
+            return data.tier;
         }
 
-        function applyEventActiveUi(isActive) {
-            var active = isActive !== false;
-            if (active) {
-                btnEndEvent.disabled = false;
-                btnEndEvent.textContent = 'End Event';
-                qrImage.style.opacity = '1'; qrImage.style.filter = 'none';
-                linkGuest.style.pointerEvents = 'auto'; linkGuest.style.opacity = '1';
-                linkTv.style.pointerEvents    = 'auto'; linkTv.style.opacity    = '1';
-                premiumBadge.classList.remove('is-ended');
-                return;
+        async function loadEvents() {
+            if (!currentUser) return;
+            let { data, error } = await sb.from('events').select('*').eq('host_email', currentUser.email).order('created_at', { ascending: false });
+            if (error) return;
+            renderEvents(data);
+        }
+
+        function getMaxActiveEvents() {
+            if (userTier === 'season') return Infinity;
+            if (userTier === 'premium') return 7;
+            return 1; // free and pro both limited to 1 active event
+        }
+
+        async function renderEvents(events) {
+            let activeCount = events.filter(e => e.is_active).length;
+            let maxActive = getMaxActiveEvents();
+            let canCreate = activeCount < maxActive;
+
+            let html = `<div class="dash-card create-event-card" id="createEventCard">
+                            <h2>+ Create New Event</h2>
+                            <p style="color:var(--muted); margin-top:8px;">${canCreate ? 'Click to start a new event' : `You have reached the limit of ${maxActive === Infinity ? 'unlimited' : maxActive} active event${maxActive !== 1 ? 's' : ''}. End an existing event first.`}</p>
+                        </div>`;
+
+            for (let ev of events) {
+                let status = ev.is_active ? '🟢 Active' : '🔴 Ended';
+                let badgeClass = ev.is_premium ? 'is-premium' : 'is-free';
+                let badgeText = ev.is_premium ? '👑 Premium' : 'Free Tier';
+                let guestUrl = `${SITE_URL}/app.html?event=${encodeURIComponent(ev.event_code)}`;
+                let tvUrl = `${SITE_URL}/tv.html?event=${encodeURIComponent(ev.event_code)}`;
+                html += `
+                    <div class="dash-card">
+                        <div class="plan-tag ${badgeClass}">${badgeText}</div>
+                        <div class="event-code">📌 ${ev.event_code}</div>
+                        <div class="event-status">${status}</div>
+                        <div class="link-list">
+                            <a href="${guestUrl}" target="_blank">Guest Upload Portal</a>
+                            <a href="${tvUrl}" target="_blank">TV Display Screen</a>
+                        </div>
+                        <div class="event-actions">
+                            <button class="btn-sm btn-end-sm" data-code="${ev.event_code}" data-active="${ev.is_active}">${ev.is_active ? 'End Event' : 'Event Ended'}</button>
+                            <button class="btn-sm btn-copy" data-url="${guestUrl}">Copy Guest URL</button>
+                        </div>
+                    </div>`;
             }
-            btnEndEvent.disabled = true;
-            btnEndEvent.textContent = 'Event Ended';
-            qrImage.style.opacity = '0.55'; qrImage.style.filter = 'grayscale(1)';
-            linkGuest.style.pointerEvents = 'none'; linkGuest.style.opacity = '0.45';
-            linkTv.style.pointerEvents    = 'none'; linkTv.style.opacity    = '0.45';
-            premiumBadge.textContent = 'Ended';
-            premiumBadge.classList.remove('is-free', 'is-premium');
-            premiumBadge.classList.add('is-ended');
-            headerBadge.style.display = 'none';
-            pricingBox.style.display  = 'none';
-            btnUpgrade.disabled = true;
-            btnUpgrade.textContent = 'Event Closed';
-        }
+            eventsGrid.innerHTML = html;
 
-        // Coming Soon alert for upgrade buttons
-        btnUpgrade.addEventListener('click', function () {
-            if (currentEvent && currentEvent.is_premium) return;
-            alert('Coming Soon! But you can still use the Free Tier right now!');
-        });
+            document.getElementById('createEventCard')?.addEventListener('click', async () => {
+                if (!canCreate) {
+                    alert(`You have reached your active event limit (${maxActive === Infinity ? 'unlimited' : maxActive}). Please end an event before creating a new one.`);
+                    return;
+                }
+                let code = prompt('Enter a unique event code (letters, numbers, underscores only):');
+                if (!code) return;
+                if (!/^[a-z0-9_]+$/.test(code)) {
+                    alert('Use only lowercase letters, numbers, underscores.');
+                    return;
+                }
+                let { error } = await sb.from('events').insert({
+                    host_email: currentUser.email,
+                    event_code: code,
+                    is_premium: false,
+                    is_active: true
+                });
+                if (error) alert(error.message || 'Event code already exists.');
+                else loadEvents();
+            });
 
-        async function fetchHostEvent(session) {
-            var email = session.user.email;
-            if (!email) return null;
-            var res = await sb
-                .from('events')
-                .select('event_code, is_premium, is_active')
-                .eq('host_email', email)
-                .order('created_at', { ascending: false })
-                .limit(1);
-            if (res.error || !res.data || !res.data.length) return null;
-            return res.data[0];
+            document.querySelectorAll('.btn-end-sm').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    let code = btn.getAttribute('data-code');
+                    let isActive = btn.getAttribute('data-active') === 'true';
+                    if (!isActive) return;
+                    if (!confirm(`End event "${code}"? Guests will no longer be able to upload.`)) return;
+                    await sb.from('events').update({ is_active: false }).eq('event_code', code);
+                    loadEvents();
+                });
+            });
+
+            document.querySelectorAll('.btn-copy').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    let url = btn.getAttribute('data-url');
+                    navigator.clipboard.writeText(url);
+                    alert('Guest URL copied!');
+                });
+            });
         }
 
         async function routeAfterSession() {
-            var session = (await sb.auth.getSession()).data.session;
+            let session = (await sb.auth.getSession()).data.session;
             if (!session) { showState('auth'); return; }
-            var ev = await fetchHostEvent(session);
-            if (!ev) { showState('create'); return; }
-            currentEvent = ev;
-            updateQrAndLinks(ev.event_code);
-            applyPremiumUi(!!ev.is_premium);
-            applyEventActiveUi(ev.is_active);
-            await refreshPhotoCount();
-            if (statTimer) clearInterval(statTimer);
-            statTimer = setInterval(refreshPhotoCount, 15000);
+            currentUser = session.user;
+            userTier = await getUserProfile(currentUser.email);
+            headerTierBadge.style.display = 'inline-block';
+            headerTierBadge.textContent = userTier === 'season' ? '🏆 Season Pass' : (userTier === 'premium' ? '👑 Premium' : (userTier === 'pro' ? '⭐ Pro' : '✨ Free'));
+            await loadEvents();
             showState('dashboard');
         }
 
-        btnLogin.addEventListener('click', async function () {
-            var email = authEmail.value.trim(), password = authPassword.value;
-            if (!email || !password) { alert('Please enter email and password.'); return; }
+        btnLogin.addEventListener('click', async () => {
+            let email = authEmail.value.trim(), password = authPassword.value;
+            if (!email || !password) { alert('Enter email and password'); return; }
             btnLogin.disabled = true;
-            var r = await sb.auth.signInWithPassword({ email: email, password: password });
+            let { error } = await sb.auth.signInWithPassword({ email, password });
             btnLogin.disabled = false;
-            if (r.error) { alert(r.error.message || 'Login failed.'); return; }
-            await routeAfterSession();
+            if (error) { alert(error.message); return; }
+            routeAfterSession();
         });
 
-        btnSignUp.addEventListener('click', async function () {
-            var email = authEmail.value.trim(), password = authPassword.value;
-            if (!email || !password) { alert('Please enter email and password.'); return; }
-            if (password.length < 6) { alert('Password should be at least 6 characters.'); return; }
+        btnSignUp.addEventListener('click', async () => {
+            let email = authEmail.value.trim(), password = authPassword.value;
+            if (!email || !password) { alert('Enter email and password'); return; }
+            if (password.length < 6) { alert('Password min 6 chars'); return; }
             btnSignUp.disabled = true;
-            var r = await sb.auth.signUp({ email: email, password: password });
+            let { error } = await sb.auth.signUp({ email, password });
             btnSignUp.disabled = false;
-            if (r.error) { alert(r.error.message || 'Sign up failed.'); return; }
-            alert('Check your email to confirm your account if required.');
-            await routeAfterSession();
+            if (error) { alert(error.message); return; }
+            alert('Check your email to confirm. After confirmation, log in.');
         });
 
-        function validateEventCode(raw) {
-            var s = String(raw).trim().toLowerCase();
-            return (/^[a-z0-9_]+$/.test(s) && s.length >= 2) ? s : null;
-        }
-
-        btnInitEvent.addEventListener('click', async function () {
-            var code = validateEventCode(eventCodeInput.value);
-            if (!code) { alert('Use 2+ characters: lowercase letters, numbers, and underscores only (e.g. rahul_bday).'); return; }
-            var session = (await sb.auth.getSession()).data.session;
-            if (!session || !session.user.email) { alert('Session expired. Please log in again.'); showState('auth'); return; }
-            btnInitEvent.disabled = true;
-            var ins = await sb.from('events').insert({
-                host_email: session.user.email,
-                event_code: code,
-                is_premium: false,
-                is_active: true
-            });
-            btnInitEvent.disabled = false;
-            if (ins.error) {
-                var msg = (ins.error.code === '23505' || (ins.error.message || '').indexOf('duplicate') !== -1)
-                    ? 'That event code is already taken. Try another.'
-                    : (ins.error.message || 'Could not create event.');
-                alert(msg);
-                return;
-            }
-            currentEvent = { event_code: code, is_premium: false, is_active: true };
-            updateQrAndLinks(code);
-            applyPremiumUi(false);
-            applyEventActiveUi(true);
-            statPhotos.textContent = '0';
-            if (statTimer) clearInterval(statTimer);
-            statTimer = setInterval(refreshPhotoCount, 15000);
-            showState('dashboard');
-        });
-
-        btnEndEvent.addEventListener('click', async function () {
-            if (!currentEvent || !currentEvent.event_code) return;
-            if (!window.confirm('Are you sure? Guests will no longer be able to upload photos.')) return;
-            btnEndEvent.disabled = true;
-            btnEndEvent.textContent = 'Ending…';
-            var upd = await sb.from('events').update({ is_active: false }).eq('event_code', currentEvent.event_code);
-            if (upd.error) {
-                alert(upd.error.message || 'Failed to end the event.');
-                btnEndEvent.textContent = 'End Event';
-                applyEventActiveUi(true);
-                return;
-            }
-            currentEvent.is_active = false;
-            applyEventActiveUi(false);
-            if (statTimer) clearInterval(statTimer);
-        });
-
-        btnLogout.addEventListener('click', async function () {
-            if (statTimer) clearInterval(statTimer);
+        btnLogout.addEventListener('click', async () => {
             await sb.auth.signOut();
-            currentEvent = null;
-            authPassword.value = '';
+            currentUser = null;
             showState('auth');
         });
 
-        sb.auth.onAuthStateChange(function (_evt, session) {
-            if (!session) {
-                currentEvent = null;
-                if (statTimer) clearInterval(statTimer);
-                showState('auth');
-            }
+        sb.auth.onAuthStateChange((_, session) => {
+            if (!session) { currentUser = null; showState('auth'); }
         });
 
         routeAfterSession();
+
+        // Coming Soon gatekeeper for any upgrade button (if present in future)
+        document.body.addEventListener('click', (e) => {
+            if (e.target.classList && e.target.classList.contains('btn-upgrade')) {
+                e.preventDefault();
+                alert('Coming Soon! But you can still register and use the Free Tier right now!');
+            }
+        });
     </script>
 </body>
 </html>
