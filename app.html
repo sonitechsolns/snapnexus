@@ -2,164 +2,197 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>SnapNexus | Guest Portal</title>
-    
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>SnapNexus | Guest Upload</title>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --fusion-a: #ff9800; --fusion-b: #ffec43; --fusion-c: #ff7200; }
+        :root {
+            --fusion-a: #ff9800;
+            --fusion-b: #ffec43;
+            --fusion-c: #ff7200;
+            --logo-size: 68px;
+            --card-max-width: 400px;
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Urbanist', sans-serif; background: linear-gradient(140deg, var(--fusion-a) 0%, var(--fusion-b) 100%); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .card { background: rgba(255,255,255,0.95); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        .simple-btn { background: #ff9800; color: white; border: none; padding: 18px 0; border-radius: 50px; font-weight: 900; cursor: pointer; width: 100%; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(255,152,0,0.3); transition: 0.2s; }
-        .simple-btn:disabled { background: #ccc; cursor: not-allowed; }
-        #status { margin-top: 15px; font-weight: 700; color: #ad640b; min-height: 24px; }
-        #gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 25px; }
-        canvas { display: none; }
+        body {
+            font-family: 'Urbanist', sans-serif;
+            background: linear-gradient(140deg, var(--fusion-a) 0%, var(--fusion-b) 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .main-logo-area { text-align: center; margin-bottom: 20px; }
+        .main-logo-img {
+            width: var(--logo-size);
+            height: var(--logo-size);
+            object-fit: contain;
+            border-radius: 17px;
+            background: #fff6eb;
+            border: 2.5px solid var(--fusion-c);
+            box-shadow: 0 2.5px 8px #ff98005c;
+        }
+        .main-logo-title {
+            font-size: 1.55rem;
+            font-weight: 900;
+            color: var(--fusion-c);
+            margin-top: 12px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px 24px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: var(--card-max-width);
+            text-align: center;
+        }
+        .event-pill {
+            background: #fff3e0;
+            padding: 6px 16px;
+            border-radius: 999px;
+            display: inline-block;
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--fusion-c);
+            margin-bottom: 20px;
+        }
+        .simple-btn {
+            background: var(--fusion-a);
+            color: white;
+            border: none;
+            padding: 16px 0;
+            border-radius: 50px;
+            font-weight: 900;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(255,152,0,0.3);
+            transition: 0.2s;
+        }
+        .simple-btn:active { transform: scale(0.98); }
+        #status {
+            margin-top: 16px;
+            font-weight: 700;
+            color: #ad640b;
+            min-height: 24px;
+        }
+        #gallery-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 25px;
+        }
+        .gallery-img {
+            width: 100%;
+            border-radius: 12px;
+            height: 90px;
+            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 0.75rem;
+            color: #fff;
+            text-align: center;
+            font-weight: 700;
+        }
+        hr { margin: 20px 0; border: 0.5px solid #ff980055; }
     </style>
 </head>
 <body>
-    <canvas id="watermarkCanvas"></canvas>
-    <div class="card">
-        <h2 style="color: #ff7200; margin-bottom: 5px; font-weight: 900;">SnapNexus</h2>
-        <div id="eventPill" style="background: #fff3e0; padding: 5px 15px; border-radius: 20px; display: inline-block; font-size: 0.8rem; font-weight: 800; color: #ff7200; margin-bottom: 20px;">
-            EVENT: <span id="eventLabel">Loading...</span>
-        </div>
-
-        <div id="limitBanner" style="display:none; color: #ef4444; font-size: 0.85rem; margin-bottom: 12px; font-weight: 800;">
-            🚫 Limit Reached (20/20). Ask host to upgrade!
-        </div>
-
-        <button class="simple-btn" id="uploadBtn" onclick="document.getElementById('fileInput').click()">SELECT PHOTO</button>
-        <input type="file" id="fileInput" hidden accept="image/*">
-        
-        <div id="status">Connecting to System...</div>
-
-        <hr style="border: 0.5px solid #eee; margin: 25px 0;">
-        <h4 style="color: #ff7200; font-size: 0.9rem; margin-bottom: 10px;">RECENT UPLOADS</h4>
-        <div id="gallery-grid"></div>
+    <div class="main-logo-area">
+        <img src="SNAPN.png" alt="SnapNexus Logo" class="main-logo-img">
+        <div class="main-logo-title">SnapNexus</div>
     </div>
 
+    <div class="card">
+        <div class="event-pill">📸 Guest Upload Portal</div>
+
+        <button class="simple-btn" id="uploadBtn">SELECT PHOTO</button>
+        <input type="file" id="fileInput" hidden accept="image/*">
+
+        <div id="status">Ready</div>
+
+        <hr>
+        <h4 style="color: var(--fusion-c); font-size: 0.9rem;">Recent Uploads</h4>
+        <div id="gallery-grid"></div>
+    </div>
+    <div class="footer">Powered by SnapNexus · Local Mobile Database</div>
+
     <script>
-        // --- 1. THE BULLETPROOF INITIALIZATION ---
-        let nexus;
-        const S_URL = 'https://yaxajpojbssrrdcyuzeo.supabase.co';
-        const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
-        // ISSE SABSE UPAR RAKHO (Above init function)
-    const urlParams = new URLSearchParams(window.location.search);
-const eventId = urlParams.get('event') || 'public';
-document.getElementById('eventLabel').innerText = eventId;
+        // Use the tunnel URL currently active in your Termux session
+        const API_BASE = 'https://land-plane-count-calibration.trycloudflare.com';
 
-// PHIR YE INIT FUNCTION AAYEGA
+        const uploadBtn = document.getElementById('uploadBtn');
+        const fileInput = document.getElementById('fileInput');
+        const statusDiv = document.getElementById('status');
+        const galleryGrid = document.getElementById('gallery-grid');
 
-        function init() {
-            try {
-                // Check all possible ways the library could be named
-                const lib = window.supabase || supabase;
-                if (!lib) throw new Error("Lib not loaded");
-                
-                nexus = lib.createClient(S_URL, S_KEY);
-                document.getElementById('status').innerText = 'System Online';
-                runApp();
-            } catch (e) {
-                console.log("Retrying connection...");
-                setTimeout(init, 200); // Retry every 200ms
-            }
-        }
-        init();
-
-        // --- 2. THE CORE LOGIC ---
-        
-
-        let eventTier = 'free';
-
-        async function runApp() {
-            // Check Event Status
-            const { data } = await nexus.from('events').select('tier, is_active').eq('event_code', eventId).maybeSingle();
-            if (data) {
-                eventTier = data.tier || 'free';
-                if (data.is_active === false) {
-                    document.body.innerHTML = "<div class='card'><h1 style='color:#ff7200;'>Event Ended 🏁</h1><p>This wall is closed.</p></div>";
-                    return;
-                }
-            }
-            loadGallery();
-            checkLimits();
-        }
-
-        async function checkLimits() {
-            const { data } = await nexus.storage.from('events').list(eventId);
-            const count = data ? data.filter(f => f.name.includes('.')).length : 0;
-            if (eventTier === 'free' && count >= 20) {
-                document.getElementById('limitBanner').style.display = 'block';
-                document.getElementById('uploadBtn').disabled = true;
-            }
-        }
-
+        // Fetch and display photos from the Huawei Phone
         async function loadGallery() {
-            const { data } = await nexus.storage.from('events').list(eventId, { limit: 4, sortBy: { column: 'created_at', order: 'desc' } });
-            if (data) {
-                const grid = document.getElementById('gallery-grid');
-                grid.innerHTML = '';
-                data.forEach(f => {
-                    if (f.name.includes('.')) {
-                        const url = nexus.storage.from('events').getPublicUrl(`${eventId}/${f.name}`).data.publicUrl;
-                        grid.innerHTML += `<img src="${url}" style="width:100%; border-radius:10px; height:90px; object-fit:cover;">`;
-                    }
+            try {
+                const res = await fetch(`${API_BASE}/photos`);
+                if (!res.ok) throw new Error('Phone server unreachable');
+                const photos = await res.json();
+                
+                // Show last 4 uploads, newest first. Construct full URL using API_BASE.
+                const recent = photos.slice(-4).reverse(); 
+                galleryGrid.innerHTML = recent.map(photo => 
+                    `<img src="${API_BASE}${photo.url}" class="gallery-img" alt="upload">`
+                ).join('');
+            } catch (err) {
+                console.error('Gallery error:', err);
+                galleryGrid.innerHTML = '<p style="color:#d32f2f; font-size:0.8rem;">Huawei Server Offline</p>';
+            }
+        }
+
+        // Upload directly to the Termux Node.js server
+        async function uploadPhoto(file) {
+            const formData = new FormData();
+            formData.append('photo', file);
+
+            statusDiv.innerText = 'Sending to Huawei...';
+            statusDiv.style.color = '#ad640b';
+
+            try {
+                const res = await fetch(`${API_BASE}/upload`, {
+                    method: 'POST',
+                    body: formData
                 });
+
+                if (!res.ok) throw new Error('Upload rejected');
+
+                statusDiv.innerText = '✅ Saved to Phone!';
+                statusDiv.style.color = '#2e7d32';
+                
+                await loadGallery(); // Refresh the thumbnails
+
+                setTimeout(() => {
+                    statusDiv.innerText = 'Ready';
+                    statusDiv.style.color = '#ad640b';
+                }, 3000);
+            } catch (err) {
+                statusDiv.innerText = '❌ Failed (Check Tunnel)';
+                statusDiv.style.color = '#d32f2f';
             }
         }
 
-        // --- 3. THE UPLOAD (With Watermark) ---
-        document.getElementById('fileInput').onchange = async (e) => {
-            let file = e.target.files[0];
+        uploadBtn.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
             if (!file) return;
+            await uploadPhoto(file);
+            fileInput.value = ''; 
+        });
 
-            document.getElementById('status').innerText = 'Processing...';
-            
-            if (eventTier === 'free') {
-                file = await applyWatermark(file);
-            }
-
-            const cleanName = file.name.replace(/[^a-z0-9.]/gi, '_').toLowerCase();
-            const filePath = `${eventId}/${Date.now()}_${cleanName}`;
-
-            document.getElementById('status').innerText = 'Uploading to Wall...';
-
-            const { error } = await nexus.storage.from('events').upload(filePath, file);
-
-            if (error) {
-                alert("Upload Error: " + error.message);
-                document.getElementById('status').innerText = '❌ Failed';
-            } else {
-                document.getElementById('status').innerText = '✅ SUCCESS!';
-                alert("Uploaded! Look at the TV Screen.");
-                loadGallery();
-                checkLimits();
-            }
-            e.target.value = '';
-        };
-
-        function applyWatermark(file) {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.src = URL.createObjectURL(file);
-                img.onload = () => {
-                    const canvas = document.getElementById('watermarkCanvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
-                    const size = Math.round(img.width / 18);
-                    ctx.font = `bold ${size}px Urbanist`;
-                    ctx.fillStyle = "rgba(255,152,0,0.7)";
-                    ctx.fillText("SnapNexus", 30, img.height - 40);
-                    canvas.toBlob((blob) => resolve(new File([blob], file.name, { type: 'image/jpeg' })), 'image/jpeg', 0.8);
-                };
-            });
-        }
+        // Initial Load
+        loadGallery();
+        // Check for new photos every 10 seconds
+        setInterval(loadGallery, 10000);
     </script>
 </body>
-</html> 
+</html>
