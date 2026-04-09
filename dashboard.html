@@ -4,496 +4,135 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SnapNexus | Host Dashboard</title>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Urbanist:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,600&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-        :root {
-            --bg: #0f172a;
-            --text: #f8fafc;
-            --muted: #94a3b8;
-            --fusion-a: #ff9800;
-            --fusion-c: #ff7200;
-            --glass: rgba(30, 41, 59, 0.55);
-            --glass-border: rgba(255, 255, 255, 0.1);
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Urbanist', sans-serif; background: #020617; color: #ffffff; min-height: 100vh; overflow-x: hidden; }
+        h1, h2, h3 { font-family: 'Syne', sans-serif; }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        .liquid-mesh { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -3; background: radial-gradient(circle at 0% 100%, #020617, #1e3a8a 30%, #3b82f6 65%, #4f46e5); background-size: 200% 200%; animation: liquidShift 16s ease infinite alternate; }
+        @keyframes liquidShift { 0% { background-position: 0% 0%; } 100% { background-position: 100% 100%; } }
+        .noise-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -2; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E"); opacity: 0.4; }
 
-        body {
-            font-family: 'Urbanist', system-ui, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            line-height: 1.5;
-        }
-
-        .state-shell { display: none; min-height: 100vh; animation: stateIn 0.45s ease; }
-        .state-shell.is-active { display: flex; }
-        @keyframes stateIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        #state-auth, #state-create {
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-        }
-        #state-dashboard { flex-direction: column; }
-
-        .glass-card {
-            width: 100%;
-            max-width: 420px;
-            padding: 36px 28px;
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            box-shadow: 0 24px 60px rgba(0,0,0,0.35);
-        }
-        .glass-card h1 { font-size: 1.55rem; font-weight: 900; margin-bottom: 8px; letter-spacing: -0.02em; }
-        .glass-card .lead { color: var(--muted); font-weight: 600; font-size: 0.95rem; margin-bottom: 24px; }
-
-        label {
-            display: block;
-            font-size: 0.78rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: var(--muted);
-            margin-bottom: 8px;
-        }
-
-        input[type="email"],
-        input[type="password"],
-        input[type="text"] {
-            width: 100%;
-            padding: 14px 16px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(15,23,42,0.65);
-            color: var(--text);
-            font-family: inherit;
-            font-size: 1rem;
-            margin-bottom: 18px;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        input:focus {
-            border-color: rgba(255,152,0,0.45);
-            box-shadow: 0 0 0 3px rgba(255,152,0,0.12);
-        }
-
-        .btn-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
-
-        .btn-primary {
-            flex: 1;
-            min-width: 120px;
-            padding: 14px 20px;
-            border: none;
-            border-radius: 12px;
-            font-family: inherit;
-            font-weight: 900;
-            font-size: 0.98rem;
-            cursor: pointer;
-            color: #1a0f00;
-            background: linear-gradient(135deg, var(--fusion-a) 0%, var(--fusion-c) 100%);
-            box-shadow: 0 6px 28px rgba(255,152,0,0.3);
-            transition: transform 0.15s, box-shadow 0.2s;
-        }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 36px rgba(255,152,0,0.4); }
-        .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
-
-        .btn-secondary {
-            flex: 1;
-            min-width: 120px;
-            padding: 14px 20px;
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            font-family: inherit;
-            font-weight: 800;
-            font-size: 0.98rem;
-            cursor: pointer;
-            color: var(--text);
-            background: rgba(255,255,255,0.06);
-            transition: background 0.2s, border-color 0.2s;
-        }
-        .btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,152,0,0.35); }
-
-        .dash-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 18px 24px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            background: rgba(15,23,42,0.85);
-            backdrop-filter: blur(12px);
-        }
-        .dash-brand { display: flex; align-items: center; gap: 12px; }
-        .dash-brand img { width: 44px; height: 44px; object-fit: contain; border-radius: 10px; border: 2px solid rgba(255,152,0,0.35); }
-        .dash-brand span {
-            font-weight: 900;
-            font-size: 1.25rem;
-            background: linear-gradient(135deg, var(--fusion-a), var(--fusion-c));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .btn-logout {
-            padding: 10px 18px;
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.12);
-            background: rgba(255,255,255,0.05);
-            color: var(--muted);
-            font-family: inherit;
-            font-weight: 800;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: color 0.2s, border-color 0.2s;
-        }
-        .btn-logout:hover { color: var(--text); border-color: rgba(248,113,113,0.4); }
-
-        .dash-main { flex: 1; padding: 28px 22px 40px; max-width: 1200px; width: 100%; margin: 0 auto; }
+        .glass-card { background: rgba(20, 30, 55, 0.45); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 24px; padding: 24px; }
         
-        .section-title {
-            font-size: 1.3rem;
-            font-weight: 900;
-            margin: 24px 0 16px 0;
-            color: var(--fusion-a);
-            border-left: 4px solid var(--fusion-a);
-            padding-left: 12px;
-        }
-        .events-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 22px;
-            margin-bottom: 32px;
-        }
+        .topbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(2,6,23,0.7); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,0.1); position: sticky; top: 0; z-index: 100; }
+        .topbar-logo { display: flex; align-items: center; gap: 12px; font-family: 'Syne'; font-size: 1.4rem; font-weight: 800; }
+        
+        .dashboard-container { padding: 40px; max-width: 1400px; margin: 0 auto; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-bottom: 40px; }
+        .stat-card { display: flex; align-items: center; gap: 20px; }
+        .stat-icon { width: 56px; height: 56px; border-radius: 16px; background: rgba(59,130,246,0.15); display: flex; align-items: center; justify-content: center; color: #60a5fa; }
+        .stat-value { font-size: 2rem; font-family: 'Syne'; font-weight: 800; }
+        .stat-label { color: #94a3b8; font-weight: 600; font-size: 0.9rem; }
 
-        .dash-card {
-            padding: 24px;
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: 18px;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-        }
-        .dash-card h2 { font-size: 1.1rem; font-weight: 900; margin-bottom: 16px; letter-spacing: -0.01em; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+        .btn-physics { padding: 12px 24px; font-weight: 700; border-radius: 40px; border: none; cursor: pointer; background: linear-gradient(105deg, #3b82f6, #4f46e5); color: white; display: inline-flex; align-items: center; gap: 8px; transition: transform 0.1s; }
+        .btn-physics:active { transform: scale(0.95); }
+        .btn-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
 
-        .qr-wrap { text-align: center; margin-bottom: 18px; }
-        .qr-wrap img { max-width: 100%; height: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); }
-
-        .link-list { display: flex; flex-direction: column; gap: 10px; }
-        .link-list a {
-            color: var(--fusion-a);
-            font-weight: 700;
-            text-decoration: none;
-            word-break: break-all;
-            padding: 10px 12px;
-            border-radius: 10px;
-            background: rgba(255,152,0,0.08);
-            border: 1px solid rgba(255,152,0,0.15);
-            transition: background 0.2s;
-        }
-        .link-list a:hover { background: rgba(255,152,0,0.14); }
-
-        .plan-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 5px 13px;
-            border-radius: 999px;
-            font-size: 0.82rem;
-            font-weight: 900;
-            margin-bottom: 16px;
-            border: 1px solid rgba(255,255,255,0.12);
-        }
-        .plan-tag.free { color: var(--muted); background: rgba(255,255,255,0.05); }
-        .plan-tag.pro { color: #60a5fa; background: rgba(96,165,250,0.1); border-color: rgba(96,165,250,0.3); }
-        .plan-tag.premium { color: #6ee7b7; background: rgba(16,185,129,0.1); border-color: rgba(52,211,153,0.45); }
-        .plan-tag.season { color: #fbbf24; background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.45); }
-        .plan-tag.ended { color: #f87171; background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.45); }
-
-        .btn-end {
-            width: 100%;
-            margin-top: 12px;
-            padding: 14px;
-            border-radius: 12px;
-            font-family: inherit;
-            font-weight: 900;
-            font-size: 0.95rem;
-            cursor: pointer;
-            color: #f87171;
-            background: rgba(248,113,113,0.05);
-            border: 1px solid rgba(248,113,113,0.6);
-            transition: background 0.2s, border-color 0.2s;
-        }
-        .btn-end:hover:not(:disabled) { background: rgba(248,113,113,0.12); border-color: rgba(248,113,113,0.85); }
-
-        .create-event-card {
-            background: linear-gradient(135deg, rgba(255,152,0,0.1), rgba(255,114,0,0.05));
-            border: 1px dashed var(--fusion-a);
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-        .create-event-card:hover {
-            background: rgba(255,152,0,0.2);
-            transform: translateY(-2px);
-        }
-        .create-event-card h2 { margin-bottom: 8px; }
-        .create-event-card p { color: var(--muted); font-size: 0.85rem; }
-
-        .stat-big {
-            font-size: 2rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, var(--fusion-a), var(--fusion-c));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        .stat-label { color: var(--muted); font-weight: 600; font-size: 0.92rem; margin-top: 6px; }
-
-        .hint { font-size: 0.82rem; color: var(--muted); margin-top: 12px; font-weight: 600; }
-
-        @media (max-width: 520px) {
-            .btn-row { flex-direction: column; }
-            .btn-primary, .btn-secondary { width: 100%; }
-        }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .photo-card { position: relative; border-radius: 16px; overflow: hidden; aspect-ratio: 1; border: 1px solid rgba(255,255,255,0.1); }
+        .photo-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
+        .photo-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.2s; backdrop-filter: blur(4px); }
+        .photo-card:hover .photo-overlay { opacity: 1; }
+        .photo-card:hover img { transform: scale(1.05); }
+        .remove-btn { background: rgba(239, 68, 68, 0.85); color: white; border: 1px solid rgba(239, 68, 68, 0.4); padding: 8px 16px; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; font-family: 'Urbanist', sans-serif; }
+        .remove-btn:hover { background: #ef4444; transform: scale(1.05); }
     </style>
 </head>
 <body>
+    <div class="liquid-mesh"></div>
+    <div class="noise-overlay"></div>
 
-    <div id="state-auth" class="state-shell" aria-hidden="true">
-        <div class="glass-card">
-            <h1>Host Dashboard</h1>
-            <p class="lead">Sign in to manage your SnapNexus events.</p>
-            <label for="authEmail">Email</label>
-            <input type="email" id="authEmail" autocomplete="email" placeholder="you@example.com">
-            <label for="authPassword">Password</label>
-            <input type="password" id="authPassword" autocomplete="current-password" placeholder="••••••••">
-            <div class="btn-row">
-                <button type="button" class="btn-primary" id="btnLogin">Login</button>
-                <button type="button" class="btn-secondary" id="btnSignUp">Create Account</button>
-            </div>
-            <p class="hint">New hosts can create an account — check your email if confirmation is required.</p>
+    <div class="topbar">
+        <div class="topbar-logo">
+            <div style="width: 36px; height: 36px; background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.3); border-radius: 8px; display:flex; align-items:center; justify-content:center;"><i data-lucide="layout-dashboard" style="color: #60a5fa; width: 20px;"></i></div>
+            Host Dashboard
+        </div>
+        <div style="display:flex; gap: 16px; align-items: center;">
+            <span style="background: rgba(16,185,129,0.2); color: #34d399; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; display:flex; align-items:center; gap:6px;"><i data-lucide="radio" style="width:14px;"></i> Wall is LIVE</span>
+            <a href="index.html" style="color: #94a3b8; text-decoration: none; font-weight: 600;"><i data-lucide="log-out"></i></a>
         </div>
     </div>
 
-    <div id="state-dashboard" class="state-shell" aria-hidden="true">
-        <header class="dash-header">
-            <div class="dash-brand">
-                <img src="SNAPN.png" alt="SnapNexus" width="44" height="44">
+    <div class="dashboard-container">
+        <h2 style="margin-bottom: 32px; font-size: 2.2rem;" data-aos="fade-right">Bhavya's Wedding <span style="color:#60a5fa;">#Forever2026</span></h2>
+
+        <div class="stats-grid" data-aos="fade-up">
+            <div class="glass-card stat-card">
+                <div class="stat-icon"><i data-lucide="image"></i></div>
                 <div>
-                    <span id="brandLabel">SnapNexus</span>
-                    <span id="headerTierBadge" style="display:none;margin-left:8px;font-size:0.8rem;font-weight:800;padding:3px 10px;border-radius:999px;"></span>
+                    <div class="stat-value">342</div>
+                    <div class="stat-label">Photos Uploaded</div>
                 </div>
             </div>
-            <button type="button" class="btn-logout" id="btnLogout">Logout</button>
-        </header>
+            <div class="glass-card stat-card">
+                <div class="stat-icon"><i data-lucide="users"></i></div>
+                <div>
+                    <div class="stat-value">128</div>
+                    <div class="stat-label">Active Guests</div>
+                </div>
+            </div>
+            <div class="glass-card stat-card">
+                <div class="stat-icon"><i data-lucide="database"></i></div>
+                <div>
+                    <div class="stat-value">1.4 GB</div>
+                    <div class="stat-label">Storage Used</div>
+                </div>
+            </div>
+        </div>
 
-        <main class="dash-main">
-            <div id="activeEventsSection">
-                <div class="section-title">Active Events</div>
-                <div id="activeEventsGrid" class="events-grid"></div>
+        <div class="glass-card" data-aos="fade-up" data-aos-delay="100">
+            <div class="toolbar">
+                <h3 style="font-size: 1.5rem;">Event Controls</h3>
+                <div style="display:flex; gap:12px;">
+                    <button class="btn-physics"><i data-lucide="qr-code"></i> Print QR</button>
+                    <button class="btn-physics"><i data-lucide="download"></i> Download ZIP</button>
+                </div>
             </div>
-            <div id="historySection">
-                <div class="section-title">Event History</div>
-                <div id="historyGrid" class="events-grid"></div>
+
+            <div class="gallery-grid">
+                <!-- Mock Photos -->
+                <div class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400&q=80" alt="event">
+                    <div class="photo-overlay">
+                        <button class="remove-btn"><i data-lucide="trash-2" style="width:16px;"></i> Remove</button>
+                    </div>
+                </div>
+                <div class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=400&q=80" alt="event">
+                    <div class="photo-overlay">
+                        <button class="remove-btn"><i data-lucide="trash-2" style="width:16px;"></i> Remove</button>
+                    </div>
+                </div>
+                <div class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1530103862676-de88d575fd16?w=400&q=80" alt="event">
+                    <div class="photo-overlay">
+                        <button class="remove-btn"><i data-lucide="trash-2" style="width:16px;"></i> Remove</button>
+                    </div>
+                </div>
+                <div class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=400&q=80" alt="event">
+                    <div class="photo-overlay">
+                        <button class="remove-btn"><i data-lucide="trash-2" style="width:16px;"></i> Remove</button>
+                    </div>
+                </div>
             </div>
-        </main>
+        </div>
     </div>
 
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        var S_URL = 'https://yaxajpojbssrrdcyuzeo.supabase.co';
-        var S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlheGFqcG9qYnNzcnJkY3l1emVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MzYxMzMsImV4cCI6MjA5MDAxMjEzM30.-C0og62G8tIvl6CxmxOHpTq5l8FELn3WVQZHl43k20U';
-        var SITE_URL = 'https://snapnexus-jet.vercel.app';
-
-        var sb = supabase.createClient(S_URL, S_KEY);
-
-        var stateAuth = document.getElementById('state-auth');
-        var stateDashboard = document.getElementById('state-dashboard');
-        var authEmail = document.getElementById('authEmail');
-        var authPassword = document.getElementById('authPassword');
-        var btnLogin = document.getElementById('btnLogin');
-        var btnSignUp = document.getElementById('btnSignUp');
-        var btnLogout = document.getElementById('btnLogout');
-        var activeEventsGrid = document.getElementById('activeEventsGrid');
-        var historyGrid = document.getElementById('historyGrid');
-        var headerTierBadge = document.getElementById('headerTierBadge');
-
-        var currentUser = null;
-        var userTier = 'free'; // free, pro, premium, season
-
-        function showState(which) {
-            stateAuth.classList.toggle('is-active', which === 'auth');
-            stateDashboard.classList.toggle('is-active', which === 'dashboard');
-        }
-
-        async function getUserTier(email) {
-            let { data, error } = await sb.from('profiles').select('tier').eq('email', email).maybeSingle();
-            if (error || !data) {
-                await sb.from('profiles').insert({ email: email, tier: 'free' });
-                return 'free';
-            }
-            return data.tier;
-        }
-
-        function getMaxActiveEvents() {
-            if (userTier === 'season') return Infinity;
-            if (userTier === 'premium') return 7;
-            return 1; // free and pro
-        }
-
-        async function loadEvents() {
-            if (!currentUser) return;
-            let { data, error } = await sb.from('events')
-                .select('*')
-                .eq('host_email', currentUser.email)
-                .order('created_at', { ascending: false });
-            if (error) return;
-            
-            const activeEvents = data.filter(e => e.is_active === true);
-            const endedEvents = data.filter(e => e.is_active === false);
-            
-            renderEvents(activeEvents, activeEventsGrid, true);
-            renderEvents(endedEvents, historyGrid, false);
-            
-            // Show/hide create card based on active limit
-            let activeCount = activeEvents.length;
-            let maxActive = getMaxActiveEvents();
-            let canCreate = activeCount < maxActive;
-            let createCard = document.getElementById('createEventCard');
-            if (createCard) createCard.remove();
-            
-            let card = document.createElement('div');
-            card.className = 'dash-card create-event-card';
-            card.id = 'createEventCard';
-            card.innerHTML = `<h2>+ Create New Event</h2>
-                              <p>${canCreate ? 'Click to start a new event' : `Limit reached (${maxActive === Infinity ? 'unlimited' : maxActive} active). End an event first.`}</p>`;
-            if (canCreate) {
-                card.addEventListener('click', createNewEvent);
-            }
-            activeEventsGrid.prepend(card);
-        }
-        
-        async function createNewEvent() {
-            let code = prompt('Enter a unique event code (letters, numbers, underscores only):');
-            if (!code) return;
-            if (!/^[a-z0-9_]+$/.test(code)) {
-                alert('Use only lowercase letters, numbers, underscores.');
-                return;
-            }
-            let { error } = await sb.from('events').insert({
-                host_email: currentUser.email,
-                event_code: code,
-                tier: 'free',      // default free tier
-                is_active: true
-            });
-            if (error) alert(error.message || 'Event code already exists.');
-            else loadEvents();
-        }
-        
-        function renderEvents(events, container, isActiveSection) {
-            if (!container) return;
-            container.innerHTML = '';
-            for (let ev of events) {
-                let tierClass = ev.tier || 'free';
-                let tierDisplay = tierClass.charAt(0).toUpperCase() + tierClass.slice(1);
-                let badgeColor = '';
-                if (tierClass === 'free') badgeColor = 'free';
-                else if (tierClass === 'pro') badgeColor = 'pro';
-                else if (tierClass === 'premium') badgeColor = 'premium';
-                else if (tierClass === 'season') badgeColor = 'season';
-                else badgeColor = 'free';
-                
-                let guestUrl = `${SITE_URL}/app.html?event=${encodeURIComponent(ev.event_code)}`;
-                let tvUrl = `${SITE_URL}/tv.html?event=${encodeURIComponent(ev.event_code)}`;
-                
-                let card = document.createElement('div');
-                card.className = 'dash-card';
-                card.innerHTML = `
-                    <div class="plan-tag ${badgeColor}">${tierDisplay}</div>
-                    <div class="event-code">📌 ${ev.event_code}</div>
-                    <div class="link-list">
-                        <a href="${guestUrl}" target="_blank">Guest Upload Portal</a>
-                        <a href="${tvUrl}" target="_blank">TV Display Screen</a>
-                    </div>
-                    ${isActiveSection ? `<button class="btn-end" data-code="${ev.event_code}">End Event</button>` : '<button class="btn-end" disabled style="opacity:0.5;">Ended</button>'}
-                `;
-                container.appendChild(card);
-            }
-            
-            // Attach end event handlers for active section
-            if (isActiveSection) {
-                document.querySelectorAll('#activeEventsGrid .btn-end[data-code]').forEach(btn => {
-                    btn.addEventListener('click', async (e) => {
-                        e.stopPropagation();
-                        let code = btn.getAttribute('data-code');
-                        if (!confirm(`End event "${code}"? Guests will no longer be able to upload.`)) return;
-                        await sb.from('events').update({ is_active: false }).eq('event_code', code);
-                        loadEvents();
-                    });
-                });
-            }
-        }
-
-        async function routeAfterSession() {
-            let session = (await sb.auth.getSession()).data.session;
-            if (!session) { showState('auth'); return; }
-            currentUser = session.user;
-            userTier = await getUserTier(currentUser.email);
-            headerTierBadge.style.display = 'inline-block';
-            headerTierBadge.textContent = userTier === 'season' ? '🏆 Season Pass' : (userTier === 'premium' ? '👑 Premium' : (userTier === 'pro' ? '⭐ Pro' : '✨ Free'));
-            let badgeColor = userTier === 'season' ? '#fbbf24' : (userTier === 'premium' ? '#6ee7b7' : (userTier === 'pro' ? '#60a5fa' : '#94a3b8'));
-            headerTierBadge.style.background = `rgba(${userTier === 'season' ? '251,191,36' : (userTier === 'premium' ? '16,185,129' : (userTier === 'pro' ? '96,165,250' : '148,163,184'))},0.15)`;
-            headerTierBadge.style.border = `1px solid ${badgeColor}`;
-            headerTierBadge.style.color = badgeColor;
-            await loadEvents();
-            showState('dashboard');
-        }
-
-        btnLogin.addEventListener('click', async () => {
-            let email = authEmail.value.trim(), password = authPassword.value;
-            if (!email || !password) { alert('Enter email and password'); return; }
-            btnLogin.disabled = true;
-            let { error } = await sb.auth.signInWithPassword({ email, password });
-            btnLogin.disabled = false;
-            if (error) { alert(error.message); return; }
-            routeAfterSession();
-        });
-
-        btnSignUp.addEventListener('click', async () => {
-            let email = authEmail.value.trim(), password = authPassword.value;
-            if (!email || !password) { alert('Enter email and password'); return; }
-            if (password.length < 6) { alert('Password min 6 chars'); return; }
-            btnSignUp.disabled = true;
-            let { error } = await sb.auth.signUp({ email, password });
-            btnSignUp.disabled = false;
-            if (error) { alert(error.message); return; }
-            alert('Check your email to confirm. After confirmation, log in.');
-        });
-
-        btnLogout.addEventListener('click', async () => {
-            await sb.auth.signOut();
-            currentUser = null;
-            showState('auth');
-        });
-
-        sb.auth.onAuthStateChange((_, session) => {
-            if (!session) { currentUser = null; showState('auth'); }
-        });
-
-        routeAfterSession();
+        lucide.createIcons();
+        AOS.init();
     </script>
 </body>
 </html>
