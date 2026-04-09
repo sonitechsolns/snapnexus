@@ -66,6 +66,14 @@
         }
         .btn-physics:active { transform: scale(0.96) translateY(2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 
+        .auth-toggle { text-align: center; margin-top: 24px; font-size: 0.95rem; color: #cbd5e1; font-weight: 500; }
+        .auth-toggle a { color: #60a5fa; text-decoration: none; font-weight: 700; transition: 0.2s; }
+        .auth-toggle a:hover { color: #93c5fd; }
+        
+        .hidden-field { display: none; opacity: 0; transition: opacity 0.3s ease; }
+        .hidden-field.show { display: block; opacity: 1; animation: fadeIn 0.3s forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
         .back-link {
             display: inline-flex; align-items: center; gap: 6px; color: #94a3b8;
             text-decoration: none; font-weight: 600; margin-top: 24px; font-size: 0.9rem; transition: 0.2s;
@@ -85,11 +93,15 @@
         </div>
         
         <div style="text-align: center; margin-bottom: 32px;">
-            <h1>Host Console</h1>
-            <p style="color: #94a3b8;">Enter your credentials to access your event dashboard.</p>
+            <h1 id="authTitle">Host Console</h1>
+            <p id="authSubtitle" style="color: #94a3b8;">Enter your credentials to access your event dashboard.</p>
         </div>
 
-        <form onsubmit="event.preventDefault(); window.location.href='dashboard.html';">
+        <form id="authForm" onsubmit="event.preventDefault(); window.location.href='dashboard.html';">
+            <div class="input-group hidden-field" id="nameGroup">
+                <label>Full Name</label>
+                <input type="text" class="glass-input" id="nameInput" placeholder="Enter your full name">
+            </div>
             <div class="input-group">
                 <label>Email Address</label>
                 <input type="email" class="glass-input" placeholder="host@event.com" required>
@@ -98,8 +110,12 @@
                 <label>Password</label>
                 <input type="password" class="glass-input" placeholder="••••••••" required>
             </div>
-            <button type="submit" class="btn-physics">Sign In <i data-lucide="log-in" style="width:18px;"></i></button>
+            <button type="submit" class="btn-physics" id="authBtn">Sign In <i data-lucide="log-in" style="width:18px;"></i></button>
         </form>
+
+        <div class="auth-toggle">
+            <span id="toggleText">Don't have an account?</span> <a href="#" id="toggleAuth">Create one</a>
+        </div>
 
         <div style="text-align: center;">
             <a href="index.html" class="back-link"><i data-lucide="arrow-left" style="width:16px;"></i> Back to Home</a>
@@ -110,6 +126,40 @@
     <script>
         lucide.createIcons();
         AOS.init();
+
+        // Toggle Login / Sign Up Logic
+        const toggleAuth = document.getElementById('toggleAuth');
+        const authTitle = document.getElementById('authTitle');
+        const authSubtitle = document.getElementById('authSubtitle');
+        const nameGroup = document.getElementById('nameGroup');
+        const nameInput = document.getElementById('nameInput');
+        const authBtn = document.getElementById('authBtn');
+        const toggleText = document.getElementById('toggleText');
+        let isLogin = true;
+
+        toggleAuth.addEventListener('click', (e) => {
+            e.preventDefault();
+            isLogin = !isLogin;
+            
+            if (isLogin) {
+                authTitle.innerText = 'Host Console';
+                authSubtitle.innerText = 'Enter your credentials to access your event dashboard.';
+                nameGroup.classList.remove('show');
+                nameInput.removeAttribute('required');
+                authBtn.innerHTML = 'Sign In <i data-lucide="log-in" style="width:18px;"></i>';
+                toggleText.innerText = "Don't have an account?";
+                toggleAuth.innerText = "Create one";
+            } else {
+                authTitle.innerText = 'Create Account';
+                authSubtitle.innerText = 'Sign up to start hosting your interactive photo walls.';
+                nameGroup.classList.add('show');
+                nameInput.setAttribute('required', 'true');
+                authBtn.innerHTML = 'Sign Up <i data-lucide="user-plus" style="width:18px;"></i>';
+                toggleText.innerText = "Already have an account?";
+                toggleAuth.innerText = "Sign in";
+            }
+            lucide.createIcons(); // Re-render the updated icons
+        });
     </script>
 </body>
 </html>
