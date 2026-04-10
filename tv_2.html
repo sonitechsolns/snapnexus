@@ -8,11 +8,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Urbanist:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     
-    <!-- Appwrite SDK (required) -->
     <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.0"></script>
 
     <style>
-        /* Keep all original CSS exactly as provided – no modifications */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Urbanist', sans-serif; background: #020617; color: #ffffff; overflow: hidden; height: 100vh; width: 100vw; }
         h1, h2, h3 { font-family: 'Syne', sans-serif; }
@@ -41,7 +39,6 @@
         .ad-badge-mini { background: linear-gradient(105deg, #fbbf24, #f59e0b); color: #020617; padding: 4px 12px; border-radius: 50px; font-weight: 900; font-size: 0.75rem; }
         .ad-banner-img { height: 80px; width: 150px; border-radius: 12px; object-fit: cover; }
         
-        /* 5-Sec Ad Takeover (kept for layout compatibility, but JS disabled) */
         .ad-takeover { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.98); backdrop-filter: blur(30px); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.8s ease; }
         .ad-takeover.show { opacity: 1; pointer-events: auto; }
         .ad-timer-container { position: absolute; top: 40px; right: 40px; display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.1); padding: 8px 20px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.2); font-family: 'Syne', sans-serif; font-weight: 700; }
@@ -50,7 +47,6 @@
         .takeover-img { width: 70%; max-height: 60%; border-radius: 32px; object-fit: cover; border: 2px solid rgba(251, 191, 36, 0.3); }
         .watermark { position: absolute; bottom: 20px; right: 25px; font-family: 'Syne'; font-weight: 800; font-size: 1.2rem; color: rgba(255,255,255,0.3); z-index: 10; }
 
-        /* Custom controls (buttons) – added without altering any existing class */
         .control-buttons {
             position: fixed;
             bottom: 30px;
@@ -99,11 +95,10 @@
         </div>
         <div class="main-content">
             <div class="photo-stage glass-card">
-                <img id="layer1" class="photo-layer active" src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1600&q=80">
+                <img id="layer1" class="photo-layer active" src="">
                 <img id="layer2" class="photo-layer" src="">
                 <div class="watermark">SnapNexus</div>
             </div>
-            <!-- Bottom ad bar will be hidden via JS (VIP tier – no ads) -->
             <div class="bottom-ad-bar glass-card" id="adBar">
                 <div class="ad-badge-mini">SPONSORED</div>
                 <img class="ad-banner-img" src="https://images.unsplash.com/photo-1551316679-9c6ae9dec224?auto=format&fit=crop&w=400&q=80">
@@ -112,7 +107,6 @@
         </div>
     </div>
 
-    <!-- Ad takeover container (kept for layout, never shown in VIP version) -->
     <div id="adTakeover" class="ad-takeover">
         <div class="ad-timer-container"><span>RESUMING IN</span><div class="ad-timer-circle" id="adTimer">5</div></div>
         <div class="takeover-badge">SPONSOR AD</div>
@@ -120,7 +114,6 @@
         <h2 style="margin-top: 30px; font-size: 2.5rem;">SnapNexus Pro</h2>
     </div>
 
-    <!-- Control buttons: fullscreen & collapse sidebar -->
     <div class="control-buttons">
         <div class="ctrl-btn" id="collapseSidebarBtn">
             <span>◀</span> Collapse Sidebar
@@ -132,109 +125,88 @@
 
     <script>
         lucide.createIcons();
-        
-        // Hide ad bar (VIP tier)
+
         const adBar = document.getElementById('adBar');
         if (adBar) adBar.style.display = 'none';
-        
-        // URL Data
+
         const urlParams = new URLSearchParams(window.location.search);
         const eventId = urlParams.get('event') || 'TEST';
         document.getElementById('displayEventId').innerText = `Event: ${eventId}`;
-        const joinLink = `${window.location.origin}${window.location.pathname.replace('tv_2.html', 'app.html')}?event=${eventId}`;
+        const joinLink = `${window.location.origin}/app.html?event=${eventId}`;
         document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(joinLink)}`;
 
-        // Appwrite Config (VIP Ad‑Free version)
         const { Client, Storage } = Appwrite;
         const PROJ_ID = '69d8eda100264f4e42ae';
         const BKT_ID = '69d8f2b800397ad57e50';
-        
         const client = new Client().setEndpoint('https://cloud.appwrite.io/v1').setProject(PROJ_ID);
         const storage = new Storage(client);
 
-        // Photo array (starts with a default image)
-        let photoUrls = ["https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1600&q=80"];
-        let currentIndex = 0;
-        let activeLayer = 1; // 1 = layer1 visible, 2 = layer2 visible
+        let photoUrls = [];
+        let currentIndex = 0, activeLayer = 1;
         const layer1 = document.getElementById('layer1');
         const layer2 = document.getElementById('layer2');
 
-        // 1. Fetch existing photos from Appwrite bucket
-        async function fetchCloudPhotos() {
+        async function fetchPhotos() {
             try {
-                const response = await storage.listFiles(BKT_ID);
-                if (response.files && response.files.length > 0) {
-                    const cloudUrls = response.files.map(file => 
-                        `https://cloud.appwrite.io/v1/storage/buckets/${BKT_ID}/files/${file.$id}/view?project=${PROJ_ID}`
-                    );
-                    // Merge with existing default, avoid duplicates
-                    photoUrls = [...cloudUrls, ...photoUrls];
+                const res = await storage.listFiles(BKT_ID, { prefix: eventId + '/' });
+                photoUrls = (res.files || []).map(f => storage.getFileView(BKT_ID, f.$id));
+                if (photoUrls.length && currentIndex === 0) {
+                    const firstUrl = photoUrls[0];
+                    if (activeLayer === 1) {
+                        layer1.src = firstUrl;
+                        layer1.classList.add('active');
+                    } else {
+                        layer2.src = firstUrl;
+                        layer2.classList.add('active');
+                    }
                 }
             } catch (err) {
-                console.error("Failed to load photos from Appwrite:", err);
+                console.error("Failed to load photos", err);
             }
         }
 
-        // 2. Realtime subscription: instantly add newly uploaded photos
-        client.subscribe(`buckets.${BKT_ID}.files`, (response) => {
+        client.subscribe(`buckets.${BKT_ID}.files`, response => {
             if (response.events.includes('buckets.*.files.*.create')) {
                 const newFile = response.payload;
-                const newUrl = `https://cloud.appwrite.io/v1/storage/buckets/${BKT_ID}/files/${newFile.$id}/view?project=${PROJ_ID}`;
-                // Add new photo to the end of the array (it will appear after current loop)
-                photoUrls.push(newUrl);
+                if (newFile.$id.startsWith(eventId + '/') || (newFile.name && newFile.name.startsWith(eventId + '/'))) {
+                    const newUrl = storage.getFileView(BKT_ID, newFile.$id);
+                    photoUrls.push(newUrl);
+                }
             }
         });
 
-        // 3. Slideshow crossfade (NO ADS – pure VIP loop)
         function nextSlide() {
             if (photoUrls.length === 0) return;
-            
-            // Move to next index, loop around
             currentIndex = (currentIndex + 1) % photoUrls.length;
-            const nextPhotoUrl = photoUrls[currentIndex];
-            
-            // Crossfade logic
+            const nextUrl = photoUrls[currentIndex];
             if (activeLayer === 1) {
-                layer2.src = nextPhotoUrl;
+                layer2.src = nextUrl;
                 layer2.classList.add('active');
                 layer1.classList.remove('active');
                 activeLayer = 2;
             } else {
-                layer1.src = nextPhotoUrl;
+                layer1.src = nextUrl;
                 layer1.classList.add('active');
                 layer2.classList.remove('active');
                 activeLayer = 1;
             }
         }
 
-        // 4. Initialise: fetch existing photos, then start slideshow at 4-second intervals
-        fetchCloudPhotos().then(() => {
-            // Set a timer for 4 seconds (VIP faster slideshow)
-            setInterval(nextSlide, 4000);
-        }).catch(() => {
-            // Even if fetch fails, start slideshow with default image
+        fetchPhotos().then(() => {
             setInterval(nextSlide, 4000);
         });
 
-        // ---------- ADDITIONAL VIP CONTROLS ----------
-        // Collapse / expand sidebar
         const sidebar = document.getElementById('sidebar');
         const collapseBtn = document.getElementById('collapseSidebarBtn');
         collapseBtn.addEventListener('click', () => {
             sidebar.classList.toggle('collapsed');
-            // update button text
-            if (sidebar.classList.contains('collapsed')) {
-                collapseBtn.innerHTML = '<span>▶</span> Expand Sidebar';
-            } else {
-                collapseBtn.innerHTML = '<span>◀</span> Collapse Sidebar';
-            }
+            collapseBtn.innerHTML = sidebar.classList.contains('collapsed') ? '<span>▶</span> Expand Sidebar' : '<span>◀</span> Collapse Sidebar';
         });
 
-        // Fullscreen toggle
         const fullscreenBtn = document.getElementById('fullscreenBtn');
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => console.warn(err));
+                document.documentElement.requestFullscreen();
                 fullscreenBtn.innerHTML = '<span>✖</span> Exit';
             } else {
                 document.exitFullscreen();
@@ -243,11 +215,7 @@
         }
         fullscreenBtn.addEventListener('click', toggleFullscreen);
         document.addEventListener('fullscreenchange', () => {
-            if (document.fullscreenElement) {
-                fullscreenBtn.innerHTML = '<span>✖</span> Exit';
-            } else {
-                fullscreenBtn.innerHTML = '<span>⛶</span> Fullscreen';
-            }
+            fullscreenBtn.innerHTML = document.fullscreenElement ? '<span>✖</span> Exit' : '<span>⛶</span> Fullscreen';
         });
     </script>
 </body>

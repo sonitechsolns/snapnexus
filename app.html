@@ -137,7 +137,7 @@
     <div class="glass-card" data-aos="zoom-in" data-aos-duration="800">
         <div class="logo-text">SnapNexus</div>
         <div class="event-pill" data-aos="fade-down" data-aos-delay="200">
-            <i data-lucide="party-popper" style="width:14px;"></i> Bhavya's Event
+            <i data-lucide="party-popper" style="width:14px;"></i> Loading event...
         </div>
 
         <button class="btn-physics" onclick="document.getElementById('fileInput').click()" data-aos="fade-up" data-aos-delay="400">
@@ -148,8 +148,7 @@
         <p style="margin-top: 16px; font-size: 0.9rem; color: #94a3b8;" data-aos="fade-up" data-aos-delay="500">Photos appear instantly on the TV wall!</p>
 
         <div class="gallery-preview" data-aos="fade-up" data-aos-delay="600">
-            <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=300&q=80" class="gallery-img" alt="demo">
-            <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=300&q=80" class="gallery-img" alt="demo">
+            <div style="grid-column:span 2; text-align:center; color:#94a3b8;">No photos yet</div>
         </div>
     </div>
 
@@ -161,46 +160,73 @@
     <script>
         lucide.createIcons();
         AOS.init({ once: true });
-        // Initialize Appwrite Storage
-const { Client, Storage, ID } = Appwrite;
-const client = new Client()
-    .setEndpoint('https://cloud.appwrite.io/v1')
-    .setProject('69d8eda100264f4e42ae'); // Your Project ID
-const storage = new Storage(client);
 
-// Listen for file selection and upload
-document.getElementById('fileInput').addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    const btn = document.querySelector('.btn-physics');
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '<i data-lucide="loader" style="width:22px;"></i> Uploading...';
-    lucide.createIcons();
+        const { Client, Storage, ID } = Appwrite;
+        const client = new Client()
+            .setEndpoint('https://cloud.appwrite.io/v1')
+            .setProject('69d8eda100264f4e42ae');
+        const storage = new Storage(client);
+        const BKT_ID = '69d8f2b800397ad57e50';
 
-    try {
-        // Upload to EventPhotos bucket
-        await storage.createFile('69d8f2b800397ad57e50', ID.unique(), file);
-        
-        btn.innerHTML = '<i data-lucide="check" style="width:22px;"></i> Sent to TV!';
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get('event') || 'public';
+        document.querySelector('.event-pill').innerHTML = `<i data-lucide="party-popper" style="width:14px;"></i> ${eventId}`;
         lucide.createIcons();
-        
-        // Reset button after 3 seconds
-        setTimeout(() => {
-            btn.innerHTML = originalText;
-            lucide.createIcons();
-        }, 3000);
-        
-    } catch(err) {
-        console.error('Upload Error:', err);
-        alert("Upload failed. Check your Appwrite Bucket Permissions!");
-        btn.innerHTML = originalText;
-        lucide.createIcons();
-    }
-});     
-        
-        // Button tactile feedback
+
+        const fileInput = document.getElementById('fileInput');
         const btn = document.querySelector('.btn-physics');
+        let originalBtnText = btn.innerHTML;
+
+        async function loadRecentPhotos() {
+            try {
+                const response = await storage.listFiles(BKT_ID, { prefix: eventId + '/', limit: 4 });
+                const files = response.files || [];
+                const grid = document.querySelector('.gallery-preview');
+                if (files.length === 0) {
+                    grid.innerHTML = '<div style="grid-column:span 2; text-align:center; color:#94a3b8;">No photos yet</div>';
+                    return;
+                }
+                let html = '';
+                for (const file of files) {
+                    const url = storage.getFileView(BKT_ID, file.$id);
+                    html += `<img src="${url}" class="gallery-img" alt="preview">`;
+                }
+                grid.innerHTML = html;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            btn.innerHTML = '<i data-lucide="loader" style="width:22px;"></i> Uploading...';
+            lucide.createIcons();
+
+            const fileName = `${Date.now()}_${file.name.replace(/[^a-z0-9.]/gi, '_')}`;
+            const filePath = `${eventId}/${fileName}`;
+
+            try {
+                await storage.createFile(BKT_ID, ID.unique(), file, [filePath]);
+                btn.innerHTML = '<i data-lucide="check" style="width:22px;"></i> Sent to TV!';
+                lucide.createIcons();
+                loadRecentPhotos();
+                setTimeout(() => {
+                    btn.innerHTML = originalBtnText;
+                    lucide.createIcons();
+                }, 3000);
+            } catch (err) {
+                console.error(err);
+                alert("Upload failed: " + err.message);
+                btn.innerHTML = originalBtnText;
+                lucide.createIcons();
+            }
+            fileInput.value = '';
+        });
+
+        loadRecentPhotos();
+
         btn.addEventListener('mousedown', () => btn.style.transform = 'scale(0.96) translateY(2px)');
         btn.addEventListener('mouseup', () => btn.style.transform = 'scale(1) translateY(0)');
         btn.addEventListener('touchstart', () => btn.style.transform = 'scale(0.96) translateY(2px)');

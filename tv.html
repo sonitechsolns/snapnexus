@@ -37,7 +37,6 @@
         .ad-badge-mini { background: linear-gradient(105deg, #fbbf24, #f59e0b); color: #020617; padding: 4px 12px; border-radius: 50px; font-weight: 900; font-size: 0.75rem; }
         .ad-banner-img { height: 80px; width: 150px; border-radius: 12px; object-fit: cover; }
         
-        /* 5-Sec Ad Takeover */
         .ad-takeover { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.98); backdrop-filter: blur(30px); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.8s ease; }
         .ad-takeover.show { opacity: 1; pointer-events: auto; }
         .ad-timer-container { position: absolute; top: 40px; right: 40px; display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.1); padding: 8px 20px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.2); font-family: 'Syne', sans-serif; font-weight: 700; }
@@ -62,7 +61,7 @@
         </div>
         <div class="main-content">
             <div class="photo-stage glass-card">
-                <img id="layer1" class="photo-layer active" src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1600&q=80">
+                <img id="layer1" class="photo-layer active" src="">
                 <img id="layer2" class="photo-layer" src="">
                 <div class="watermark">SnapNexus</div>
             </div>
@@ -83,73 +82,94 @@
 
     <script>
         lucide.createIcons();
-        
-        // URL Data
+
         const urlParams = new URLSearchParams(window.location.search);
         const eventId = urlParams.get('event') || 'TEST';
         document.getElementById('displayEventId').innerText = `Event: ${eventId}`;
-        const joinLink = `${window.location.origin}${window.location.pathname.replace('tv.html', 'app.html')}?event=${eventId}`;
+        const joinLink = `${window.location.origin}/app.html?event=${eventId}`;
         document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(joinLink)}`;
 
-        // Appwrite Config
         const { Client, Storage } = Appwrite;
         const PROJ_ID = '69d8eda100264f4e42ae';
         const BKT_ID = '69d8f2b800397ad57e50';
-        
         const client = new Client().setEndpoint('https://cloud.appwrite.io/v1').setProject(PROJ_ID);
         const storage = new Storage(client);
 
-        let mockPhotos = ["https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1600&q=80"];
-        let currentPhotoIndex = 0, photosShownCount = 0, activeLayer = 1;
+        let photoUrls = [];
+        let currentIndex = 0, photosShownCount = 0, activeLayer = 1;
         const layer1 = document.getElementById('layer1');
         const layer2 = document.getElementById('layer2');
 
-        // 1. Fetch Existing Photos from Cloud
-        async function fetchCloudPhotos() {
+        async function fetchPhotos() {
             try {
-                const res = await storage.listFiles(BKT_ID);
-                if(res.files.length > 0) {
-                    mockPhotos = res.files.map(f => `https://cloud.appwrite.io/v1/storage/buckets/${BKT_ID}/files/${f.$id}/view?project=${PROJ_ID}`);
+                const res = await storage.listFiles(BKT_ID, { prefix: eventId + '/' });
+                photoUrls = (res.files || []).map(f => storage.getFileView(BKT_ID, f.$id));
+                if (photoUrls.length && currentIndex === 0) {
+                    const firstUrl = photoUrls[0];
+                    if (activeLayer === 1) {
+                        layer1.src = firstUrl;
+                        layer1.classList.add('active');
+                    } else {
+                        layer2.src = firstUrl;
+                        layer2.classList.add('active');
+                    }
                 }
-            } catch(e) { console.error("Could not load photos from cloud", e); }
+            } catch (err) {
+                console.error("Failed to load photos", err);
+            }
         }
 
-        // 2. Realtime WebSocket Subscription
         client.subscribe(`buckets.${BKT_ID}.files`, response => {
-            if(response.events.includes('buckets.*.files.*.create')) {
-                const newUrl = `https://cloud.appwrite.io/v1/storage/buckets/${BKT_ID}/files/${response.payload.$id}/view?project=${PROJ_ID}`;
-                mockPhotos.splice(currentPhotoIndex + 1, 0, newUrl);
+            if (response.events.includes('buckets.*.files.*.create')) {
+                const newFile = response.payload;
+                if (newFile.$id.startsWith(eventId + '/') || (newFile.name && newFile.name.startsWith(eventId + '/'))) {
+                    const newUrl = storage.getFileView(BKT_ID, newFile.$id);
+                    photoUrls.push(newUrl);
+                }
             }
         });
 
-        // Loop & Ad Logic
         function startAdSequence() {
             const adTakeover = document.getElementById('adTakeover');
             const adTimer = document.getElementById('adTimer');
             adTakeover.classList.add('show');
-            let timeLeft = 5; adTimer.innerText = timeLeft;
+            let timeLeft = 5;
+            adTimer.innerText = timeLeft;
             const countdown = setInterval(() => {
-                timeLeft--; adTimer.innerText = timeLeft;
-                if (timeLeft <= 0) { clearInterval(countdown); adTakeover.classList.remove('show'); }
+                timeLeft--;
+                adTimer.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    adTakeover.classList.remove('show');
+                }
             }, 1000);
         }
 
         function nextSlide() {
+            if (photoUrls.length === 0) return;
             photosShownCount++;
-            if (photosShownCount % 7 === 0) { startAdSequence(); return; } 
-            
-            currentPhotoIndex = (currentPhotoIndex + 1) % mockPhotos.length;
-            const nextPhotoUrl = mockPhotos[currentPhotoIndex];
-
+            if (photosShownCount % 7 === 0 && photoUrls.length > 0) {
+                startAdSequence();
+                return;
+            }
+            currentIndex = (currentIndex + 1) % photoUrls.length;
+            const nextUrl = photoUrls[currentIndex];
             if (activeLayer === 1) {
-                layer2.src = nextPhotoUrl; layer2.classList.add('active'); layer1.classList.remove('active'); activeLayer = 2;
+                layer2.src = nextUrl;
+                layer2.classList.add('active');
+                layer1.classList.remove('active');
+                activeLayer = 2;
             } else {
-                layer1.src = nextPhotoUrl; layer1.classList.add('active'); layer2.classList.remove('active'); activeLayer = 1;
+                layer1.src = nextUrl;
+                layer1.classList.add('active');
+                layer2.classList.remove('active');
+                activeLayer = 1;
             }
         }
 
-        fetchCloudPhotos();
-        setInterval(nextSlide, 6000);
+        fetchPhotos().then(() => {
+            setInterval(nextSlide, 6000);
+        });
     </script>
 </body>
 </html>

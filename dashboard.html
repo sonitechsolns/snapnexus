@@ -70,7 +70,6 @@
     </div>
 
     <div class="dashboard-container">
-        <!-- Dynamic event name from URL parameter -->
         <h2 id="eventNameHeading" style="margin-bottom: 32px; font-size: 2.2rem;" data-aos="fade-right">Loading event...</h2>
 
         <div class="stats-grid" data-aos="fade-up">
@@ -107,7 +106,6 @@
             </div>
 
             <div id="galleryContainer" class="gallery-grid">
-                <!-- Dynamic gallery will be injected here -->
                 <div class="empty-gallery">
                     <i data-lucide="camera-off"></i>
                     <p>No photos uploaded yet.<br>Share the QR code with your guests.</p>
@@ -121,69 +119,73 @@
         lucide.createIcons();
         AOS.init();
 
-        // ---------- FIXED: Appwrite SDK Initialization (destructuring) ----------
         const { Client, Storage, Databases, Query } = Appwrite;
         const PROJ_ID = '69d8eda100264f4e42ae';
         const BKT_ID = '69d8f2b800397ad57e50';
-        const DB_ID = '69d8f0b0003c6d1e4d93';      // Your Database ID
-        const EVENTS_TABLE = 'EventsTable';         // Your Collection ID
+        const DB_ID = '69d8f0b0003c6d1e4d93';
+        const EVENTS_TABLE = 'EventsTable';
 
         const client = new Client()
             .setEndpoint('https://cloud.appwrite.io/v1')
             .setProject(PROJ_ID);
-
         const storage = new Storage(client);
         const databases = new Databases(client);
 
-        // ---------- URL Parameters ----------
         const urlParams = new URLSearchParams(window.location.search);
-        const eventName = urlParams.get('event') || "Your Event";
-        const userTierParam = urlParams.get('tier') || "free";
+        const eventId = urlParams.get('event');
+        if (!eventId) {
+            alert('No event selected. Redirecting to login.');
+            window.location.href = 'login.html';
+        }
 
+        let currentEvent = null;
         const headingEl = document.getElementById('eventNameHeading');
-        headingEl.innerHTML = `${eventName} <span style="color:#60a5fa;">#LiveWall</span>`;
+        const galleryContainer = document.getElementById('galleryContainer');
 
-        // ---------- Global Variables ----------
-        let currentTier = userTierParam; // will be overridden by DB if possible
-
-        // ---------- Helper: Update Stats (Photo Count, Storage) ----------
-        async function updateStats() {
+        async function loadEventDetails() {
             try {
-                const response = await storage.listFiles(BKT_ID);
-                const files = response.files || [];
-                const photoCount = files.length;
-                const totalSizeBytes = files.reduce((sum, file) => sum + (file.sizeOriginal || 0), 0);
-                const totalSizeMB = (totalSizeBytes / (1024 * 1024)).toFixed(1);
-                
-                document.getElementById('photoCount').innerText = photoCount;
-                document.getElementById('storageUsed').innerText = totalSizeMB + ' MB';
-                // Guest count placeholder (would require separate session tracking)
-                document.getElementById('guestCount').innerText = '—';
+                const response = await databases.listDocuments(DB_ID, EVENTS_TABLE, [
+                    Query.equal('eventId', eventId)
+                ]);
+                if (response.documents.length === 0) throw new Error('Event not found');
+                currentEvent = response.documents[0];
+                headingEl.innerHTML = `${currentEvent.eventName} <span style="color:#60a5fa;">#LiveWall</span>`;
+                const tvPage = (currentEvent.tier === 'vip' || currentEvent.tier === 'premium') ? 'tv_2.html' : 'tv.html';
+                const liveWallLink = document.getElementById('liveWallLink');
+                if (liveWallLink) {
+                    liveWallLink.href = `${window.location.origin}/${tvPage}?event=${eventId}`;
+                }
             } catch (err) {
-                console.error("Stats error:", err);
-                document.getElementById('photoCount').innerText = 'Error';
-                document.getElementById('storageUsed').innerText = '?';
+                console.error(err);
+                headingEl.innerHTML = 'Event not found';
             }
         }
 
-        // ---------- Load Gallery from Appwrite Bucket ----------
+        async function updateStats() {
+            try {
+                const response = await storage.listFiles(BKT_ID, { prefix: eventId + '/' });
+                const files = response.files || [];
+                document.getElementById('photoCount').innerText = files.length;
+                const totalSize = files.reduce((sum, f) => sum + (f.sizeOriginal || 0), 0);
+                document.getElementById('storageUsed').innerText = (totalSize / (1024 * 1024)).toFixed(1) + ' MB';
+                document.getElementById('guestCount').innerText = '—';
+            } catch (err) {
+                console.error("Stats error:", err);
+            }
+        }
+
         async function loadGallery() {
             try {
-                const response = await storage.listFiles(BKT_ID);
+                const response = await storage.listFiles(BKT_ID, { prefix: eventId + '/' });
                 const files = response.files || [];
-                
                 if (files.length === 0) {
-                    galleryContainer.innerHTML = `<div class="empty-gallery">
-                        <i data-lucide="camera-off"></i>
-                        <p>No photos uploaded yet.<br>Share the QR code with your guests.</p>
-                    </div>`;
+                    galleryContainer.innerHTML = `<div class="empty-gallery"><i data-lucide="camera-off"></i><p>No photos uploaded yet.<br>Share the QR code with your guests.</p></div>`;
                     lucide.createIcons();
                     return;
                 }
-
                 let html = '';
                 for (const file of files) {
-                    const fileUrl = `https://cloud.appwrite.io/v1/storage/buckets/${BKT_ID}/files/${file.$id}/view?project=${PROJ_ID}`;
+                    const fileUrl = storage.getFileView(BKT_ID, file.$id);
                     html += `
                         <div class="photo-card" data-file-id="${file.$id}">
                             <img src="${fileUrl}" alt="Guest photo">
@@ -197,34 +199,24 @@
                 }
                 galleryContainer.innerHTML = html;
                 lucide.createIcons();
-
-                // Attach remove event listeners
                 document.querySelectorAll('.remove-btn').forEach(btn => {
                     btn.addEventListener('click', async (e) => {
                         e.stopPropagation();
                         const fileId = btn.getAttribute('data-file-id');
                         if (confirm('Delete this photo permanently?')) {
-                            try {
-                                await storage.deleteFile(BKT_ID, fileId);
-                                await loadGallery();
-                                await updateStats();
-                            } catch (err) {
-                                alert('Failed to delete: ' + err.message);
-                            }
+                            await storage.deleteFile(BKT_ID, fileId);
+                            await loadGallery();
+                            await updateStats();
                         }
                     });
                 });
             } catch (err) {
                 console.error("Gallery error:", err);
-                galleryContainer.innerHTML = `<div class="empty-gallery">
-                    <i data-lucide="alert-circle"></i>
-                    <p>Could not load photos. Make sure bucket exists and permissions are set.</p>
-                </div>`;
+                galleryContainer.innerHTML = `<div class="empty-gallery"><i data-lucide="alert-circle"></i><p>Could not load photos.</p></div>`;
                 lucide.createIcons();
             }
         }
 
-        // ---------- Real-time Subscription (new/deleted photos) ----------
         function subscribeToRealtime() {
             const channel = `buckets.${BKT_ID}.files`;
             client.subscribe(channel, (response) => {
@@ -236,42 +228,13 @@
             });
         }
 
-        // ---------- BRIGADING LOGIC: Check Tier from Database & Update Live Wall Link ----------
-        async function checkEventTierAndLink() {
-            try {
-                // Query the Events collection for this event name
-                const response = await databases.listDocuments(DB_ID, EVENTS_TABLE, [
-                    Query.equal('eventName', eventName)
-                ]);
-                if (response.documents.length > 0) {
-                    const doc = response.documents[0];
-                    currentTier = doc.tier || userTierParam;
-                }
-            } catch (err) {
-                console.warn("Could not fetch tier from DB, using URL param:", err);
-                currentTier = userTierParam;
-            }
-
-            // Determine which TV page to use
-            const tvPage = (currentTier === 'vip' || currentTier === 'premium') ? 'tv_2.html' : 'tv.html';
-            const tvUrl = `${window.location.origin}/${tvPage}?event=${encodeURIComponent(eventName)}`;
-            
-            // Update the "Wall is LIVE" link
-            const liveWallLink = document.getElementById('liveWallLink');
-            if (liveWallLink) {
-                liveWallLink.href = tvUrl;
-            }
-        }
-
-        // ---------- Print QR (Guest Upload Link) ----------
         document.getElementById('printQrBtn').addEventListener('click', () => {
-            const guestUrl = window.location.origin + '/app.html?event=' + encodeURIComponent(eventName);
+            const guestUrl = `${window.location.origin}/app.html?event=${encodeURIComponent(eventId)}`;
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(guestUrl)}`;
-            
             const win = window.open("", "_blank");
             win.document.write(`
                 <body style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;">
-                    <h1>Scan to Join: ${eventName}</h1>
+                    <h1>Scan to Join: ${currentEvent?.eventName || eventId}</h1>
                     <img src="${qrUrl}" style="width:300px;height:300px;">
                     <p style="margin-top:20px;">Point your camera here to upload photos!</p>
                     <button onclick="window.print()" style="padding:10px 20px;cursor:pointer;">Print Poster</button>
@@ -279,54 +242,36 @@
             `);
         });
 
-        // ---------- Download All Photos as ZIP ----------
         document.getElementById('downloadZipBtn').addEventListener('click', async () => {
             const btn = document.getElementById('downloadZipBtn');
-            const originalContent = btn.innerHTML;
-            
+            const original = btn.innerHTML;
             try {
-                const response = await storage.listFiles(BKT_ID);
-                const files = response.files || [];
-                if (files.length === 0) {
-                    alert("No photos to download yet!");
-                    return;
-                }
-                
-                btn.innerHTML = `<i data-lucide="loader" class="animate-spin"></i> Zipping ${files.length} photos...`;
+                const files = (await storage.listFiles(BKT_ID, { prefix: eventId + '/' })).files || [];
+                if (files.length === 0) { alert("No photos to download"); return; }
+                btn.innerHTML = `<i data-lucide="loader"></i> Zipping ${files.length} photos...`;
                 lucide.createIcons();
-                
                 const zip = new JSZip();
-                const folder = zip.folder(`SnapNexus_${eventName.replace(/\s+/g, '_')}`);
-                
-                const downloadPromises = files.map(async (file, index) => {
-                    const fileUrl = storage.getFileView(BKT_ID, file.$id);
-                    const imgData = await fetch(fileUrl).then(res => res.blob());
-                    const fileName = `photo_${index + 1}_${file.$id.substr(0, 5)}.jpg`;
-                    folder.file(fileName, imgData);
-                });
-                
-                await Promise.all(downloadPromises);
+                const folder = zip.folder(`SnapNexus_${eventId}`);
+                for (let i = 0; i < files.length; i++) {
+                    const blob = await fetch(storage.getFileView(BKT_ID, files[i].$id)).then(r => r.blob());
+                    folder.file(`photo_${i+1}.jpg`, blob);
+                }
                 const content = await zip.generateAsync({ type: "blob" });
-                const zipName = `SnapNexus_${eventName.replace(/\s+/g, '_')}_Memories.zip`;
-                
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(content);
-                link.download = zipName;
+                link.download = `SnapNexus_${eventId}_Memories.zip`;
                 link.click();
-                
                 btn.innerHTML = `<i data-lucide="check-circle"></i> Done!`;
-                setTimeout(() => { btn.innerHTML = originalContent; lucide.createIcons(); }, 3000);
+                setTimeout(() => { btn.innerHTML = original; lucide.createIcons(); }, 3000);
             } catch (err) {
-                console.error("ZIP Error:", err);
-                alert("Download failed. Make sure your internet is stable!");
-                btn.innerHTML = originalContent;
+                alert("Download failed: " + err.message);
+                btn.innerHTML = original;
                 lucide.createIcons();
             }
         });
 
-        // ---------- Initialisation ----------
         async function init() {
-            await checkEventTierAndLink();   // sets correct live wall link
+            await loadEventDetails();
             await updateStats();
             await loadGallery();
             subscribeToRealtime();

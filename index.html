@@ -251,7 +251,7 @@
                     <li><i data-lucide="check"></i> Partner Ads displayed</li>
                     <li><i data-lucide="check"></i> Max 50 photos / event</li>
                 </ul>
-                <a href="login.html" class="btn-physics btn-outline">Deploy Free Wall</a>
+                <a href="login.html?plan=free" class="btn-physics btn-outline">Deploy Free Wall</a>
             </div>
 
             <div class="glass-card price-card" data-aos="flip-left" data-aos-delay="200">
@@ -263,7 +263,7 @@
                     <li><i data-lucide="check"></i> Unlimited photos</li>
                     <li><i data-lucide="check"></i> Standard email support</li>
                 </ul>
-                <a href="login.html" class="btn-physics">Choose Pro</a>
+                <a href="login.html?plan=pro" class="btn-physics">Choose Pro</a>
             </div>
 
             <div class="glass-card price-card" data-aos="flip-left" data-aos-delay="300">
@@ -275,7 +275,7 @@
                     <li><i data-lucide="check"></i> Analytics dashboard</li>
                     <li><i data-lucide="check"></i> Priority queue processing</li>
                 </ul>
-                <a href="login.html" class="btn-physics">Go Premium</a>
+                <a href="login.html?plan=premium" class="btn-physics">Go Premium</a>
             </div>
 
             <div class="glass-card price-card vip" data-aos="flip-left" data-aos-delay="400">
@@ -289,7 +289,7 @@
                     <li><i data-lucide="check"></i> White-labeled experience</li>
                     <li><i data-lucide="check"></i> Priority 24/7 dev support</li>
                 </ul>
-                <a href="login.html" class="btn-physics btn-gold">Secure VIP Pass</a>
+                <a href="login.html?plan=vip" class="btn-physics btn-gold">Secure VIP Pass</a>
             </div>
         </div>
     </main>
@@ -356,15 +356,14 @@
         // Modal Logic
         function openModal(id) {
             document.getElementById(id).classList.add('show');
-            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            document.body.style.overflow = 'hidden';
         }
 
         function closeModal(id) {
             document.getElementById(id).classList.remove('show');
-            document.body.style.overflow = 'auto'; // Restore scrolling
+            document.body.style.overflow = 'auto';
         }
 
-        // Close modal if user clicks the dark background overlay
         document.getElementById('termsModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeModal('termsModal');
