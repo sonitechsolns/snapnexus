@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.0"></script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SnapNexus | Live Photo Wall</title>
@@ -150,29 +152,33 @@
     <button class="fullscreen-btn" id="fullscreenBtn">⛶ Fullscreen</button>
 
     <script>
-        // ================= CONFIG =================
-        const API_BASE = 'https://outsourcing-joe-cookies-demanding.trycloudflare.com';
-        // ===========================================
+        // Appwrite Configuration
+const { Client, Storage } = Appwrite;
+const PROJ_ID = '69d8eda100264f4e42ae';
+const BKT_ID = '69d8f2b800397ad57e50';
 
-        let photos = [];        // array of { url }
-        let currentIndex = 0;
-        let slideInterval = null;
-        const imgElements = [document.getElementById('img1'), document.getElementById('img2')];
-        let activeImg = 0;      // 0 or 1
-        let emptyMsgDiv = document.getElementById('emptyMsg');
+const client = new Client().setEndpoint('https://cloud.appwrite.io/v1').setProject(PROJ_ID);
+const storage = new Storage(client);
 
-        async function fetchPhotos() {
-            try {
-                const res = await fetch(`${API_BASE}/photos`);
-                if (!res.ok) throw new Error('Failed to fetch');
-                const data = await res.json();
-                photos = data;  // expecting array of objects with 'url'
-                return true;
-            } catch (err) {
-                console.error('Fetch error:', err);
-                return false;
-            }
+// Appwrite Fetch Logic
+async function fetchPhotos() {
+    try {
+        const res = await storage.listFiles(BKT_ID);
+        if (res.files.length > 0) {
+            // Map Appwrite files to your existing { url } format
+            photos = res.files.map(f => ({
+                url: `https://cloud.appwrite.io/v1/storage/buckets/${BKT_ID}/files/${f.$id}/view?project=${PROJ_ID}`
+            }));
+        } else {
+            photos = [];
         }
+        return true;
+    } catch (err) {
+        console.error('Appwrite fetch error:', err);
+        return false;
+    }
+}
+            
 
         function startSlideshow() {
             if (slideInterval) clearInterval(slideInterval);

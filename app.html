@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.0"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
     <title>SnapNexus | Guest Upload</title>
@@ -160,6 +161,43 @@
     <script>
         lucide.createIcons();
         AOS.init({ once: true });
+        // Initialize Appwrite Storage
+const { Client, Storage, ID } = Appwrite;
+const client = new Client()
+    .setEndpoint('https://cloud.appwrite.io/v1')
+    .setProject('69d8eda100264f4e42ae'); // Your Project ID
+const storage = new Storage(client);
+
+// Listen for file selection and upload
+document.getElementById('fileInput').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const btn = document.querySelector('.btn-physics');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i data-lucide="loader" style="width:22px;"></i> Uploading...';
+    lucide.createIcons();
+
+    try {
+        // Upload to EventPhotos bucket
+        await storage.createFile('69d8f2b800397ad57e50', ID.unique(), file);
+        
+        btn.innerHTML = '<i data-lucide="check" style="width:22px;"></i> Sent to TV!';
+        lucide.createIcons();
+        
+        // Reset button after 3 seconds
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            lucide.createIcons();
+        }, 3000);
+        
+    } catch(err) {
+        console.error('Upload Error:', err);
+        alert("Upload failed. Check your Appwrite Bucket Permissions!");
+        btn.innerHTML = originalText;
+        lucide.createIcons();
+    }
+});     
         
         // Button tactile feedback
         const btn = document.querySelector('.btn-physics');
