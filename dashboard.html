@@ -150,7 +150,8 @@
                 if (response.documents.length === 0) throw new Error('Event not found');
                 currentEvent = response.documents[0];
                 headingEl.innerHTML = `${currentEvent.eventName} <span style="color:#60a5fa;">#LiveWall</span>`;
-                const tvPage = (currentEvent.tier === 'vip' || currentEvent.tier === 'premium') ? 'tv_2.html' : 'tv.html';
+                const tier = currentEvent.tier;
+                const tvPage = (tier === 'pro' || tier === 'premium' || tier === 'vip') ? 'tv_2.html' : 'tv.html';
                 const liveWallLink = document.getElementById('liveWallLink');
                 if (liveWallLink) {
                     liveWallLink.href = `${window.location.origin}/${tvPage}?event=${eventId}`;

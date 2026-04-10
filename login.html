@@ -98,18 +98,18 @@
             <p id="authSubtitle" style="color: #94a3b8;">Enter your credentials to access your event dashboard.</p>
         </div>
 
-        <form id="authForm" onsubmit="event.preventDefault(); window.location.href='dashboard.html';">
+        <form id="authForm" onsubmit="event.preventDefault();">
             <div class="input-group hidden-field" id="nameGroup">
                 <label>Full Name</label>
                 <input type="text" class="glass-input" id="nameInput" placeholder="Enter your full name">
             </div>
             <div class="input-group">
                 <label>Email Address</label>
-                <input type="email" class="glass-input" placeholder="host@event.com" required>
+                <input type="email" class="glass-input" id="emailInput" placeholder="host@event.com" required>
             </div>
             <div class="input-group">
                 <label>Password</label>
-                <input type="password" class="glass-input" placeholder="••••••••" required>
+                <input type="password" class="glass-input" id="passwordInput" placeholder="••••••••" required>
             </div>
             <button type="submit" class="btn-physics" id="authBtn">Sign In <i data-lucide="log-in" style="width:18px;"></i></button>
         </form>
@@ -135,7 +135,7 @@
         const databases = new Databases(client);
 
         const urlParams = new URLSearchParams(window.location.search);
-        const selectedPlan = urlParams.get('plan') || 'free';
+        const selectedPlan = urlParams.get('plan') || 'starter';
 
         const toggleAuth = document.getElementById('toggleAuth');
         const authTitle = document.getElementById('authTitle');
@@ -156,16 +156,82 @@
             lucide.createIcons();
         });
 
-        function showEventCreationModal(email, tier) {
+        // Payment simulation modal
+        function showPaymentModal(plan, price, onSuccess) {
             const modal = document.createElement('div');
             modal.style.position = 'fixed';
             modal.style.top = '0';
             modal.style.left = '0';
             modal.style.width = '100%';
             modal.style.height = '100%';
-            modal.style.backgroundColor = 'rgba(0,0,0,0.8)';
-            modal.style.backdropFilter = 'blur(12px)';
-            modal.style.zIndex = '2000';
+            modal.style.backgroundColor = 'rgba(0,0,0,0.85)';
+            modal.style.backdropFilter = 'blur(16px)';
+            modal.style.zIndex = '3000';
+            modal.style.display = 'flex';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            modal.innerHTML = `
+                <div style="background: rgba(20,30,55,0.95); border-radius: 32px; padding: 40px; max-width: 400px; width: 90%; border: 1px solid rgba(255,255,255,0.2); text-align: center;">
+                    <i data-lucide="credit-card" style="width: 48px; height: 48px; color: #fbbf24; margin-bottom: 20px;"></i>
+                    <h2 style="font-family:'Syne'; margin-bottom: 16px;">Complete Payment</h2>
+                    <p style="font-size: 1.5rem; font-weight: 800; margin: 20px 0;">₹${price}</p>
+                    <p style="color: #94a3b8; margin-bottom: 24px;">${plan.toUpperCase()} Plan · One-time payment</p>
+                    <button id="simulatePayBtn" style="width:100%; padding: 16px; border-radius: 60px; background: linear-gradient(105deg, #10b981, #059669); border: none; color: white; font-weight: 800; cursor: pointer; margin-bottom: 12px;">Simulate Payment</button>
+                    <button id="cancelPayBtn" style="width:100%; padding: 12px; border-radius: 60px; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #94a3b8; cursor: pointer;">Cancel</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            lucide.createIcons();
+
+            document.getElementById('simulatePayBtn').addEventListener('click', () => {
+                modal.remove();
+                alert('Payment successful!');
+                onSuccess();
+            });
+            document.getElementById('cancelPayBtn').addEventListener('click', () => {
+                modal.remove();
+            });
+        }
+
+        // Contact sales modal for VIP
+        function showContactSales() {
+            const modal = document.createElement('div');
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100%';
+            modal.style.height = '100%';
+            modal.style.backgroundColor = 'rgba(0,0,0,0.85)';
+            modal.style.backdropFilter = 'blur(16px)';
+            modal.style.zIndex = '3000';
+            modal.style.display = 'flex';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            modal.innerHTML = `
+                <div style="background: rgba(20,30,55,0.95); border-radius: 32px; padding: 40px; max-width: 400px; width: 90%; border: 1px solid rgba(255,255,255,0.2); text-align: center;">
+                    <i data-lucide="phone" style="width: 48px; height: 48px; color: #fbbf24; margin-bottom: 20px;"></i>
+                    <h2 style="font-family:'Syne'; margin-bottom: 16px;">Contact Sales Team</h2>
+                    <p style="color: #cbd5e1; margin-bottom: 24px;">Our VIP plan includes custom branding, priority support, and dedicated onboarding. Please reach out to our sales team.</p>
+                    <a href="mailto:sales@snapnexus.app?subject=VIP%20Plan%20Inquiry" style="display: inline-block; width: 100%; padding: 16px; border-radius: 60px; background: linear-gradient(105deg, #fbbf24, #f59e0b); color: #020617; font-weight: 800; text-decoration: none; margin-bottom: 12px;">Email sales@snapnexus.app</a>
+                    <button id="closeSalesBtn" style="width:100%; padding: 12px; border-radius: 60px; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #94a3b8; cursor: pointer;">Close</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            lucide.createIcons();
+            document.getElementById('closeSalesBtn').addEventListener('click', () => modal.remove());
+        }
+
+        // Event creation modal
+        function showEventCreationModal(email, tier, onComplete) {
+            const modal = document.createElement('div');
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100%';
+            modal.style.height = '100%';
+            modal.style.backgroundColor = 'rgba(0,0,0,0.85)';
+            modal.style.backdropFilter = 'blur(16px)';
+            modal.style.zIndex = '3000';
             modal.style.display = 'flex';
             modal.style.alignItems = 'center';
             modal.style.justifyContent = 'center';
@@ -193,7 +259,8 @@
                         hostEmail: email,
                         createdAt: new Date().toISOString()
                     });
-                    window.location.href = `dashboard.html?event=${eventId}`;
+                    modal.remove();
+                    onComplete(eventId);
                 } catch (err) {
                     console.error(err);
                     alert('Failed to create event. Check your Appwrite permissions.');
@@ -203,13 +270,46 @@
 
         authForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = e.target.querySelector('input[type="email"]').value;
-            const password = e.target.querySelector('input[type="password"]').value;
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
             if (!email || !password) {
                 alert('Please fill all fields');
                 return;
             }
-            showEventCreationModal(email, selectedPlan);
+
+            // Professional flow based on plan
+            if (selectedPlan === 'vip') {
+                showContactSales();
+                return;
+            }
+
+            if (selectedPlan === 'pro') {
+                showPaymentModal('pro', 499, () => {
+                    showEventCreationModal(email, 'pro', (eventId) => {
+                        window.location.href = `dashboard.html?event=${eventId}`;
+                    });
+                });
+                return;
+            }
+
+            if (selectedPlan === 'premium') {
+                showPaymentModal('premium', 999, () => {
+                    showEventCreationModal(email, 'premium', (eventId) => {
+                        window.location.href = `dashboard.html?event=${eventId}`;
+                    });
+                });
+                return;
+            }
+
+            // Starter (free)
+            if (selectedPlan === 'starter') {
+                showEventCreationModal(email, 'starter', (eventId) => {
+                    window.location.href = `dashboard.html?event=${eventId}`;
+                });
+                return;
+            }
+
+            alert('Invalid plan selected');
         });
     </script>
 </body>

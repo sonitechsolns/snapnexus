@@ -95,7 +95,7 @@
         const client = new Client().setEndpoint('https://cloud.appwrite.io/v1').setProject(PROJ_ID);
         const storage = new Storage(client);
 
-        let photoUrls = [];
+        let photoUrls = []; // starts empty
         let currentIndex = 0, photosShownCount = 0, activeLayer = 1;
         const layer1 = document.getElementById('layer1');
         const layer2 = document.getElementById('layer2');
