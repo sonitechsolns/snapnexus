@@ -118,63 +118,34 @@
     <script>
         lucide.createIcons();
         AOS.init();
-
-        // --- Appwrite Configuration ---
+    
         const PROJ_ID = '69d8eda100264f4e42ae';
         const BKT_ID = '69d8f2b800397ad57e50';
-        const client = new Appwrite.Client();
+        const client = new Appwrite.Client()
+            .setEndpoint('https://cloud.appwrite.io/v1')
+            .setProject(PROJ_ID);
         const storage = new Appwrite.Storage(client);
-
-        client.setEndpoint('https://cloud.appwrite.io/v1').setProject(PROJ_ID);
-
-        // --- Get event name from URL parameter (e.g., ?event=MyEvent) ---
+    
         const urlParams = new URLSearchParams(window.location.search);
-        let eventName = urlParams.get('event');
-        if (!eventName) {
-            eventName = "Your Event";
-        }
-        try {
-            eventName = decodeURIComponent(eventName);
-        } catch(e) { /* keep as is */ }
-
+        const eventName = urlParams.get('event') || "Your Event";
+        const userTier = urlParams.get('tier') || "free"; // Captures tier from login
+    
         const headingEl = document.getElementById('eventNameHeading');
-        headingEl.innerHTML = `${escapeHtml(eventName)} <span style="color:#60a5fa;">#LiveWall</span>`;
-
-        function escapeHtml(str) {
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
-        }
-
-        // --- DOM Elements ---
-        const photoCountSpan = document.getElementById('photoCount');
-        const guestCountSpan = document.getElementById('guestCount');
-        const storageUsedSpan = document.getElementById('storageUsed');
-        const galleryContainer = document.getElementById('galleryContainer');
-
-        // --- Helper: Update stats (to be replaced with real data from Appwrite) ---
-        // For now, we'll fetch all files from the bucket and calculate count & size.
-        async function updateStats() {
-            try {
-                const response = await storage.listFiles(BKT_ID);
-                const files = response.files || [];
-                const photoCount = files.length;
-                const totalSizeBytes = files.reduce((sum, file) => sum + (file.sizeOriginal || 0), 0);
-                const totalSizeMB = (totalSizeBytes / (1024 * 1024)).toFixed(1);
-                
-                photoCountSpan.textContent = photoCount;
-                storageUsedSpan.textContent = totalSizeMB + ' MB';
-                // Guest count would require a separate collection; placeholder for now
-                guestCountSpan.textContent = '—';
-            } catch (err) {
-                console.error("Failed to fetch stats:", err);
-                photoCountSpan.textContent = 'Error';
-                storageUsedSpan.textContent = '?';
-            }
-        }
+        headingEl.innerHTML = `${eventName} <span style="color:#60a5fa;">#LiveWall</span>`;
+    
+        // --- Dynamic TV Link Brigading ---
+        const printQrBtn = document.getElementById('printQrBtn');
+        printQrBtn.addEventListener('click', () => {
+            // Automatically selects tv_2.html for VIP and tv.html for Free
+            const targetTV = (userTier === 'vip') ? 'tv_2.html' : 'tv.html';
+            const tvUrl = window.location.origin + '/' + targetTV + '?event=' + encodeURIComponent(eventName);
+            
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(tvUrl)}`;
+            const win = window.open("", "_blank");
+            win.document.write(`<html><body><img src="${qrUrl}"><h1>Scan to view ${userTier.toUpperCase()} Wall</h1></body></html>`);
+        });
+    
+        // ... Keep existing loadGallery(), updateStats(), and downloadZipBtn logic ...
 
         // --- Load gallery: fetch all photos from bucket and display them ---
         async function loadGallery() {

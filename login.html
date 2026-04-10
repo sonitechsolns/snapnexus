@@ -127,39 +127,42 @@
     <script>
         lucide.createIcons();
         AOS.init();
-
-        // Toggle Login / Sign Up Logic
+    
+        // Appwrite Initialization
+        const { Client, Databases, ID } = Appwrite;
+        const client = new Client()
+            .setEndpoint('https://cloud.appwrite.io/v1')
+            .setProject('69d8eda100264f4e42ae');
+        const databases = new Databases(client);
+    
         const toggleAuth = document.getElementById('toggleAuth');
         const authTitle = document.getElementById('authTitle');
-        const authSubtitle = document.getElementById('authSubtitle');
         const nameGroup = document.getElementById('nameGroup');
-        const nameInput = document.getElementById('nameInput');
-        const authBtn = document.getElementById('authBtn');
-        const toggleText = document.getElementById('toggleText');
+        const authForm = document.getElementById('authForm');
         let isLogin = true;
-
+    
         toggleAuth.addEventListener('click', (e) => {
             e.preventDefault();
             isLogin = !isLogin;
-            
             if (isLogin) {
                 authTitle.innerText = 'Host Console';
-                authSubtitle.innerText = 'Enter your credentials to access your event dashboard.';
                 nameGroup.classList.remove('show');
-                nameInput.removeAttribute('required');
-                authBtn.innerHTML = 'Sign In <i data-lucide="log-in" style="width:18px;"></i>';
-                toggleText.innerText = "Don't have an account?";
-                toggleAuth.innerText = "Create one";
             } else {
                 authTitle.innerText = 'Create Account';
-                authSubtitle.innerText = 'Sign up to start hosting your interactive photo walls.';
                 nameGroup.classList.add('show');
-                nameInput.setAttribute('required', 'true');
-                authBtn.innerHTML = 'Sign Up <i data-lucide="user-plus" style="width:18px;"></i>';
-                toggleText.innerText = "Already have an account?";
-                toggleAuth.innerText = "Sign in";
             }
-            lucide.createIcons(); // Re-render the updated icons
+            lucide.createIcons();
+        });
+    
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = e.target.querySelector('input[type="email"]').value;
+            
+            // For this prototype, we save/check user tier in the 'Events' table
+            // Redirecting to dashboard with email and a mock 'tier' for now
+            // In a real flow, you'd fetch the 'tier' from your Appwrite 'Events' collection
+            const mockTier = "free"; // Change to "vip" manually to test VIP flow
+            window.location.href = `dashboard.html?event=${encodeURIComponent(email)}&tier=${mockTier}`;
         });
     </script>
 </body>
