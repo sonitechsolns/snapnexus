@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SnapNexus | Host Dashboard</title>
@@ -40,13 +41,15 @@
         .btn-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
 
         .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-        .photo-card { position: relative; border-radius: 16px; overflow: hidden; aspect-ratio: 1; border: 1px solid rgba(255,255,255,0.1); }
+        .photo-card { position: relative; border-radius: 16px; overflow: hidden; aspect-ratio: 1; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; }
         .photo-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
         .photo-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.2s; backdrop-filter: blur(4px); }
         .photo-card:hover .photo-overlay { opacity: 1; }
         .photo-card:hover img { transform: scale(1.05); }
         .remove-btn { background: rgba(239, 68, 68, 0.85); color: white; border: 1px solid rgba(239, 68, 68, 0.4); padding: 8px 16px; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; font-family: 'Urbanist', sans-serif; }
         .remove-btn:hover { background: #ef4444; transform: scale(1.05); }
+        .empty-gallery { text-align: center; padding: 60px 20px; color: #94a3b8; font-weight: 600; }
+        .empty-gallery i { width: 48px; height: 48px; margin-bottom: 16px; color: #60a5fa; }
     </style>
 </head>
 <body>
@@ -65,27 +68,28 @@
     </div>
 
     <div class="dashboard-container">
-        <h2 style="margin-bottom: 32px; font-size: 2.2rem;" data-aos="fade-right">Bhavya's Wedding <span style="color:#60a5fa;">#Forever2026</span></h2>
+        <!-- Dynamic event name from URL parameter -->
+        <h2 id="eventNameHeading" style="margin-bottom: 32px; font-size: 2.2rem;" data-aos="fade-right">Loading event...</h2>
 
         <div class="stats-grid" data-aos="fade-up">
             <div class="glass-card stat-card">
                 <div class="stat-icon"><i data-lucide="image"></i></div>
                 <div>
-                    <div class="stat-value">342</div>
+                    <div class="stat-value" id="photoCount">0</div>
                     <div class="stat-label">Photos Uploaded</div>
                 </div>
             </div>
             <div class="glass-card stat-card">
                 <div class="stat-icon"><i data-lucide="users"></i></div>
                 <div>
-                    <div class="stat-value">128</div>
+                    <div class="stat-value" id="guestCount">0</div>
                     <div class="stat-label">Active Guests</div>
                 </div>
             </div>
             <div class="glass-card stat-card">
                 <div class="stat-icon"><i data-lucide="database"></i></div>
                 <div>
-                    <div class="stat-value">1.4 GB</div>
+                    <div class="stat-value" id="storageUsed">0 MB</div>
                     <div class="stat-label">Storage Used</div>
                 </div>
             </div>
@@ -95,36 +99,16 @@
             <div class="toolbar">
                 <h3 style="font-size: 1.5rem;">Event Controls</h3>
                 <div style="display:flex; gap:12px;">
-                    <button class="btn-physics"><i data-lucide="qr-code"></i> Print QR</button>
-                    <button class="btn-physics"><i data-lucide="download"></i> Download ZIP</button>
+                    <button class="btn-physics" id="printQrBtn"><i data-lucide="qr-code"></i> Print QR</button>
+                    <button class="btn-physics" id="downloadZipBtn"><i data-lucide="download"></i> Download ZIP</button>
                 </div>
             </div>
 
-            <div class="gallery-grid">
-                <!-- Mock Photos -->
-                <div class="photo-card">
-                    <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400&q=80" alt="event">
-                    <div class="photo-overlay">
-                        <button class="remove-btn"><i data-lucide="trash-2" style="width:16px;"></i> Remove</button>
-                    </div>
-                </div>
-                <div class="photo-card">
-                    <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=400&q=80" alt="event">
-                    <div class="photo-overlay">
-                        <button class="remove-btn"><i data-lucide="trash-2" style="width:16px;"></i> Remove</button>
-                    </div>
-                </div>
-                <div class="photo-card">
-                    <img src="https://images.unsplash.com/photo-1530103862676-de88d575fd16?w=400&q=80" alt="event">
-                    <div class="photo-overlay">
-                        <button class="remove-btn"><i data-lucide="trash-2" style="width:16px;"></i> Remove</button>
-                    </div>
-                </div>
-                <div class="photo-card">
-                    <img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=400&q=80" alt="event">
-                    <div class="photo-overlay">
-                        <button class="remove-btn"><i data-lucide="trash-2" style="width:16px;"></i> Remove</button>
-                    </div>
+            <div id="galleryContainer" class="gallery-grid">
+                <!-- Dynamic gallery will be injected here -->
+                <div class="empty-gallery">
+                    <i data-lucide="camera-off"></i>
+                    <p>No photos uploaded yet.<br>Share the QR code with your guests.</p>
                 </div>
             </div>
         </div>
@@ -134,6 +118,213 @@
     <script>
         lucide.createIcons();
         AOS.init();
+
+        // --- Appwrite Configuration ---
+        const PROJ_ID = '69d8eda100264f4e42ae';
+        const BKT_ID = '69d8f2b800397ad57e50';
+        const client = new Appwrite.Client();
+        const storage = new Appwrite.Storage(client);
+
+        client.setEndpoint('https://cloud.appwrite.io/v1').setProject(PROJ_ID);
+
+        // --- Get event name from URL parameter (e.g., ?event=MyEvent) ---
+        const urlParams = new URLSearchParams(window.location.search);
+        let eventName = urlParams.get('event');
+        if (!eventName) {
+            eventName = "Your Event";
+        }
+        try {
+            eventName = decodeURIComponent(eventName);
+        } catch(e) { /* keep as is */ }
+
+        const headingEl = document.getElementById('eventNameHeading');
+        headingEl.innerHTML = `${escapeHtml(eventName)} <span style="color:#60a5fa;">#LiveWall</span>`;
+
+        function escapeHtml(str) {
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        // --- DOM Elements ---
+        const photoCountSpan = document.getElementById('photoCount');
+        const guestCountSpan = document.getElementById('guestCount');
+        const storageUsedSpan = document.getElementById('storageUsed');
+        const galleryContainer = document.getElementById('galleryContainer');
+
+        // --- Helper: Update stats (to be replaced with real data from Appwrite) ---
+        // For now, we'll fetch all files from the bucket and calculate count & size.
+        async function updateStats() {
+            try {
+                const response = await storage.listFiles(BKT_ID);
+                const files = response.files || [];
+                const photoCount = files.length;
+                const totalSizeBytes = files.reduce((sum, file) => sum + (file.sizeOriginal || 0), 0);
+                const totalSizeMB = (totalSizeBytes / (1024 * 1024)).toFixed(1);
+                
+                photoCountSpan.textContent = photoCount;
+                storageUsedSpan.textContent = totalSizeMB + ' MB';
+                // Guest count would require a separate collection; placeholder for now
+                guestCountSpan.textContent = '—';
+            } catch (err) {
+                console.error("Failed to fetch stats:", err);
+                photoCountSpan.textContent = 'Error';
+                storageUsedSpan.textContent = '?';
+            }
+        }
+
+        // --- Load gallery: fetch all photos from bucket and display them ---
+        async function loadGallery() {
+            try {
+                const response = await storage.listFiles(BKT_ID);
+                const files = response.files || [];
+                
+                if (files.length === 0) {
+                    galleryContainer.innerHTML = `<div class="empty-gallery">
+                        <i data-lucide="camera-off"></i>
+                        <p>No photos uploaded yet.<br>Share the QR code with your guests.</p>
+                    </div>`;
+                    lucide.createIcons();
+                    return;
+                }
+
+                // Build gallery HTML
+                let html = '';
+                for (const file of files) {
+                    const fileUrl = `https://cloud.appwrite.io/v1/storage/buckets/${BKT_ID}/files/${file.$id}/view?project=${PROJ_ID}`;
+                    html += `
+                        <div class="photo-card" data-file-id="${file.$id}">
+                            <img src="${fileUrl}" alt="Guest photo">
+                            <div class="photo-overlay">
+                                <button class="remove-btn" data-file-id="${file.$id}">
+                                    <i data-lucide="trash-2" style="width:16px;"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+                galleryContainer.innerHTML = html;
+                lucide.createIcons();
+
+                // Attach remove event listeners
+                document.querySelectorAll('.remove-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        const fileId = btn.getAttribute('data-file-id');
+                        if (confirm('Delete this photo permanently?')) {
+                            try {
+                                await storage.deleteFile(BKT_ID, fileId);
+                                // Refresh gallery and stats
+                                await loadGallery();
+                                await updateStats();
+                            } catch (err) {
+                                alert('Failed to delete: ' + err.message);
+                            }
+                        }
+                    });
+                });
+            } catch (err) {
+                console.error("Failed to load gallery:", err);
+                galleryContainer.innerHTML = `<div class="empty-gallery">
+                    <i data-lucide="alert-circle"></i>
+                    <p>Could not load photos. Make sure bucket exists and permissions are set.</p>
+                </div>`;
+                lucide.createIcons();
+            }
+        }
+
+        // --- Real-time subscription: listen for new file creations ---
+        function subscribeToRealtime() {
+            const channel = `buckets.${BKT_ID}.files`;
+            client.subscribe(channel, (response) => {
+                if (response.events.includes('buckets.*.files.*.create')) {
+                    // New file added – refresh gallery and stats
+                    loadGallery();
+                    updateStats();
+                } else if (response.events.includes('buckets.*.files.*.delete')) {
+                    loadGallery();
+                    updateStats();
+                }
+            });
+        }
+
+        // --- Initial load ---
+        updateStats();
+        loadGallery();
+        subscribeToRealtime();
+
+        // --- Button actions (placeholder for now) ---
+        document.getElementById('printQrBtn').addEventListener('click', () => {
+    const guestUrl = window.location.origin + '/app.html?event=' + encodeURIComponent(eventName);
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(guestUrl)}`;
+    
+    // Open QR in a new tab for easy printing
+    const win = window.open("", "_blank");
+    win.document.write(`
+        <body style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;">
+            <h1>Scan to Join: ${eventName}</h1>
+            <img src="${qrUrl}" style="width:300px;height:300px;">
+            <p style="margin-top:20px;">Point your camera here to upload photos!</p>
+            <button onclick="window.print()" style="padding:10px 20px;cursor:pointer;">Print Poster</button>
+        </body>
+    `);
+});
+document.getElementById('downloadZipBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('downloadZipBtn');
+    const originalContent = btn.innerHTML;
+    
+    try {
+        // 1. Get the list of all files from Appwrite
+        const response = await storage.listFiles(BKT_ID);
+        const files = response.files || [];
+
+        if (files.length === 0) {
+            alert("No photos to download yet!");
+            return;
+        }
+
+        // 2. Start the UI feedback
+        btn.innerHTML = `<i data-lucide="loader" class="animate-spin"></i> Zipping ${files.length} photos...`;
+        lucide.createIcons();
+
+        const zip = new JSZip();
+        const folder = zip.folder(`SnapNexus_${eventName.replace(/\s+/g, '_')}`);
+
+        // 3. Fetch each photo and add to ZIP
+        const downloadPromises = files.map(async (file, index) => {
+            const fileUrl = storage.getFileView(BKT_ID, file.$id);
+            const imgData = await fetch(fileUrl).then(res => res.blob());
+            
+            // Name the files nicely inside the ZIP
+            const fileName = `photo_${index + 1}_${file.$id.substr(0, 5)}.jpg`;
+            folder.file(fileName, imgData);
+        });
+
+        await Promise.all(downloadPromises);
+
+        // 4. Generate the ZIP and trigger download
+        const content = await zip.generateAsync({ type: "blob" });
+        const zipName = `SnapNexus_${eventName.replace(/\s+/g, '_')}_Memories.zip`;
+        
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(content);
+        link.download = zipName;
+        link.click();
+
+        // 5. Reset UI
+        btn.innerHTML = `<i data-lucide="check-circle"></i> Done!`;
+        setTimeout(() => { btn.innerHTML = originalContent; lucide.createIcons(); }, 3000);
+
+    } catch (err) {
+        console.error("ZIP Error:", err);
+        alert("Download failed. Make sure your internet is stable!");
+        btn.innerHTML = originalContent;
+        lucide.createIcons();
+    }
+});
     </script>
 </body>
 </html>
