@@ -44,6 +44,8 @@
         .empty-gallery i { width:48px; height:48px; margin-bottom:16px; color:#60a5fa; }
         .event-ended-message { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:24px; padding:40px; text-align:center; margin:40px 0; }
         .event-ended-message h3 { color:#f87171; margin-bottom:12px; }
+        .create-event-card { background:linear-gradient(135deg, rgba(255,152,0,0.1), rgba(255,114,0,0.05)); border:2px dashed #ff9800; cursor:pointer; transition:0.2s; text-align:center; padding:60px 20px; margin:20px 0; border-radius:24px; }
+        .create-event-card:hover { background:rgba(255,152,0,0.2); transform:translateY(-4px); }
     </style>
 </head>
 <body>
@@ -51,26 +53,22 @@
     <div class="noise-overlay"></div>
     <div class="topbar">
         <div class="topbar-logo"><div style="width:36px;height:36px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);border-radius:8px;display:flex;align-items:center;justify-content:center;"><i data-lucide="layout-dashboard" style="color:#60a5fa;width:20px;"></i></div>Host Dashboard</div>
-        <div style="display:flex; gap:16px; align-items:center;"><a href="login.html" id="myEventsLink" style="color:#94a3b8;text-decoration:none;font-weight:600;"><i data-lucide="calendar"></i> My Events</a><a id="liveWallLink" href="#" target="_blank" style="text-decoration:none;"><span style="background:rgba(16,185,129,0.2);color:#34d399;padding:6px 14px;border-radius:20px;font-size:0.85rem;font-weight:700;display:flex;align-items:center;gap:6px;"><i data-lucide="radio" style="width:14px;"></i> Wall is LIVE</span></a><button id="logoutBtn" style="background:none;border:none;color:#94a3b8;cursor:pointer;"><i data-lucide="log-out"></i></button></div>
+        <div style="display:flex; gap:16px; align-items:center;">
+            <button id="createEventTopBtn" class="btn-physics" style="background:linear-gradient(105deg,#fbbf24,#f59e0b); color:#020617;"><i data-lucide="plus"></i> Create New Event</button>
+            <a href="login.html" id="myEventsLink" style="color:#94a3b8;text-decoration:none;font-weight:600;"><i data-lucide="calendar"></i> My Events</a>
+            <a id="liveWallLink" href="#" target="_blank" style="text-decoration:none;"><span style="background:rgba(16,185,129,0.2);color:#34d399;padding:6px 14px;border-radius:20px;font-size:0.85rem;font-weight:700;display:flex;align-items:center;gap:6px;"><i data-lucide="radio" style="width:14px;"></i> Wall is LIVE</span></a>
+            <button id="logoutBtn" style="background:none;border:none;color:#94a3b8;cursor:pointer;"><i data-lucide="log-out"></i></button>
+        </div>
     </div>
     <div class="dashboard-container">
-        <h2 id="eventNameHeading" style="margin-bottom:32px;font-size:2.2rem;" data-aos="fade-right">Loading event...</h2>
-        <div class="stats-grid" data-aos="fade-up">
-            <div class="glass-card stat-card"><div class="stat-icon"><i data-lucide="image"></i></div><div><div class="stat-value" id="photoCount">0</div><div class="stat-label">Photos Uploaded</div></div></div>
-            <div class="glass-card stat-card"><div class="stat-icon"><i data-lucide="users"></i></div><div><div class="stat-value" id="guestCount">0</div><div class="stat-label">Active Guests</div></div></div>
-            <div class="glass-card stat-card"><div class="stat-icon"><i data-lucide="database"></i></div><div><div class="stat-value" id="storageUsed">0 MB</div><div class="stat-label">Storage Used</div></div></div>
-        </div>
-        <div id="eventContent">
-            <div class="glass-card" data-aos="fade-up" data-aos-delay="100">
-                <div class="toolbar"><h3 style="font-size:1.5rem;">Event Controls</h3><div style="display:flex; gap:12px; flex-wrap:wrap;"><button class="btn-physics" id="printQrBtn"><i data-lucide="qr-code"></i> Print QR</button><button class="btn-physics" id="viewGuestAppBtn"><i data-lucide="smartphone"></i> View Guest App</button><button class="btn-physics" id="downloadZipBtn"><i data-lucide="download"></i> Download ZIP</button><button class="btn-physics btn-danger" id="endEventBtn"><i data-lucide="power"></i> End Event</button></div></div>
-                <div id="galleryContainer" class="gallery-grid"><div class="empty-gallery"><i data-lucide="camera-off"></i><p>No photos uploaded yet.<br>Share the QR code with your guests.</p></div></div>
-            </div>
+        <div id="eventContentArea">
+            <!-- This area will show either a "no event" message + create button, or the actual event dashboard -->
         </div>
     </div>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         lucide.createIcons(); AOS.init();
-        const { Client, Account, Storage, Databases, Query } = Appwrite;
+        const { Client, Account, Storage, Databases, Query, ID } = Appwrite;
         const PROJ_ID = '69d8eda100264f4e42ae';
         const BKT_ID = '69d8f2b800397ad57e50';
         const DB_ID = '69d8f0b0003c6d1e4d93';
@@ -81,29 +79,69 @@
         const databases = new Databases(client);
         const urlParams = new URLSearchParams(window.location.search);
         const eventId = urlParams.get('event');
-        if (!eventId) { alert('No event selected.'); window.location.href = 'login.html'; }
         let currentEvent = null;
         let currentUser = null;
+        const contentArea = document.getElementById('eventContentArea');
 
-        function getFilePrefix() { return eventId + '_'; }  // all files for this event start with "eventId_"
+        function getFilePrefix() { return eventId + '_'; }
 
         async function checkAuth() { try { currentUser = await account.get(); } catch(err) { window.location.href = 'login.html'; } }
 
+        async function createNewEvent() {
+            const eventName = prompt('Enter event name (e.g., "Bhavya\'s Wedding"):');
+            if (!eventName) return;
+            const newEventId = ID.unique();
+            try {
+                await databases.createDocument(DB_ID, COLLECTION_ID, newEventId, {
+                    eventName: eventName,
+                    eventId: newEventId,
+                    tier: 'starter',
+                    hostEmail: currentUser.email,
+                    status: 'active',
+                    createdAt: new Date().toISOString()
+                });
+                alert('Event created! Redirecting to dashboard...');
+                window.location.href = `dashboard.html?event=${newEventId}`;
+            } catch(err) { alert('Failed to create event: ' + err.message); }
+        }
+
         async function loadEventDetails() {
+            if (!eventId) {
+                contentArea.innerHTML = `<div class="create-event-card" id="noEventCreateBtn"><i data-lucide="plus-circle" style="width:48px;height:48px;margin-bottom:16px;color:#ff9800;"></i><h2>No Event Selected</h2><p style="color:#94a3b8;">Click below to create a new event and start your live wall.</p><button class="btn-physics" style="margin-top:20px;background:linear-gradient(105deg,#fbbf24,#f59e0b);color:#020617;"><i data-lucide="plus"></i> Create New Event</button></div>`;
+                lucide.createIcons();
+                document.getElementById('noEventCreateBtn')?.addEventListener('click', createNewEvent);
+                document.querySelector('#noEventCreateBtn button')?.addEventListener('click', (e) => { e.stopPropagation(); createNewEvent(); });
+                return;
+            }
             try {
                 const res = await databases.listDocuments(DB_ID, COLLECTION_ID, [Query.equal('eventId', eventId)]);
                 if (res.documents.length === 0) throw new Error('Event not found');
                 currentEvent = res.documents[0];
-                document.getElementById('eventNameHeading').innerHTML = `${currentEvent.eventName} <span style="color:#60a5fa;">#LiveWall</span>`;
-                if (currentEvent.status === 'ended') {
-                    document.getElementById('eventContent').innerHTML = `<div class="event-ended-message"><h3><i data-lucide="flag"></i> This event has ended</h3><p style="color:#94a3b8;">No more uploads are accepted. You can still download existing photos.</p><button id="downloadZipBtnEnded" class="btn-physics" style="margin-top:20px;"><i data-lucide="download"></i> Download All Photos</button></div>`;
-                    lucide.createIcons();
-                    document.getElementById('downloadZipBtnEnded')?.addEventListener('click', downloadAllPhotos);
-                    return;
-                }
-                const tvPage = (currentEvent.tier === 'pro' || currentEvent.tier === 'premium' || currentEvent.tier === 'vip') ? 'tv_2.html' : 'tv.html';
-                document.getElementById('liveWallLink').href = `${window.location.origin}/${tvPage}?event=${eventId}`;
-            } catch(err) { console.error(err); document.getElementById('eventNameHeading').innerHTML = 'Event not found'; }
+                renderDashboard();
+            } catch(err) { console.error(err); contentArea.innerHTML = `<div class="create-event-card"><i data-lucide="alert-circle"></i><h2>Event Not Found</h2><button class="btn-physics" id="goToCreate">Create New Event</button></div>`; lucide.createIcons(); document.getElementById('goToCreate')?.addEventListener('click', createNewEvent); }
+        }
+
+        function renderDashboard() {
+            const isEnded = currentEvent.status === 'ended';
+            const tvPage = (currentEvent.tier === 'pro' || currentEvent.tier === 'premium' || currentEvent.tier === 'vip') ? 'tv_2.html' : 'tv.html';
+            document.getElementById('liveWallLink').href = `${window.location.origin}/${tvPage}?event=${eventId}`;
+            contentArea.innerHTML = `
+                <h2 id="eventNameHeading" style="margin-bottom:32px;font-size:2.2rem;">${currentEvent.eventName} <span style="color:#60a5fa;">#LiveWall</span></h2>
+                <div class="stats-grid" data-aos="fade-up">
+                    <div class="glass-card stat-card"><div class="stat-icon"><i data-lucide="image"></i></div><div><div class="stat-value" id="photoCount">0</div><div class="stat-label">Photos Uploaded</div></div></div>
+                    <div class="glass-card stat-card"><div class="stat-icon"><i data-lucide="users"></i></div><div><div class="stat-value" id="guestCount">0</div><div class="stat-label">Active Guests</div></div></div>
+                    <div class="glass-card stat-card"><div class="stat-icon"><i data-lucide="database"></i></div><div><div class="stat-value" id="storageUsed">0 MB</div><div class="stat-label">Storage Used</div></div></div>
+                </div>
+                <div id="eventContent">
+                    <div class="glass-card" data-aos="fade-up" data-aos-delay="100">
+                        <div class="toolbar"><h3 style="font-size:1.5rem;">Event Controls</h3><div style="display:flex; gap:12px; flex-wrap:wrap;"><button class="btn-physics" id="printQrBtn"><i data-lucide="qr-code"></i> Print QR</button><button class="btn-physics" id="viewGuestAppBtn"><i data-lucide="smartphone"></i> View Guest App</button><button class="btn-physics" id="downloadZipBtn"><i data-lucide="download"></i> Download ZIP</button>${!isEnded ? '<button class="btn-physics btn-danger" id="endEventBtn"><i data-lucide="power"></i> End Event</button>' : ''}</div></div>
+                        <div id="galleryContainer" class="gallery-grid"><div class="empty-gallery"><i data-lucide="camera-off"></i><p>No photos uploaded yet.<br>Share the QR code with your guests.</p></div></div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+            if (!isEnded) { updateStats(); loadGallery(); subscribeToRealtime(); attachEventListeners(); }
+            else { document.getElementById('eventContent').innerHTML = `<div class="event-ended-message"><h3><i data-lucide="flag"></i> This event has ended</h3><p>No more uploads are accepted. You can still download existing photos.</p><button id="downloadZipBtnEnded" class="btn-physics">Download All Photos</button></div>`; lucide.createIcons(); document.getElementById('downloadZipBtnEnded')?.addEventListener('click', downloadAllPhotos); }
         }
 
         async function updateStats() {
@@ -155,23 +193,26 @@
             } catch(err) { alert("Download failed: "+err.message); if (btn) btn.innerHTML = original; lucide.createIcons(); }
         }
 
-        document.getElementById('printQrBtn')?.addEventListener('click', () => {
-            const guestUrl = `${window.location.origin}/app.html?event=${encodeURIComponent(eventId)}`;
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(guestUrl)}`;
-            const win = window.open("", "_blank");
-            win.document.write(`<body style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;"><h1>Scan to Join: ${currentEvent?.eventName || eventId}</h1><img src="${qrUrl}" style="width:300px;height:300px;"><p>Point your camera here to upload photos!</p><button onclick="window.print()">Print Poster</button></body>`);
-        });
-        document.getElementById('viewGuestAppBtn')?.addEventListener('click', () => window.open(`app.html?event=${eventId}`, '_blank'));
-        document.getElementById('downloadZipBtn')?.addEventListener('click', downloadAllPhotos);
-        document.getElementById('endEventBtn')?.addEventListener('click', async () => {
-            if (!currentEvent) return;
-            if (!confirm('End this event? Guests cannot upload more.')) return;
-            try { await databases.updateDocument(DB_ID, COLLECTION_ID, currentEvent.$id, { status: 'ended' }); alert('Event ended.'); location.reload(); } catch(err) { alert('Failed: '+err.message); }
-        });
+        function attachEventListeners() {
+            document.getElementById('printQrBtn')?.addEventListener('click', () => {
+                const guestUrl = `${window.location.origin}/app.html?event=${encodeURIComponent(eventId)}`;
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(guestUrl)}`;
+                const win = window.open("", "_blank");
+                win.document.write(`<body style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;"><h1>Scan to Join: ${currentEvent?.eventName || eventId}</h1><img src="${qrUrl}" style="width:300px;height:300px;"><p>Point your camera here to upload photos!</p><button onclick="window.print()">Print Poster</button></body>`);
+            });
+            document.getElementById('viewGuestAppBtn')?.addEventListener('click', () => window.open(`app.html?event=${eventId}`, '_blank'));
+            document.getElementById('downloadZipBtn')?.addEventListener('click', downloadAllPhotos);
+            document.getElementById('endEventBtn')?.addEventListener('click', async () => {
+                if (!confirm('End this event? Guests cannot upload more.')) return;
+                try { await databases.updateDocument(DB_ID, COLLECTION_ID, currentEvent.$id, { status: 'ended' }); alert('Event ended.'); location.reload(); } catch(err) { alert('Failed: '+err.message); }
+            });
+        }
+
+        document.getElementById('createEventTopBtn')?.addEventListener('click', createNewEvent);
         document.getElementById('logoutBtn')?.addEventListener('click', async () => { await account.deleteSession('current'); window.location.href = 'login.html'; });
         document.getElementById('myEventsLink')?.addEventListener('click', (e) => { e.preventDefault(); window.location.href = 'login.html'; });
 
-        async function init() { await checkAuth(); await loadEventDetails(); if (currentEvent?.status !== 'ended') { await updateStats(); await loadGallery(); subscribeToRealtime(); } else { document.getElementById('downloadZipBtnEnded')?.addEventListener('click', downloadAllPhotos); } }
+        async function init() { await checkAuth(); await loadEventDetails(); }
         init();
     </script>
 </body>
