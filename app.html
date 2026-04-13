@@ -224,9 +224,12 @@
         document.querySelector('.event-pill').innerHTML = `<i data-lucide="party-popper" style="width:14px;"></i> ${fullEventId}`;
         lucide.createIcons();
 
-        // Shorten event ID to 12 chars for file prefix (safe within 36 char limit)
-        const shortEventId = fullEventId.substring(0, 12);
-        const filePrefix = shortEventId + '_';  // e.g., "69d8eda10026_"
+        // Create a short, letter-starting prefix from eventId
+        // Remove non-alphanumeric, take first 6 chars, ensure starts with letter
+        let rawPrefix = fullEventId.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        if (!rawPrefix.match(/^[a-zA-Z]/)) rawPrefix = 'e' + rawPrefix;
+        const eventPrefix = rawPrefix.substring(0, 6);
+        const searchPrefix = eventPrefix + '_';  // used to filter files for this event
 
         let eventActive = true;
         const fileInput = document.getElementById('fileInput');
@@ -270,14 +273,14 @@
         }
 
         // ------------------------------------------------------------------
-        // 2. Read-only gallery – fetch files that start with filePrefix
+        // 2. Read-only gallery – fetch files that start with eventPrefix + '_'
         // ------------------------------------------------------------------
         async function loadGallery() {
             if (!eventActive) return;
             const container = document.getElementById('galleryContainer');
             try {
                 const response = await storage.listFiles(BKT_ID, {
-                    prefix: filePrefix,
+                    prefix: searchPrefix,
                     limit: 20,
                     order: ['createdAt', 'desc']
                 });
@@ -337,9 +340,15 @@
         }
 
         // ------------------------------------------------------------------
-        // 4. Upload – generate a short, safe fileId (max 36 chars)
-        //    Format: shortEventId_timestamp_random_safeName
+        // 4. Upload – guaranteed short, letter-starting fileId (max 36 chars)
+        //    Format: eventPrefix_timestamp_random (e.g., eabc123_1734123456_xyz9)
+        //    Length: eventPrefix(6) + 1 + timestamp(10) + 1 + random(4) = 22 chars
         // ------------------------------------------------------------------
+        function generateShortRandom() {
+            // Returns a 4-char alphanumeric string (letters + digits)
+            return Math.random().toString(36).substring(2, 6);
+        }
+
         fileInput.addEventListener('change', async (e) => {
             if (!eventActive) {
                 alert('This event has ended. No more uploads allowed.');
@@ -352,24 +361,16 @@
             uploadBtn.innerHTML = '<i data-lucide="loader" style="width:22px;"></i> Uploading...';
             lucide.createIcons();
 
-            // Sanitize and truncate filename to max 10 chars
-            let safeName = file.name.replace(/[^a-z0-9.]/gi, '_').toLowerCase();
-            safeName = safeName.substring(0, 10);
-            const timestamp = Date.now().toString().slice(-10); // last 10 digits
-            const random = Math.random().toString(36).substring(2, 6);
-            const fileId = `${shortEventId}_${timestamp}_${random}_${safeName}`; // total approx 12+1+10+1+4+1+10 = 39, but safeName limited to 10 so 39 still >36? Let's recalc: shortEventId max 12, underscore=1, timestamp=10, underscore=1, random=4, underscore=1, safeName max 10 = 12+1+10+1+4+1+10 = 39. Need to reduce. Use 8-char timestamp? We'll take last 8 digits of timestamp. Also shortEventId can be 10 chars.
-            // Better: use shortEventId(10) + '_' + timestamp(8) + '_' + random(4) + '_' + safeName(6) = 10+1+8+1+4+1+6=31 safe.
-            const shortPrefix = shortEventId.substring(0, 10);
-            const shortTimestamp = Date.now().toString().slice(-8);
-            const shortRandom = Math.random().toString(36).substring(2, 6);
-            const shortSafeName = safeName.substring(0, 6);
-            const finalFileId = `${shortPrefix}_${shortTimestamp}_${shortRandom}_${shortSafeName}`;
-            
+            const timestamp = Date.now();  // full timestamp (13 digits) but we'll use last 10 digits
+            const shortTimestamp = timestamp.toString().slice(-10);  // last 10 digits
+            const randomPart = generateShortRandom();
+            const fileId = `${eventPrefix}_${shortTimestamp}_${randomPart}`;  // example: "abc123_1734123456_xy9z" – all safe, starts with letter
+
             try {
-                await storage.createFile(BKT_ID, finalFileId, file);
+                await storage.createFile(BKT_ID, fileId, file);
                 uploadBtn.innerHTML = '<i data-lucide="check" style="width:22px;"></i> Sent to TV!';
                 lucide.createIcons();
-                loadGallery();
+                loadGallery();  // refresh gallery
                 setTimeout(() => {
                     uploadBtn.innerHTML = originalBtnText;
                     lucide.createIcons();
