@@ -157,6 +157,13 @@
         const storage = new Storage(client);
         const databases = new Databases(client);
 
+        // Helper: generate same prefix as in app.html
+        function getEventPrefix(eventId) {
+            let rawPrefix = eventId.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+            if (!rawPrefix.match(/^[a-zA-Z]/)) rawPrefix = 'e' + rawPrefix;
+            return rawPrefix.substring(0, 6) + '_';
+        }
+
         let photoUrls = [];
         let currentIndex = 0, activeLayer = 1;
         const layer1 = document.getElementById('layer1');
@@ -205,7 +212,8 @@
         async function fetchPhotos() {
             if (!eventActive) return;
             try {
-                const res = await storage.listFiles(BKT_ID, { prefix: eventId + '/' });
+                const prefix = getEventPrefix(eventId);
+                const res = await storage.listFiles(BKT_ID, { prefix: prefix });
                 photoUrls = (res.files || []).map(f => storage.getFileView(BKT_ID, f.$id));
                 if (photoUrls.length && currentIndex === 0) {
                     const firstUrl = photoUrls[0];
@@ -225,7 +233,8 @@
         client.subscribe(`buckets.${BKT_ID}.files`, response => {
             if (eventActive && response.events.includes('buckets.*.files.*.create')) {
                 const newFile = response.payload;
-                if (newFile.$id.startsWith(eventId + '/') || (newFile.name && newFile.name.startsWith(eventId + '/'))) {
+                const prefix = getEventPrefix(eventId);
+                if (newFile.$id.startsWith(prefix)) {
                     const newUrl = storage.getFileView(BKT_ID, newFile.$id);
                     photoUrls.push(newUrl);
                 }

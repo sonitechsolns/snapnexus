@@ -151,6 +151,13 @@
         let currentEvent = null;
         let currentUser = null;
 
+        // Helper: generate same prefix as in app.html
+        function getEventPrefix(eventId) {
+            let rawPrefix = eventId.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+            if (!rawPrefix.match(/^[a-zA-Z]/)) rawPrefix = 'e' + rawPrefix;
+            return rawPrefix.substring(0, 6) + '_';
+        }
+
         // Auth check
         async function checkAuth() {
             try {
@@ -200,7 +207,8 @@
 
         async function updateStats() {
             try {
-                const response = await storage.listFiles(BKT_ID, { prefix: eventId + '/' });
+                const prefix = getEventPrefix(eventId);
+                const response = await storage.listFiles(BKT_ID, { prefix: prefix });
                 const files = response.files || [];
                 document.getElementById('photoCount').innerText = files.length;
                 const totalSize = files.reduce((sum, f) => sum + (f.sizeOriginal || 0), 0);
@@ -213,7 +221,8 @@
 
         async function loadGallery() {
             try {
-                const response = await storage.listFiles(BKT_ID, { prefix: eventId + '/' });
+                const prefix = getEventPrefix(eventId);
+                const response = await storage.listFiles(BKT_ID, { prefix: prefix });
                 const files = response.files || [];
                 if (files.length === 0) {
                     galleryContainer.innerHTML = `<div class="empty-gallery"><i data-lucide="camera-off"></i><p>No photos uploaded yet.<br>Share the QR code with your guests.</p></div>`;
@@ -269,7 +278,8 @@
             const btn = document.getElementById('downloadZipBtn');
             const original = btn ? btn.innerHTML : 'Download';
             try {
-                const files = (await storage.listFiles(BKT_ID, { prefix: eventId + '/' })).files || [];
+                const prefix = getEventPrefix(eventId);
+                const files = (await storage.listFiles(BKT_ID, { prefix: prefix })).files || [];
                 if (files.length === 0) { alert("No photos to download"); return; }
                 if (btn) {
                     btn.innerHTML = `<i data-lucide="loader"></i> Zipping ${files.length} photos...`;
