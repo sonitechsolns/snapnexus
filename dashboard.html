@@ -119,19 +119,7 @@
             const eventName = prompt('Enter event name (e.g., "Bhavya\'s Wedding"):');
             if (!eventName) return;
             const newEventId = ID.unique();
-            try {
-                await ensureCollection();
-                await databases.createDocument(DB_ID, COLLECTION_ID, newEventId, {
-                    eventName: eventName,
-                    eventId: newEventId,
-                    tier: 'starter',
-                    hostEmail: currentUser.email,
-                    status: 'active',
-                    createdAt: new Date().toISOString()
-                });
-                alert('Event created! Redirecting...');
-                window.location.href = `dashboard.html?event=${newEventId}`;
-            } catch(err) { alert('Failed to create event: ' + err.message); }
+           
         }
         
         async function loadEventDetails() {
