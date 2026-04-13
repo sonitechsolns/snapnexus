@@ -110,7 +110,6 @@
             cursor: not-allowed;
         }
 
-        /* Gallery grid – updated to show more images with download overlay */
         .gallery-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -195,7 +194,6 @@
             <p style="margin-top: 16px; font-size: 0.9rem; color: #94a3b8;" data-aos="fade-up" data-aos-delay="500">Photos appear instantly on the TV wall!</p>
         </div>
 
-        <!-- Read‑only gallery (latest 20 photos) -->
         <div id="galleryContainer" class="gallery-grid" data-aos="fade-up" data-aos-delay="600">
             <div class="empty-gallery">Loading gallery...</div>
         </div>
@@ -210,7 +208,7 @@
         lucide.createIcons();
         AOS.init({ once: true });
 
-        // Appwrite configuration
+        // Appwrite config
         const { Client, Storage, Databases, Query } = Appwrite;
         const client = new Client()
             .setEndpoint('https://cloud.appwrite.io/v1')
@@ -222,9 +220,13 @@
         const EVENTS_TABLE = 'EventsTable';
 
         const urlParams = new URLSearchParams(window.location.search);
-        const eventId = urlParams.get('event') || 'public';
-        document.querySelector('.event-pill').innerHTML = `<i data-lucide="party-popper" style="width:14px;"></i> ${eventId}`;
+        const fullEventId = urlParams.get('event') || 'public';
+        document.querySelector('.event-pill').innerHTML = `<i data-lucide="party-popper" style="width:14px;"></i> ${fullEventId}`;
         lucide.createIcons();
+
+        // Shorten event ID to 12 chars for file prefix (safe within 36 char limit)
+        const shortEventId = fullEventId.substring(0, 12);
+        const filePrefix = shortEventId + '_';  // e.g., "69d8eda10026_"
 
         let eventActive = true;
         const fileInput = document.getElementById('fileInput');
@@ -237,7 +239,7 @@
         async function checkEventStatus() {
             try {
                 const res = await databases.listDocuments(DB_ID, EVENTS_TABLE, [
-                    Query.equal('eventId', eventId)
+                    Query.equal('eventId', fullEventId)
                 ]);
                 if (res.documents.length === 0) {
                     eventActive = false;
@@ -268,15 +270,14 @@
         }
 
         // ------------------------------------------------------------------
-        // 2. Read‑only gallery – fetch latest 20 photos from event folder
+        // 2. Read-only gallery – fetch files that start with filePrefix
         // ------------------------------------------------------------------
         async function loadGallery() {
             if (!eventActive) return;
             const container = document.getElementById('galleryContainer');
             try {
-                // List files inside the event folder (prefix = eventId/)
                 const response = await storage.listFiles(BKT_ID, {
-                    prefix: eventId + '/',
+                    prefix: filePrefix,
                     limit: 20,
                     order: ['createdAt', 'desc']
                 });
@@ -303,7 +304,6 @@
                 container.innerHTML = html;
                 lucide.createIcons();
 
-                // Attach download event listeners
                 document.querySelectorAll('.download-overlay').forEach(el => {
                     el.addEventListener('click', async (e) => {
                         e.stopPropagation();
@@ -337,7 +337,8 @@
         }
 
         // ------------------------------------------------------------------
-        // 4. Upload logic – FIXED: no permissions array, folder encoded in fileId
+        // 4. Upload – generate a short, safe fileId (max 36 chars)
+        //    Format: shortEventId_timestamp_random_safeName
         // ------------------------------------------------------------------
         fileInput.addEventListener('change', async (e) => {
             if (!eventActive) {
@@ -351,17 +352,24 @@
             uploadBtn.innerHTML = '<i data-lucide="loader" style="width:22px;"></i> Uploading...';
             lucide.createIcons();
 
-            // Sanitize filename and create a unique fileId with eventId/ prefix
-            const safeName = file.name.replace(/[^a-z0-9.]/gi, '_').toLowerCase();
-            const timestamp = Date.now();
-            const fileId = `${eventId}/${timestamp}_${safeName}`;
-
+            // Sanitize and truncate filename to max 10 chars
+            let safeName = file.name.replace(/[^a-z0-9.]/gi, '_').toLowerCase();
+            safeName = safeName.substring(0, 10);
+            const timestamp = Date.now().toString().slice(-10); // last 10 digits
+            const random = Math.random().toString(36).substring(2, 6);
+            const fileId = `${shortEventId}_${timestamp}_${random}_${safeName}`; // total approx 12+1+10+1+4+1+10 = 39, but safeName limited to 10 so 39 still >36? Let's recalc: shortEventId max 12, underscore=1, timestamp=10, underscore=1, random=4, underscore=1, safeName max 10 = 12+1+10+1+4+1+10 = 39. Need to reduce. Use 8-char timestamp? We'll take last 8 digits of timestamp. Also shortEventId can be 10 chars.
+            // Better: use shortEventId(10) + '_' + timestamp(8) + '_' + random(4) + '_' + safeName(6) = 10+1+8+1+4+1+6=31 safe.
+            const shortPrefix = shortEventId.substring(0, 10);
+            const shortTimestamp = Date.now().toString().slice(-8);
+            const shortRandom = Math.random().toString(36).substring(2, 6);
+            const shortSafeName = safeName.substring(0, 6);
+            const finalFileId = `${shortPrefix}_${shortTimestamp}_${shortRandom}_${shortSafeName}`;
+            
             try {
-                // ✅ Correct: no 4th parameter – folder is part of fileId
-                await storage.createFile(BKT_ID, fileId, file);
+                await storage.createFile(BKT_ID, finalFileId, file);
                 uploadBtn.innerHTML = '<i data-lucide="check" style="width:22px;"></i> Sent to TV!';
                 lucide.createIcons();
-                loadGallery();  // refresh gallery
+                loadGallery();
                 setTimeout(() => {
                     uploadBtn.innerHTML = originalBtnText;
                     lucide.createIcons();
@@ -383,14 +391,11 @@
             uploadBtn.addEventListener('touchend', () => uploadBtn.style.transform = 'scale(1) translateY(0)');
         }
 
-        // ------------------------------------------------------------------
-        // 5. Initialisation
-        // ------------------------------------------------------------------
         async function init() {
             await checkEventStatus();
             if (eventActive) {
                 await loadGallery();
-                setInterval(loadGallery, 15000); // auto-refresh every 15s
+                setInterval(loadGallery, 15000);
             }
         }
         init();
