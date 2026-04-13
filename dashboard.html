@@ -62,7 +62,7 @@
     </div>
     <div class="dashboard-container">
         <div id="eventContentArea">
-            <!-- This area will show either a "no event" message + create button, or the actual event dashboard -->
+            <div class="create-event-card" id="loadingCard"><i data-lucide="loader" style="width:48px;height:48px;margin-bottom:16px;"></i><h2>Loading...</h2></div>
         </div>
     </div>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
@@ -71,27 +71,56 @@
         const { Client, Account, Storage, Databases, Query, ID } = Appwrite;
         const PROJ_ID = '69d8eda100264f4e42ae';
         const BKT_ID = '69d8f2b800397ad57e50';
-        const DB_ID = '69d8f0b0003c6d1e4d93';
-        const COLLECTION_ID = '69d8f0b0003c6d1e4d93';
+        
+        // ⚠️ REPLACE THIS with your actual Database ID from Step 1
+        const DB_ID = 'YOUR_DATABASE_ID_HERE';   // e.g., '67f8a1b2c3d4e5f6'
+        const COLLECTION_ID = 'EventsTable';
+        
         const client = new Client().setEndpoint('https://cloud.appwrite.io/v1').setProject(PROJ_ID);
         const account = new Account(client);
         const storage = new Storage(client);
         const databases = new Databases(client);
+        
         const urlParams = new URLSearchParams(window.location.search);
         const eventId = urlParams.get('event');
         let currentEvent = null;
         let currentUser = null;
         const contentArea = document.getElementById('eventContentArea');
-
+        
         function getFilePrefix() { return eventId + '_'; }
-
-        async function checkAuth() { try { currentUser = await account.get(); } catch(err) { window.location.href = 'login.html'; } }
-
+        
+        async function ensureCollection() {
+            try {
+                await databases.getCollection(DB_ID, COLLECTION_ID);
+                console.log('Collection exists');
+                return true;
+            } catch(err) {
+                if (err.message.includes('collection not found')) {
+                    console.log('Creating collection...');
+                    await databases.createCollection(DB_ID, COLLECTION_ID, 'EventsTable');
+                    await databases.createStringAttribute(DB_ID, COLLECTION_ID, 'eventName', 256, true);
+                    await databases.createStringAttribute(DB_ID, COLLECTION_ID, 'eventId', 128, true);
+                    await databases.createStringAttribute(DB_ID, COLLECTION_ID, 'tier', 32, true);
+                    await databases.createStringAttribute(DB_ID, COLLECTION_ID, 'hostEmail', 256, true);
+                    await databases.createStringAttribute(DB_ID, COLLECTION_ID, 'status', 32, true);
+                    await databases.createStringAttribute(DB_ID, COLLECTION_ID, 'createdAt', 64, true);
+                    console.log('Collection created');
+                    return true;
+                }
+                throw err;
+            }
+        }
+        
+        async function checkAuth() {
+            try { currentUser = await account.get(); } catch(err) { window.location.href = 'login.html'; }
+        }
+        
         async function createNewEvent() {
             const eventName = prompt('Enter event name (e.g., "Bhavya\'s Wedding"):');
             if (!eventName) return;
             const newEventId = ID.unique();
             try {
+                await ensureCollection();
                 await databases.createDocument(DB_ID, COLLECTION_ID, newEventId, {
                     eventName: eventName,
                     eventId: newEventId,
@@ -100,11 +129,11 @@
                     status: 'active',
                     createdAt: new Date().toISOString()
                 });
-                alert('Event created! Redirecting to dashboard...');
+                alert('Event created! Redirecting...');
                 window.location.href = `dashboard.html?event=${newEventId}`;
             } catch(err) { alert('Failed to create event: ' + err.message); }
         }
-
+        
         async function loadEventDetails() {
             if (!eventId) {
                 contentArea.innerHTML = `<div class="create-event-card" id="noEventCreateBtn"><i data-lucide="plus-circle" style="width:48px;height:48px;margin-bottom:16px;color:#ff9800;"></i><h2>No Event Selected</h2><p style="color:#94a3b8;">Click below to create a new event and start your live wall.</p><button class="btn-physics" style="margin-top:20px;background:linear-gradient(105deg,#fbbf24,#f59e0b);color:#020617;"><i data-lucide="plus"></i> Create New Event</button></div>`;
@@ -114,13 +143,19 @@
                 return;
             }
             try {
+                await ensureCollection();
                 const res = await databases.listDocuments(DB_ID, COLLECTION_ID, [Query.equal('eventId', eventId)]);
                 if (res.documents.length === 0) throw new Error('Event not found');
                 currentEvent = res.documents[0];
                 renderDashboard();
-            } catch(err) { console.error(err); contentArea.innerHTML = `<div class="create-event-card"><i data-lucide="alert-circle"></i><h2>Event Not Found</h2><button class="btn-physics" id="goToCreate">Create New Event</button></div>`; lucide.createIcons(); document.getElementById('goToCreate')?.addEventListener('click', createNewEvent); }
+            } catch(err) { 
+                console.error(err); 
+                contentArea.innerHTML = `<div class="create-event-card"><i data-lucide="alert-circle"></i><h2>Event Not Found</h2><button class="btn-physics" id="goToCreate">Create New Event</button></div>`;
+                lucide.createIcons(); 
+                document.getElementById('goToCreate')?.addEventListener('click', createNewEvent);
+            }
         }
-
+        
         function renderDashboard() {
             const isEnded = currentEvent.status === 'ended';
             const tvPage = (currentEvent.tier === 'pro' || currentEvent.tier === 'premium' || currentEvent.tier === 'vip') ? 'tv_2.html' : 'tv.html';
@@ -143,7 +178,7 @@
             if (!isEnded) { updateStats(); loadGallery(); subscribeToRealtime(); attachEventListeners(); }
             else { document.getElementById('eventContent').innerHTML = `<div class="event-ended-message"><h3><i data-lucide="flag"></i> This event has ended</h3><p>No more uploads are accepted. You can still download existing photos.</p><button id="downloadZipBtnEnded" class="btn-physics">Download All Photos</button></div>`; lucide.createIcons(); document.getElementById('downloadZipBtnEnded')?.addEventListener('click', downloadAllPhotos); }
         }
-
+        
         async function updateStats() {
             try {
                 const prefix = getFilePrefix();
@@ -154,7 +189,7 @@
                 document.getElementById('guestCount').innerText = '—';
             } catch(err) { console.error(err); }
         }
-
+        
         async function loadGallery() {
             try {
                 const prefix = getFilePrefix();
@@ -174,9 +209,9 @@
                 }));
             } catch(err) { console.error(err); }
         }
-
+        
         function subscribeToRealtime() { client.subscribe(`buckets.${BKT_ID}.files`, response => { if (response.events.includes('buckets.*.files.*.create') || response.events.includes('buckets.*.files.*.delete')) { loadGallery(); updateStats(); } }); }
-
+        
         async function downloadAllPhotos() {
             const btn = document.getElementById('downloadZipBtn');
             const original = btn ? btn.innerHTML : 'Download';
@@ -192,7 +227,7 @@
                 if (btn) { btn.innerHTML = `<i data-lucide="check-circle"></i> Done!`; setTimeout(() => { btn.innerHTML = original; lucide.createIcons(); }, 3000); }
             } catch(err) { alert("Download failed: "+err.message); if (btn) btn.innerHTML = original; lucide.createIcons(); }
         }
-
+        
         function attachEventListeners() {
             document.getElementById('printQrBtn')?.addEventListener('click', () => {
                 const guestUrl = `${window.location.origin}/app.html?event=${encodeURIComponent(eventId)}`;
@@ -207,11 +242,11 @@
                 try { await databases.updateDocument(DB_ID, COLLECTION_ID, currentEvent.$id, { status: 'ended' }); alert('Event ended.'); location.reload(); } catch(err) { alert('Failed: '+err.message); }
             });
         }
-
+        
         document.getElementById('createEventTopBtn')?.addEventListener('click', createNewEvent);
         document.getElementById('logoutBtn')?.addEventListener('click', async () => { await account.deleteSession('current'); window.location.href = 'login.html'; });
         document.getElementById('myEventsLink')?.addEventListener('click', (e) => { e.preventDefault(); window.location.href = 'login.html'; });
-
+        
         async function init() { await checkAuth(); await loadEventDetails(); }
         init();
     </script>
