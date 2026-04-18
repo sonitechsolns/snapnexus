@@ -87,7 +87,7 @@
             if (!eventActive) return;
             const container = document.getElementById('galleryContainer');
             try {
-                const prefix = eventId + '_';
+                const prefix = eventId.substring(0, 8) + '_';
                 const files = (await storage.listFiles(BKT_ID, { prefix, limit: 20, order: ['createdAt', 'desc'] })).files || [];
                 if (files.length === 0) { container.innerHTML = `<div class="empty-gallery"><i data-lucide="camera-off"></i><p>No photos yet. Be the first to share!</p></div>`; lucide.createIcons(); return; }
                 let html = '';
@@ -111,8 +111,13 @@
             if (!eventActive) { alert('This event has ended.'); fileInput.value=''; return; }
             const file = e.target.files[0]; if (!file) return;
             uploadBtn.innerHTML = '<i data-lucide="loader"></i> Uploading...'; lucide.createIcons();
-            const timestamp = Date.now(); const random = Math.random().toString(36).substring(2,6);
-            const fileId = `${eventId}_${timestamp}_${random}`;
+            
+            // Short, valid fileId (max 36 chars)
+            const shortEventId = eventId.substring(0, 8);
+            const shortTimestamp = Date.now().toString().slice(-8);
+            const random = Math.random().toString(36).substring(2, 6);
+            const fileId = `${shortEventId}_${shortTimestamp}_${random}`;
+            
             try {
                 await storage.createFile(BKT_ID, fileId, file);
                 uploadBtn.innerHTML = '<i data-lucide="check"></i> Sent to TV!'; lucide.createIcons();

@@ -81,7 +81,9 @@
         let currentEvent = null;
         let currentUser = null;
         const contentArea = document.getElementById('eventContentArea');
-        function getFilePrefix() { return eventId + '_'; }
+        function getFilePrefix() { 
+    return eventId.substring(0, 8) + '_'; 
+}
 
         async function checkAuth() { try { currentUser = await account.get(); } catch(err) { window.location.href = 'login.html'; } }
 
