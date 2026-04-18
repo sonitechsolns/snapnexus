@@ -30,7 +30,6 @@
         .download-overlay i { color:#60a5fa; width:20px; height:20px; }
         .empty-gallery { text-align:center; padding:40px 20px; color:#94a3b8; font-weight:600; }
         .footer-text { margin-top:30px; font-size:0.8rem; color:#64748b; font-weight:600; text-align:center; }
-        .ended-message { text-align:center; padding:20px; color:#f87171; }
         .ended-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); backdrop-filter:blur(20px); display:flex; align-items:center; justify-content:center; z-index:1000; flex-direction:column; text-align:center; }
     </style>
 </head>
@@ -53,22 +52,24 @@
         const databases = new Databases(client);
         const BKT_ID = '69d8f2b800397ad57e50';
         const DB_ID = '69d8f0b0003c6d1e4d93';
-        const COLLECTION_ID = '69d8f0b0003c6d1e4d93';
+        const COLLECTION_ID = 'EventsTable';
         const urlParams = new URLSearchParams(window.location.search);
         const eventId = urlParams.get('event') || 'public';
-        document.querySelector('.event-pill').innerHTML = `<i data-lucide="party-popper"></i> ${eventId}`;
-        lucide.createIcons();
-
         let eventActive = true;
-        const fileInput = document.getElementById('fileInput');
-        const uploadBtn = document.querySelector('#uploadUI .btn-physics');
-        let originalBtnText = uploadBtn ? uploadBtn.innerHTML : '';
+        let eventName = '';
 
-        async function checkEventStatus() {
+        async function fetchEventDetails() {
             try {
                 const res = await databases.listDocuments(DB_ID, COLLECTION_ID, [Query.equal('eventId', eventId)]);
-                if (res.documents.length === 0) { eventActive = false; showEndedOverlay(); return; }
-                eventActive = res.documents[0].status !== 'ended';
+                if (res.documents.length === 0) {
+                    eventActive = false;
+                    showEndedOverlay();
+                    return;
+                }
+                const eventDoc = res.documents[0];
+                eventName = eventDoc.eventName;
+                eventActive = eventDoc.status !== 'ended';
+                document.querySelector('.event-pill').innerHTML = `<i data-lucide="party-popper"></i> ${eventName}`;
                 if (!eventActive) showEndedOverlay();
             } catch(err) { console.error(err); eventActive = false; showEndedOverlay(); }
         }
@@ -77,7 +78,9 @@
             const overlay = document.createElement('div'); overlay.className = 'ended-overlay';
             overlay.innerHTML = `<i data-lucide="flag" style="width:64px;height:64px;margin-bottom:20px;"></i><h2 style="color:#f87171;">Event Concluded</h2><p>This photo wall has ended. Thank you for participating.</p>`;
             document.body.appendChild(overlay); lucide.createIcons();
-            if (uploadBtn) uploadBtn.disabled = true; fileInput.disabled = true;
+            const uploadBtn = document.querySelector('#uploadUI .btn-physics');
+            if (uploadBtn) uploadBtn.disabled = true;
+            document.getElementById('fileInput').disabled = true;
         }
 
         async function loadGallery() {
@@ -99,6 +102,10 @@
                 }));
             } catch(err) { console.error(err); container.innerHTML = `<div class="empty-gallery"><i data-lucide="alert-circle"></i><p>Could not load gallery.</p></div>`; lucide.createIcons(); }
         }
+
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.querySelector('#uploadUI .btn-physics');
+        let originalBtnText = uploadBtn ? uploadBtn.innerHTML : '';
 
         fileInput.addEventListener('change', async (e) => {
             if (!eventActive) { alert('This event has ended.'); fileInput.value=''; return; }
@@ -122,7 +129,7 @@
             uploadBtn.addEventListener('touchend', () => uploadBtn.style.transform = 'scale(1) translateY(0)');
         }
 
-        async function init() { await checkEventStatus(); if (eventActive) { await loadGallery(); setInterval(loadGallery, 15000); } }
+        async function init() { await fetchEventDetails(); if (eventActive) { await loadGallery(); setInterval(loadGallery, 15000); } }
         init();
     </script>
 </body>

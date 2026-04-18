@@ -40,15 +40,20 @@
 <body>
     <div class="liquid-mesh"></div>
     <div class="tv-layout">
-        <div class="sidebar glass-card"><div><div class="logo-text">SnapNexus</div><div class="event-info"><h2 id="displayEventId">Guest Wall</h2><p><i data-lucide="radio"></i> Free Tier</p></div></div><div><div class="qr-container"><img id="qrCode"></div><div style="font-weight:800;">Scan to Join</div></div></div>
-        <div class="main-content"><div class="photo-stage glass-card" id="photoStage"><img id="layer1" class="photo-layer active"><img id="layer2" class="photo-layer"><div class="watermark">SnapNexus</div></div><div class="bottom-ad-bar glass-card"><div class="ad-badge-mini">SPONSORED</div><img class="ad-banner-img" src="https://images.unsplash.com/photo-1551316679-9c6ae9dec224?auto=format&fit=crop&w=400&q=80"><div><h3>Upgrade to VIP</h3><p style="color:#94a3b8;">Remove ads and unlock Fullscreen Mode today.</p></div></div></div>
+        <div class="sidebar glass-card">
+            <div><div class="logo-text">SnapNexus</div><div class="event-info"><h2 id="displayEventId">Guest Wall</h2><p><i data-lucide="radio"></i> Free Tier</p></div></div>
+            <div><div class="qr-container"><img id="qrCode"></div><div style="font-weight:800;">Scan to Join</div></div>
+        </div>
+        <div class="main-content">
+            <div class="photo-stage glass-card" id="photoStage"><img id="layer1" class="photo-layer active"><img id="layer2" class="photo-layer"><div class="watermark">SnapNexus</div></div>
+            <div class="bottom-ad-bar glass-card"><div class="ad-badge-mini">SPONSORED</div><img class="ad-banner-img" src="https://images.unsplash.com/photo-1551316679-9c6ae9dec224?auto=format&fit=crop&w=400&q=80"><div><h3>Upgrade to VIP</h3><p style="color:#94a3b8;">Remove ads and unlock Fullscreen Mode today.</p></div></div>
+        </div>
     </div>
     <div id="adTakeover" class="ad-takeover"><div class="ad-timer-container"><span>RESUMING IN</span><div class="ad-timer-circle" id="adTimer">5</div></div><div class="takeover-badge">SPONSOR AD</div><img class="takeover-img" src="https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&w=1200&q=80"><h2 style="margin-top:30px;font-size:2.5rem;">SnapNexus Pro</h2></div>
     <script>
         lucide.createIcons();
         const urlParams = new URLSearchParams(window.location.search);
         const eventId = urlParams.get('event') || 'TEST';
-        document.getElementById('displayEventId').innerText = `Event: ${eventId}`;
         const joinLink = `${window.location.origin}/app.html?event=${eventId}`;
         document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(joinLink)}`;
 
@@ -56,7 +61,7 @@
         const PROJ_ID = '69d8eda100264f4e42ae';
         const BKT_ID = '69d8f2b800397ad57e50';
         const DB_ID = '69d8f0b0003c6d1e4d93';
-        const COLLECTION_ID = '69d8f0b0003c6d1e4d93';
+        const COLLECTION_ID = 'EventsTable';
         const client = new Client().setEndpoint('https://cloud.appwrite.io/v1').setProject(PROJ_ID);
         const storage = new Storage(client);
         const databases = new Databases(client);
@@ -66,14 +71,27 @@
         const layer1 = document.getElementById('layer1'), layer2 = document.getElementById('layer2');
         let slideshowInterval = null;
         let eventActive = true;
+        let eventName = '';
 
-        async function checkEventStatus() {
+        async function fetchEventDetails() {
             try {
                 const res = await databases.listDocuments(DB_ID, COLLECTION_ID, [Query.equal('eventId', eventId)]);
-                if (res.documents.length === 0) { eventActive = false; showEndedOverlay(); return; }
-                eventActive = res.documents[0].status !== 'ended';
+                if (res.documents.length === 0) {
+                    eventActive = false;
+                    document.getElementById('displayEventId').innerHTML = 'Event Not Found';
+                    showEndedOverlay();
+                    return;
+                }
+                const eventDoc = res.documents[0];
+                eventName = eventDoc.eventName;
+                eventActive = eventDoc.status !== 'ended';
+                document.getElementById('displayEventId').innerHTML = `${eventName}<br><span style="font-size:0.8rem;">${eventId}</span>`;
                 if (!eventActive) showEndedOverlay();
-            } catch(err) { eventActive = false; showEndedOverlay(); }
+            } catch(err) {
+                console.error(err);
+                eventActive = false;
+                showEndedOverlay();
+            }
         }
 
         function showEndedOverlay() {
@@ -91,7 +109,11 @@
                 const prefix = eventId + '_';
                 const files = (await storage.listFiles(BKT_ID, { prefix })).files || [];
                 photoUrls = files.map(f => storage.getFileView(BKT_ID, f.$id));
-                if (photoUrls.length && currentIndex===0) { const firstUrl = photoUrls[0]; if (activeLayer===1) { layer1.src = firstUrl; layer1.classList.add('active'); } else { layer2.src = firstUrl; layer2.classList.add('active'); } }
+                if (photoUrls.length && currentIndex===0) {
+                    const firstUrl = photoUrls[0];
+                    if (activeLayer===1) { layer1.src = firstUrl; layer1.classList.add('active'); }
+                    else { layer2.src = firstUrl; layer2.classList.add('active'); }
+                }
             } catch(err) { console.error(err); }
         }
 
@@ -118,7 +140,13 @@
             else { layer1.src = nextUrl; layer1.classList.add('active'); layer2.classList.remove('active'); activeLayer=1; }
         }
 
-        async function init() { await checkEventStatus(); if (eventActive) { await fetchPhotos(); slideshowInterval = setInterval(nextSlide, 6000); } }
+        async function init() {
+            await fetchEventDetails();
+            if (eventActive) {
+                await fetchPhotos();
+                slideshowInterval = setInterval(nextSlide, 6000);
+            }
+        }
         init();
     </script>
 </body>
