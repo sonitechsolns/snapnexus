@@ -85,7 +85,7 @@
         
         let currentEvent = null;
         let timerInterval = null;
-        let downloadWindowEnd = null; // store end time locally
+        let downloadWindowEnd = null;
 
         // Helper: ensure user is logged in
         async function checkAuth() {
@@ -185,6 +185,7 @@
             document.getElementById('mainContent').innerHTML = `
                 <div style="margin-bottom:20px;">
                     <button id="backToEventsBtn" class="btn-physics btn-outline" style="background:rgba(255,255,255,0.1);"><i data-lucide="arrow-left"></i> Back to My Events</button>
+                    <a href="${liveWallLink}" target="_blank" class="btn-physics" style="margin-left:12px; background:linear-gradient(105deg,#fbbf24,#f59e0b); color:#020617;"><i data-lucide="tv"></i> View Live Wall</a>
                 </div>
                 <h2 id="eventNameHeading" style="margin-bottom:32px;font-size:2.2rem;">${currentEvent.eventName} <span style="color:#60a5fa;">#LiveWall</span></h2>
                 <div class="stats-grid">
@@ -209,31 +210,20 @@
             lucide.createIcons();
             
             document.getElementById('backToEventsBtn')?.addEventListener('click', () => window.location.href = 'dashboard.html');
-            document.getElementById('liveWallLink')?.remove(); // not needed here
             if (isEnded && (!downloadWindowEnd || Date.now() >= downloadWindowEnd)) {
                 document.getElementById('buyArchiveBtn')?.addEventListener('click', () => alert('Payment integration coming soon. Contact sales.'));
                 document.getElementById('downloadZipBtn').disabled = true;
                 document.getElementById('downloadZipBtn').style.opacity = 0.5;
             } else if (isEnded && downloadWindowEnd && Date.now() < downloadWindowEnd) {
-                // timer is active, download button enabled
                 startTimerDisplay();
             }
             
-            if (!isEnded) {
+            if (!isEnded || (isEnded && downloadWindowEnd && Date.now() < downloadWindowEnd)) {
                 updateStats();
                 loadGallery();
                 setInterval(updateStats, 10000);
                 setInterval(loadGallery, 10000);
                 attachEventListeners();
-            } else {
-                // still allow download if within window
-                if (!downloadWindowEnd || Date.now() < downloadWindowEnd) {
-                    updateStats();
-                    loadGallery();
-                    setInterval(updateStats, 10000);
-                    setInterval(loadGallery, 10000);
-                    attachEventListeners();
-                }
             }
         }
 
@@ -259,7 +249,8 @@
 
         async function updateStats() {
             try {
-                const files = (await storage.listFiles(BUCKET_ID)).files || [];
+                const prefix = eventId + '_';
+                const files = (await storage.listFiles(BUCKET_ID, { prefix })).files || [];
                 document.getElementById('photoCount').innerText = files.length;
                 const totalSize = files.reduce((s,f)=> s + (f.sizeOriginal||0),0);
                 document.getElementById('storageUsed').innerText = (totalSize/(1024*1024)).toFixed(1)+' MB';
@@ -269,7 +260,8 @@
 
         async function loadGallery() {
             try {
-                const files = (await storage.listFiles(BUCKET_ID)).files || [];
+                const prefix = eventId + '_';
+                const files = (await storage.listFiles(BUCKET_ID, { prefix })).files || [];
                 const container = document.getElementById('galleryContainer');
                 if (!container) return;
                 if (files.length === 0) {
@@ -311,7 +303,8 @@
             if (!btn) return;
             const original = btn.innerHTML;
             try {
-                const files = (await storage.listFiles(BUCKET_ID)).files || [];
+                const prefix = eventId + '_';
+                const files = (await storage.listFiles(BUCKET_ID, { prefix })).files || [];
                 if (files.length === 0) { alert("No photos to download"); return; }
                 btn.innerHTML = `<i data-lucide="loader"></i> Zipping ${files.length} photos...`;
                 lucide.createIcons();
@@ -356,7 +349,6 @@
                 if (!confirm('End this event? Guests cannot upload more. You will have 10 minutes to download all photos for free.')) return;
                 try {
                     await databases.updateDocument(DB_ID, COLLECTION_ID, currentEvent.$id, { status: 'ended' });
-                    // Start 10-minute window client-side
                     downloadWindowEnd = Date.now() + 10 * 60 * 1000;
                     alert('Event ended. Free download window starts now (10 minutes).');
                     location.reload();
@@ -389,11 +381,11 @@
 
         async function init() {
             await checkAuth();
-            // Check if we have a stored download window from previous session (optional)
             const storedEnd = localStorage.getItem(`downloadWindow_${eventId}`);
             if (storedEnd && eventId) {
                 downloadWindowEnd = parseInt(storedEnd);
                 if (Date.now() >= downloadWindowEnd) localStorage.removeItem(`downloadWindow_${eventId}`);
+                else localStorage.setItem(`downloadWindow_${eventId}`, downloadWindowEnd);
             }
             await loadEventDashboard();
         }

@@ -8,6 +8,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.0"></script>
     <style>
+        /* Same as before */
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Urbanist',sans-serif; background:#020617; color:#ffffff; overflow:hidden; height:100vh; width:100vw; }
         h1,h2,h3 { font-family:'Syne',sans-serif; }
@@ -105,7 +106,8 @@
         async function fetchPhotos() {
             if (!eventActive) return;
             try {
-                const result = await storage.listFiles(BUCKET_ID);
+                const prefix = eventId + '_';
+                const result = await storage.listFiles(BUCKET_ID, { prefix });
                 const files = result.files || [];
                 const newUrls = files.map(f => storage.getFileView(BUCKET_ID, f.$id));
                 if (JSON.stringify(newUrls) !== JSON.stringify(photos)) {

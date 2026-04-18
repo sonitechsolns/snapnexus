@@ -11,7 +11,7 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* (keep your existing CSS – same as before, no changes needed) */
+        /* Same as before – no changes */
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Urbanist',sans-serif; background:#020617; color:#fff; overflow-x:hidden; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; }
         h1,h2,h3 { font-family:'Syne',sans-serif; }
@@ -97,7 +97,8 @@
         async function loadGallery() {
             if (!eventActive) return;
             try {
-                const result = await storage.listFiles(BUCKET_ID);
+                const prefix = eventId + '_';
+                const result = await storage.listFiles(BUCKET_ID, { prefix });
                 const files = result.files || [];
                 const container = document.getElementById('galleryContainer');
                 if (files.length === 0) {
@@ -151,10 +152,11 @@
             uploadBtn.innerHTML = '<i data-lucide="loader" style="width:22px;"></i> Uploading...';
             lucide.createIcons();
 
-            const shortEventId = eventId.substring(0, 8);
+            // Use eventId as prefix to keep files separate
+            const prefix = eventId + '_';
             const timestamp = Date.now().toString().slice(-8);
             const random = Math.random().toString(36).substring(2, 6);
-            const fileId = `${shortEventId}_${timestamp}_${random}`;
+            const fileId = `${prefix}${timestamp}_${random}`;
 
             try {
                 await storage.createFile(BUCKET_ID, fileId, file);
