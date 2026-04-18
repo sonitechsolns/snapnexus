@@ -53,9 +53,8 @@
     <script>
         lucide.createIcons();
         const urlParams = new URLSearchParams(window.location.search);
-        const fullEventId = urlParams.get('event') || 'TEST';
-        const shortPrefix = fullEventId.substring(0, 8) + '_';
-        const joinLink = `${window.location.origin}/app.html?event=${fullEventId}`;
+        const eventId = urlParams.get('event') || 'TEST';
+        const joinLink = `${window.location.origin}/app.html?event=${eventId}`;
         document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(joinLink)}`;
 
         const { Client, Storage, Databases, Query } = Appwrite;
@@ -76,7 +75,7 @@
 
         async function fetchEventDetails() {
             try {
-                const res = await databases.listDocuments(DB_ID, COLLECTION_ID, [Query.equal('eventId', fullEventId)]);
+                const res = await databases.listDocuments(DB_ID, COLLECTION_ID, [Query.equal('eventId', eventId)]);
                 if (res.documents.length === 0) {
                     eventActive = false;
                     document.getElementById('displayEventId').innerHTML = 'Event Not Found';
@@ -86,8 +85,14 @@
                 const eventDoc = res.documents[0];
                 eventName = eventDoc.eventName;
                 eventActive = eventDoc.status !== 'ended';
-                document.getElementById('displayEventId').innerHTML = `${eventName}<br><span style="font-size:0.8rem;">${fullEventId}</span>`;
+                document.getElementById('displayEventId').innerHTML = `${eventName}<br><span style="font-size:0.8rem;">${eventId}</span>`;
                 if (!eventActive) showEndedOverlay();
+                // Subscribe to event status changes
+                client.subscribe(`databases.${DB_ID}.collections.${COLLECTION_ID}.documents`, response => {
+                    if (response.events.includes('databases.*.collections.*.documents.*.update') && response.payload.eventId === eventId) {
+                        if (response.payload.status === 'ended') { eventActive = false; showEndedOverlay(); }
+                    }
+                });
             } catch(err) { console.error(err); eventActive = false; showEndedOverlay(); }
         }
 
@@ -103,7 +108,8 @@
         async function fetchPhotos() {
             if (!eventActive) return;
             try {
-                const files = (await storage.listFiles(BKT_ID, { prefix: shortPrefix })).files || [];
+                const prefix = eventId.substring(0, 8) + '_';
+                const files = (await storage.listFiles(BKT_ID, { prefix })).files || [];
                 photoUrls = files.map(f => storage.getFileView(BKT_ID, f.$id));
                 if (photoUrls.length && currentIndex===0) {
                     const firstUrl = photoUrls[0];
@@ -113,24 +119,14 @@
             } catch(err) { console.error(err); }
         }
 
-        // Real-time subscription for new photos
+        // Realtime subscription for new photos
         client.subscribe(`buckets.${BKT_ID}.files`, response => {
-            if (response.events.includes('buckets.*.files.*.create')) {
+            if (eventActive && response.events.includes('buckets.*.files.*.create')) {
                 const newFile = response.payload;
-                if (newFile.$id.startsWith(shortPrefix)) {
+                const prefix = eventId.substring(0, 8) + '_';
+                if (newFile.$id.startsWith(prefix)) {
                     const newUrl = storage.getFileView(BKT_ID, newFile.$id);
                     photoUrls.push(newUrl);
-                    // If slideshow is idle, you could immediately show the new photo, but we'll just let the interval pick it up.
-                }
-            }
-        });
-
-        // Real-time subscription for event status changes
-        client.subscribe(`databases.${DB_ID}.collections.${COLLECTION_ID}.documents`, response => {
-            if (response.events.includes('databases.*.collections.*.documents.*.update')) {
-                const doc = response.payload;
-                if (doc.eventId === fullEventId) {
-                    fetchEventDetails(); // re-check status
                 }
             }
         });

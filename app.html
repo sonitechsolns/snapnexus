@@ -71,6 +71,12 @@
                 eventActive = eventDoc.status !== 'ended';
                 document.querySelector('.event-pill').innerHTML = `<i data-lucide="party-popper"></i> ${eventName}`;
                 if (!eventActive) showEndedOverlay();
+                // Subscribe to status changes
+                client.subscribe(`databases.${DB_ID}.collections.${COLLECTION_ID}.documents`, response => {
+                    if (response.events.includes('databases.*.collections.*.documents.*.update') && response.payload.eventId === eventId) {
+                        if (response.payload.status === 'ended') { eventActive = false; showEndedOverlay(); }
+                    }
+                });
             } catch(err) { console.error(err); eventActive = false; showEndedOverlay(); }
         }
 
@@ -111,13 +117,10 @@
             if (!eventActive) { alert('This event has ended.'); fileInput.value=''; return; }
             const file = e.target.files[0]; if (!file) return;
             uploadBtn.innerHTML = '<i data-lucide="loader"></i> Uploading...'; lucide.createIcons();
-            
-            // Short, valid fileId (max 36 chars)
             const shortEventId = eventId.substring(0, 8);
             const shortTimestamp = Date.now().toString().slice(-8);
             const random = Math.random().toString(36).substring(2, 6);
             const fileId = `${shortEventId}_${shortTimestamp}_${random}`;
-            
             try {
                 await storage.createFile(BKT_ID, fileId, file);
                 uploadBtn.innerHTML = '<i data-lucide="check"></i> Sent to TV!'; lucide.createIcons();
