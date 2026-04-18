@@ -4,93 +4,125 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SnapNexus | Live Wall</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Urbanist:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.0"></script>
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { background:#020617; color:white; font-family:system-ui; overflow:hidden; height:100vh; display:flex; flex-direction:column; }
-        .header { padding:20px; text-align:center; background:rgba(0,0,0,0.5); }
-        .photo-wall { flex:1; position:relative; display:flex; align-items:center; justify-content:center; }
-        .slide-img { position:absolute; max-width:90%; max-height:85%; object-fit:contain; opacity:0; transition:opacity 1s; border-radius:12px; }
-        .slide-img.active { opacity:1; }
-        .empty { text-align:center; color:#64748b; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Urbanist', sans-serif; background: #020617; color: #ffffff; overflow: hidden; height: 100vh; width: 100vw; }
+        h1, h2, h3 { font-family: 'Syne', sans-serif; }
+        .liquid-mesh { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -3; background: radial-gradient(circle at 20% 30%, #020617, #1e3a8a 30%, #3b82f6 65%, #4f46e5); background-size: 200% 200%; animation: liquidShift 20s ease infinite alternate; }
+        @keyframes liquidShift { 0% { background-position: 0% 0%; } 100% { background-position: 100% 100%; } }
+        .glass-card { background: rgba(20, 30, 55, 0.45); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .tv-layout { display: flex; width: 100%; height: 100%; padding: 30px; gap: 30px; }
+        .sidebar { width: 20%; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 30px 20px; text-align: center; flex-shrink: 0; }
+        .main-content { flex: 1; display: flex; flex-direction: column; gap: 30px; }
+        .logo-text { font-weight: 800; font-size: 1.8rem; background: linear-gradient(135deg, #fde047, #f59e0b); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 10px; }
+        .event-info h2 { font-size: 1.8rem; line-height: 1.1; }
+        .qr-container { background: white; padding: 12px; border-radius: 20px; margin: 20px 0; }
+        .qr-container img { width: 100%; max-width: 180px; display: block; }
+        .photo-stage { flex: 1; position: relative; border-radius: 24px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.4); }
+        .photo-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity 1.2s ease-in-out; }
+        .photo-layer.active { opacity: 1; }
+        .bottom-ad-bar { height: 120px; width: 100%; display: flex; align-items: center; padding: 0 30px; gap: 20px; }
+        .ad-badge-mini { background: linear-gradient(105deg, #fbbf24, #f59e0b); color: #020617; padding: 4px 12px; border-radius: 50px; font-weight: 900; font-size: 0.75rem; }
+        .ad-banner-img { height: 80px; width: 150px; border-radius: 12px; object-fit: cover; }
+        .watermark { position: absolute; bottom: 20px; right: 25px; font-family: 'Syne'; font-weight: 800; font-size: 1.2rem; color: rgba(255,255,255,0.3); z-index: 10; }
     </style>
 </head>
 <body>
-<div class="header">
-    <h2>SnapNexus Live Wall</h2>
-    <div id="eventLabel">Event: loading...</div>
-</div>
-<div class="photo-wall" id="photoWall">
-    <div id="emptyMsg" class="empty">Waiting for first photo...</div>
-    <img id="img1" class="slide-img" alt="">
-    <img id="img2" class="slide-img" alt="">
-</div>
+    <div class="liquid-mesh"></div>
+    <div class="tv-layout">
+        <div class="sidebar glass-card">
+            <div>
+                <div class="logo-text">SnapNexus</div>
+                <div class="event-info"><h2 id="displayEventId">Guest Wall</h2><p><i data-lucide="radio" style="width:16px;"></i> Free Tier</p></div>
+            </div>
+            <div>
+                <div class="qr-container"><img id="qrCode"></div>
+                <div style="font-weight: 800;">Scan to Join</div>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="photo-stage glass-card" id="photoStage">
+                <img id="layer1" class="photo-layer active" src="">
+                <img id="layer2" class="photo-layer" src="">
+                <div class="watermark">SnapNexus</div>
+            </div>
+            <div class="bottom-ad-bar glass-card">
+                <div class="ad-badge-mini">SPONSORED</div>
+                <img class="ad-banner-img" src="https://images.unsplash.com/photo-1551316679-9c6ae9dec224?auto=format&fit=crop&w=400&q=80">
+                <div><h3>Upgrade to VIP</h3><p style="color:#94a3b8;">Remove ads and unlock Fullscreen Mode today.</p></div>
+            </div>
+        </div>
+    </div>
 
-<script>
-    const PROJECT_ID = '69d8eda100264f4e42ae';
-    const BUCKET_ID = '69d8f2b800397ad57e50';
-    const client = new Appwrite.Client()
-        .setEndpoint('https://cloud.appwrite.io/v1')
-        .setProject(PROJECT_ID);
-    const storage = new Appwrite.Storage(client);
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const eventId = urlParams.get('event') || 'test123';
-    document.getElementById('eventLabel').innerText = `Event: ${eventId}`;
-    
-    let photos = [];
-    let currentIndex = 0;
-    let activeImg = 0;
-    let interval = null;
-    const imgElements = [document.getElementById('img1'), document.getElementById('img2')];
-    const emptyMsg = document.getElementById('emptyMsg');
-    
-    async function fetchPhotos() {
-        try {
-            const result = await storage.listFiles(BUCKET_ID);
-            const files = result.files || [];
-            if (files.length === 0) {
-                photos = [];
-                emptyMsg.style.display = 'block';
-                imgElements.forEach(img => img.classList.remove('active'));
-                return;
-            }
-            emptyMsg.style.display = 'none';
-            const newUrls = files.map(f => storage.getFileView(BUCKET_ID, f.$id));
-            // Check if new photos added
-            if (JSON.stringify(newUrls) !== JSON.stringify(photos)) {
-                photos = newUrls;
-                if (photos.length > 0 && currentIndex === 0) {
-                    imgElements[activeImg].src = photos[0];
-                    imgElements[activeImg].classList.add('active');
+    <script>
+        lucide.createIcons();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get('event') || 'demo';
+        document.getElementById('displayEventId').innerHTML = `Event: ${eventId}`;
+        const joinLink = `${window.location.origin}/app.html?event=${eventId}`;
+        document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(joinLink)}`;
+
+        // Appwrite
+        const PROJECT_ID = '69d8eda100264f4e42ae';
+        const BUCKET_ID = '69d8f2b800397ad57e50';
+        const client = new Appwrite.Client()
+            .setEndpoint('https://cloud.appwrite.io/v1')
+            .setProject(PROJECT_ID);
+        const storage = new Appwrite.Storage(client);
+
+        let photos = [];
+        let currentIndex = 0;
+        let activeLayer = 1;
+        const layer1 = document.getElementById('layer1');
+        const layer2 = document.getElementById('layer2');
+
+        async function fetchPhotos() {
+            try {
+                const result = await storage.listFiles(BUCKET_ID);
+                const files = result.files || [];
+                const newUrls = files.map(f => storage.getFileView(BUCKET_ID, f.$id));
+                // Only update if changed
+                if (JSON.stringify(newUrls) !== JSON.stringify(photos)) {
+                    photos = newUrls;
+                    if (photos.length > 0 && currentIndex === 0) {
+                        if (activeLayer === 1) {
+                            layer1.src = photos[0];
+                            layer1.classList.add('active');
+                        } else {
+                            layer2.src = photos[0];
+                            layer2.classList.add('active');
+                        }
+                    }
                 }
+            } catch (err) {
+                console.error('Fetch error:', err);
             }
-        } catch(err) {
-            console.error(err);
         }
-    }
-    
-    function startSlideshow() {
-        if (interval) clearInterval(interval);
-        if (photos.length === 0) return;
-        interval = setInterval(() => {
+
+        function nextSlide() {
             if (photos.length === 0) return;
             currentIndex = (currentIndex + 1) % photos.length;
-            const nextActive = 1 - activeImg;
-            imgElements[nextActive].src = photos[currentIndex];
-            imgElements[nextActive].classList.add('active');
-            imgElements[activeImg].classList.remove('active');
-            activeImg = nextActive;
-        }, 5000);
-    }
-    
-    async function refresh() {
-        await fetchPhotos();
-        startSlideshow();
-    }
-    
-    refresh();
-    setInterval(refresh, 5000);
-</script>
+            const nextUrl = photos[currentIndex];
+            if (activeLayer === 1) {
+                layer2.src = nextUrl;
+                layer2.classList.add('active');
+                layer1.classList.remove('active');
+                activeLayer = 2;
+            } else {
+                layer1.src = nextUrl;
+                layer1.classList.add('active');
+                layer2.classList.remove('active');
+                activeLayer = 1;
+            }
+        }
+
+        fetchPhotos();
+        setInterval(fetchPhotos, 5000);
+        setInterval(nextSlide, 6000);
+    </script>
 </body>
 </html>
