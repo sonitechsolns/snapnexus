@@ -53,8 +53,9 @@
     <script>
         lucide.createIcons();
         const urlParams = new URLSearchParams(window.location.search);
-        const eventId = urlParams.get('event') || 'TEST';
-        const joinLink = `${window.location.origin}/app.html?event=${eventId}`;
+        const fullEventId = urlParams.get('event') || 'TEST';
+        const shortPrefix = fullEventId.substring(0, 8) + '_';
+        const joinLink = `${window.location.origin}/app.html?event=${fullEventId}`;
         document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(joinLink)}`;
 
         const { Client, Storage, Databases, Query } = Appwrite;
@@ -75,7 +76,7 @@
 
         async function fetchEventDetails() {
             try {
-                const res = await databases.listDocuments(DB_ID, COLLECTION_ID, [Query.equal('eventId', eventId)]);
+                const res = await databases.listDocuments(DB_ID, COLLECTION_ID, [Query.equal('eventId', fullEventId)]);
                 if (res.documents.length === 0) {
                     eventActive = false;
                     document.getElementById('displayEventId').innerHTML = 'Event Not Found';
@@ -85,13 +86,9 @@
                 const eventDoc = res.documents[0];
                 eventName = eventDoc.eventName;
                 eventActive = eventDoc.status !== 'ended';
-                document.getElementById('displayEventId').innerHTML = `${eventName}<br><span style="font-size:0.8rem;">${eventId}</span>`;
+                document.getElementById('displayEventId').innerHTML = `${eventName}<br><span style="font-size:0.8rem;">${fullEventId}</span>`;
                 if (!eventActive) showEndedOverlay();
-            } catch(err) {
-                console.error(err);
-                eventActive = false;
-                showEndedOverlay();
-            }
+            } catch(err) { console.error(err); eventActive = false; showEndedOverlay(); }
         }
 
         function showEndedOverlay() {
@@ -106,8 +103,7 @@
         async function fetchPhotos() {
             if (!eventActive) return;
             try {
-                const prefix = eventId + '_';
-                const files = (await storage.listFiles(BKT_ID, { prefix })).files || [];
+                const files = (await storage.listFiles(BKT_ID, { prefix: shortPrefix })).files || [];
                 photoUrls = files.map(f => storage.getFileView(BKT_ID, f.$id));
                 if (photoUrls.length && currentIndex===0) {
                     const firstUrl = photoUrls[0];
@@ -117,10 +113,25 @@
             } catch(err) { console.error(err); }
         }
 
+        // Real-time subscription for new photos
         client.subscribe(`buckets.${BKT_ID}.files`, response => {
-            if (eventActive && response.events.includes('buckets.*.files.*.create')) {
+            if (response.events.includes('buckets.*.files.*.create')) {
                 const newFile = response.payload;
-                if (newFile.$id.startsWith(eventId + '_')) { photoUrls.push(storage.getFileView(BKT_ID, newFile.$id)); }
+                if (newFile.$id.startsWith(shortPrefix)) {
+                    const newUrl = storage.getFileView(BKT_ID, newFile.$id);
+                    photoUrls.push(newUrl);
+                    // If slideshow is idle, you could immediately show the new photo, but we'll just let the interval pick it up.
+                }
+            }
+        });
+
+        // Real-time subscription for event status changes
+        client.subscribe(`databases.${DB_ID}.collections.${COLLECTION_ID}.documents`, response => {
+            if (response.events.includes('databases.*.collections.*.documents.*.update')) {
+                const doc = response.payload;
+                if (doc.eventId === fullEventId) {
+                    fetchEventDetails(); // re-check status
+                }
             }
         });
 

@@ -81,9 +81,10 @@
         let currentEvent = null;
         let currentUser = null;
         const contentArea = document.getElementById('eventContentArea');
+        
         function getFilePrefix() { 
-    return eventId.substring(0, 8) + '_'; 
-}
+            return eventId.substring(0, 8) + '_'; 
+        }
 
         async function checkAuth() { try { currentUser = await account.get(); } catch(err) { window.location.href = 'login.html'; } }
 
@@ -97,8 +98,7 @@
                     eventId: newEventId,
                     tier: 'starter',
                     hostEmail: currentUser.email,
-                    status: 'active',
-                    createdAt: new Date().toISOString()
+                    status: 'active'
                 });
                 alert('Event created!');
                 window.location.href = `dashboard.html?event=${newEventId}`;
@@ -119,7 +119,22 @@
                 currentEvent = res.documents[0];
                 renderDashboard();
                 document.getElementById('liveWallLink').style.display = 'inline-flex';
+                // Subscribe to event status changes for real-time update
+                subscribeToEventStatus();
             } catch(err) { console.error(err); contentArea.innerHTML = `<div class="create-event-card"><i data-lucide="alert-circle"></i><h2>Event Not Found</h2><button class="btn-physics" id="goToCreate">Create New Event</button></div>`; lucide.createIcons(); document.getElementById('goToCreate')?.addEventListener('click', createNewEvent); }
+        }
+
+        function subscribeToEventStatus() {
+            const channel = `databases.${DB_ID}.collections.${COLLECTION_ID}.documents`;
+            client.subscribe(channel, (response) => {
+                if (response.events.includes('databases.*.collections.*.documents.*.update')) {
+                    const doc = response.payload;
+                    if (doc.eventId === eventId && doc.status === 'ended') {
+                        alert('This event has been ended by the host. Reloading...');
+                        location.reload();
+                    }
+                }
+            });
         }
 
         function renderDashboard() {
